@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { Ticket } from '../../../core/models/ticket.model';
-
+import { RouterModule } from '@angular/router';
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-ticket-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, RouterLink],
   templateUrl: './ticket-list.component.html',
   styleUrl: './ticket-list.component.css'
 })
