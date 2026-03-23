@@ -1,0 +1,401 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700;800&display=swap');
+
+.form-wrap * {
+    font-family: 'DM Sans', sans-serif;
+}
+
+.brand-font {
+    font-family: 'Syne', sans-serif;
+}
+
+.glass {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.field-base {
+    width: 100%;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+}
+
+.field-base:focus {
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08);
+}
+
+.field-base.ng-invalid.ng-touched {
+    border-color: rgba(248, 113, 113, 0.5);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.06);
+}
+
+.field-base::placeholder {
+    color: rgba(148, 163, 184, 0.5);
+}
+
+select.field-base option {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.label-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.required-star {
+    color: #f87171;
+    margin-left: 2px;
+}
+
+.error-msg {
+    font-size: 11px;
+    color: #f87171;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.priority-btn {
+    flex: 1;
+    padding: 8px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: rgba(30, 41, 59, 0.6);
+    color: #94a3b8;
+}
+
+.priority-btn.selected-CRITIQUE {
+    border-color: rgba(239, 68, 68, 0.6);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+.priority-btn.selected-HAUTE {
+    border-color: rgba(249, 115, 22, 0.6);
+    background: rgba(249, 115, 22, 0.1);
+    color: #fb923c;
+}
+
+.priority-btn.selected-NORMAL {
+    border-color: rgba(234, 179, 8, 0.6);
+    background: rgba(234, 179, 8, 0.1);
+    color: #fbbf24;
+}
+
+.priority-btn.selected-FAIBLE {
+    border-color: rgba(34, 197, 94, 0.6);
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+}
+
+.priority-btn:hover:not([disabled]) {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
+}
+
+.drop-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(30, 41, 59, 0.3);
+}
+
+.drop-zone.drag-over {
+    border-color: rgba(56, 189, 248, 0.5);
+    background: rgba(56, 189, 248, 0.05);
+}
+
+.drop-zone:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+
+.step-dot.done {
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    color: #fff;
+}
+
+.step-dot.active {
+    background: rgba(56, 189, 248, 0.15);
+    border: 2px solid #38bdf8;
+    color: #38bdf8;
+}
+
+.step-dot.idle {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #475569;
+}
+
+.step-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    transition: background 0.3s;
+}
+
+.step-line.done {
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 24px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(56, 189, 248, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    padding: 11px 20px;
+    border-radius: 10px;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(30, 41, 59, 0.9);
+    color: #e2e8f0;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.char-count {
+    font-size: 11px;
+    color: #475569;
+    text-align: right;
+    margin-top: 3px;
+}
+
+.char-count.warn {
+    color: #f59e0b;
+}
+
+.preview-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+}
+
+.slide-in {
+    animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.success-bounce {
+    animation: successBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.field-base-light {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all;
+  }
+  
+  .label-text-light {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+  
+  .error-msg-light {
+    @apply flex items-center gap-1 text-xs text-red-500;
+  }
+  
+  .char-count-light {
+    @apply text-xs text-gray-400;
+  }
+  
+  .char-count-light.warn-light {
+    @apply text-amber-500;
+  }
+  
+  .step-dot-light {
+    @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all;
+  }
+  
+  .step-dot-light.idle-light {
+    @apply bg-gray-100 border border-gray-300 text-gray-500;
+  }
+  
+  .step-dot-light.active-light {
+    @apply bg-sky-500 text-white shadow-md shadow-sky-200;
+  }
+  
+  .step-dot-light.done-light {
+    @apply bg-emerald-500 text-white;
+  }
+  
+  .step-line-light {
+    @apply flex-1 h-0.5 bg-gray-200 transition-all;
+  }
+  
+  .step-line-light.done-light {
+    @apply bg-emerald-500;
+  }
+  
+  .priority-btn-light {
+    @apply flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all;
+  }
+  
+  .priority-btn-light.selected-Critique-light,
+  .priority-btn-light.selected-Élevée-light {
+    @apply bg-red-50 border-red-300 text-red-700;
+  }
+  
+  .priority-btn-light.selected-Moyenne-light {
+    @apply bg-yellow-50 border-yellow-300 text-yellow-700;
+  }
+  
+  .priority-btn-light.selected-Basse-light {
+    @apply bg-green-50 border-green-300 text-green-700;
+  }
+  
+  .btn-primary-light {
+    @apply px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-secondary-light {
+    @apply px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors;
+  }
+  
+  .drop-zone-light {
+    @apply border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer transition-all hover:border-sky-400 bg-gray-50;
+  }
+  
+  .drop-zone-light.drag-over-light {
+    @apply border-sky-500 bg-sky-50;
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .slide-in {
+    animation: slideIn 0.4s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .success-bounce {
+    animation: bounce 0.5s ease-out;
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+@keyframes successBounce {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
