@@ -1,0 +1,141 @@
+import { Component, HostListener, OnInit, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NavLink } from '../../core/models/nav-link.model';
+import { ProfileMenuItem } from '../../core/models/profile-menu-item.model';
+
+interface Notification {
+  id: number;
+  type: string;
+  message: string;
+  time: string;
+  unread: boolean;
+}
+
+@Component({
+  selector: 'app-bar',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './app-bar.component.html',
+  styleUrls: ['./app-bar.component.css']
+})
+export class AppBarComponent implements OnInit {
+  activeNav = 'Dashboard';
+  notifOpen = false;
+  profileOpen = false;
+  searchOpen = false;
+  mobileOpen = false;
+  searchQuery = '';
+
+  userName = 'Mohamed Amine O.';
+  userInitials = 'MA';
+  userEmail = 'm.ounelli@enicarthage.tn';
+  userRole: 'Administrateur' | 'Technicien' | 'Utilisateur' = 'Technicien';
+  userPoints = 680;
+  pointsPercent = 68;
+
+  navLinks: NavLink[] = [
+    { label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { label: 'Tickets', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+    { label: 'Équipements', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18' },
+    { label: 'Maintenance', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+    { label: 'Classement', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' }
+  ];
+
+  notifications: Notification[] = [
+    { id: 1, type: 'critical', message: 'Ticket #042 — Panne critique en Salle B12', time: '2 min', unread: true },
+    { id: 2, type: 'assign', message: 'Ticket #039 vous a été assigné', time: '15 min', unread: true },
+    { id: 3, type: 'sla', message: 'SLA dépassé pour Ticket #037', time: '1h', unread: true },
+    { id: 4, type: 'badge', message: 'Badge « Rapide » obtenu ! 🏅', time: '3h', unread: false },
+    { id: 5, type: 'status', message: 'Ticket #031 — Statut changé : Résolu', time: '5h', unread: false }
+  ];
+
+  profileMenuItems: ProfileMenuItem[] = [
+    { label: 'Mon Profil', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+    { label: 'Mes Tickets', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+    { label: 'Mes Badges', icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z' },
+    { label: 'Paramètres', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
+  ];
+
+  typeColors: Record<string, string> = {
+    critical: 'bg-red-500',
+    assign: 'bg-blue-500',
+    sla: 'bg-amber-500',
+    badge: 'bg-purple-500',
+    status: 'bg-emerald-500'
+  };
+
+  roleColors: Record<string, string> = {
+    Administrateur: 'text-violet-400 bg-violet-400/10 border-violet-400/30',
+    Technicien: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/30',
+    Utilisateur: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30'
+  };
+
+  private searchTerms = ['Ticket #042', 'Salle B12', 'Projecteur Sony', 'Technicien Ounelli', 'Rapport mensuel'];
+
+  constructor(private elRef: ElementRef, private renderer: Renderer2) {}
+
+  ngOnInit(): void {}
+
+  get unreadCount(): number {
+    return this.notifications.filter((n) => n.unread).length;
+  }
+
+  get searchSuggestions(): string[] {
+    if (!this.searchQuery) return [];
+    return this.searchTerms.filter((s) => s.toLowerCase().includes(this.searchQuery.toLowerCase()));
+  }
+
+  setActiveNav(label: string): void {
+    this.activeNav = label;
+  }
+
+  toggleNotif(): void {
+    this.notifOpen = !this.notifOpen;
+    if (this.profileOpen) this.profileOpen = false;
+  }
+
+  toggleProfile(): void {
+    this.profileOpen = !this.profileOpen;
+    if (this.notifOpen) this.notifOpen = false;
+  }
+
+  closeSearch(): void {
+    this.searchOpen = false;
+    this.searchQuery = '';
+  }
+
+  markAllRead(): void {
+    this.notifications = this.notifications.map((n) => ({ ...n, unread: false }));
+  }
+
+  markRead(id: number): void {
+    this.notifications = this.notifications.map((n) => (n.id === id ? { ...n, unread: false } : n));
+  }
+
+  logout(): void {
+    console.log('logout');
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    
+    const profileContainer = this.elRef.nativeElement.querySelector('[data-profile]');
+    const notifContainer = this.elRef.nativeElement.querySelector('[data-notif]');
+    const searchContainer = this.elRef.nativeElement.querySelector('[data-search]');
+    
+    if (profileContainer && !profileContainer.contains(target)) {
+      this.profileOpen = false;
+    }
+    
+    if (notifContainer && !notifContainer.contains(target)) {
+      this.notifOpen = false;
+    }
+    
+    if (searchContainer && !searchContainer.contains(target)) {
+      this.searchOpen = false;
+      this.searchQuery = '';
+    }
+  }
+}
