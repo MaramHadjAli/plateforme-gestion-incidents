@@ -1,15 +1,15 @@
 package tn.enicarthage.plate_be.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
-public class Utilisateur {
+public class Utilisateur implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,59 +20,49 @@ public class Utilisateur {
     @Column(unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     @Enumerated(EnumType.STRING)
     private ROLE role;
 
-    public Long getId() {
-        return id;
+    public Utilisateur() {}
+
+    // GETTERS / SETTERS
+    public Long getId() { return id; }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPassword(String password) { this.password = password; }
+    public ROLE getRole() { return role; }
+    public void setRole(ROLE role) { this.role = role; }
+
+    // 🔐 SECURITY
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + role.name())
+        );
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Override
+    public String getPassword() { return password; }
 
-    public String getNom() {
-        return nom;
-    }
+    @Override
+    public String getUsername() { return email; }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
+    @Override
+    public boolean isAccountNonExpired() { return true; }
 
-    public String getEmail() {
-        return email;
-    }
+    @Override
+    public boolean isAccountNonLocked() { return true; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public ROLE getRole() {
-        return role;
-    }
-
-    public void setRole(ROLE role) {
-        this.role = role;
-    }    
-
+    @Override
+    public boolean isEnabled() { return enabled; }
 }

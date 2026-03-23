@@ -2,12 +2,10 @@ package tn.enicarthage.plate_be.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -16,8 +14,6 @@ import tn.enicarthage.plate_be.entities.Utilisateur;
 import tn.enicarthage.plate_be.repositories.UserRepository;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -44,11 +40,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Utilisateur user = userRepository.findByEmail(email).orElse(null);
 
             if (user != null) {
-
-                List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(user, null, authorities);
+                        new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                user.getAuthorities()
+                        );
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
