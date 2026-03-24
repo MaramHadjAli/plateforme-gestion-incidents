@@ -1,8 +1,15 @@
 package tn.enicarthage.plate_be.entities;
 
-import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.Setter;
 
-@Entity
+import java.time.LocalDateTime;
+
+@Setter
+@Getter
 public class TraceLogin {
+    private String email;
+    private String action;
+    private LocalDateTime date;
 
 }
