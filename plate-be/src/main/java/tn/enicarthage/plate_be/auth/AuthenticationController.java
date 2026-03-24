@@ -1,25 +1,46 @@
 package tn.enicarthage.plate_be.auth;
 
-import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import tn.enicarthage.plate_be.dtos.auth.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService AuthenticationService;
+    private final AuthenticationService service;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(AuthenticationService.register(request));
+    public AuthenticationController(AuthenticationService service) {
+        this.service = service;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(AuthenticationService.login(request));
+public class AuthenticationService {
+
+
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        throw new UnsupportedOperationException("authenticate(...) not implemented yet");
+    }
+
+    public @Nullable Object register(RegisterRequest request) {
+        throw new UnsupportedOperationException("Unimplemented method 'register'");
+    }
+
+}
+    @PostMapping("/register")
+    public ResponseEntity<@Nullable Object> register(
+            @RequestBody RegisterRequest request
+    ) {
+        return ResponseEntity.ok(service.register(request));
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @RequestBody AuthenticationRequest request
+    ) {
+        return ResponseEntity.ok(service.authenticate(request));
     }
 }
