@@ -4,5 +4,4 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Adminstrateur extends Utilisateur {
-
 }
