@@ -3,6 +3,6 @@ package tn.enicarthage.plate_be.entities;
 import jakarta.persistence.Entity;
 
 @Entity
-public class Adminstrateur {
+public class Adminstrateur extends Utilisateur {
 
 }
