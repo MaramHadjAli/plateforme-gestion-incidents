@@ -1,7 +1,6 @@
 package tn.enicarthage.plate_be.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
-
 public class RefreshTokenRequest {
     @NotBlank
     private String refreshToken;
@@ -13,4 +12,5 @@ public class RefreshTokenRequest {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
 }

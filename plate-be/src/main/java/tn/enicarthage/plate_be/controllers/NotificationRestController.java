@@ -1,6 +1,5 @@
 package tn.enicarthage.plate_be.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,8 +12,11 @@ import tn.enicarthage.plate_be.websocket.NotificationService;
 @RequestMapping("/api/notifications")
 public class NotificationRestController {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
+
+    public NotificationRestController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @PostMapping("/send-to-admin")
     public ResponseEntity<String> sendToAdmin(@RequestBody NotificationMessage notification) {

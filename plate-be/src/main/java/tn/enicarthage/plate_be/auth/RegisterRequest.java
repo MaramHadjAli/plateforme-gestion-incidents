@@ -1,14 +1,17 @@
 package tn.enicarthage.plate_be.auth;
 
+import lombok.Getter;
+import lombok.Setter;
 import tn.enicarthage.plate_be.entities.ROLE;
 
+@Getter
 public class RegisterRequest {
-    private String nom;
+    private final String nom;
+    @Setter
     private String email;
-    private String password;
+    private final String password;
+    @Setter
     private ROLE role;
-
-    public RegisterRequest() {}
 
     public RegisterRequest(String nom, String email, String password, ROLE role) {
         this.nom = nom;
@@ -17,12 +20,4 @@ public class RegisterRequest {
         this.role = role;
     }
 
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-    public ROLE getRole() { return role; }
-    public void setRole(ROLE role) { this.role = role; }
 }

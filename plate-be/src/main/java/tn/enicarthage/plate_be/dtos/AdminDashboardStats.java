@@ -1,7 +1,12 @@
 package tn.enicarthage.plate_be.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Map;
 
+@Setter
+@Getter
 public class AdminDashboardStats {
     private long totalTickets;
     private long totalUsers;
@@ -17,15 +22,4 @@ public class AdminDashboardStats {
         this.ticketsByStatus = ticketsByStatus;
     }
 
-    public long getTotalTickets() { return totalTickets; }
-    public void setTotalTickets(long totalTickets) { this.totalTickets = totalTickets; }
-
-    public long getTotalUsers() { return totalUsers; }
-    public void setTotalUsers(long totalUsers) { this.totalUsers = totalUsers; }
-
-    public long getTotalTechnicians() { return totalTechnicians; }
-    public void setTotalTechnicians(long totalTechnicians) { this.totalTechnicians = totalTechnicians; }
-
-    public Map<String, Long> getTicketsByStatus() { return ticketsByStatus; }
-    public void setTicketsByStatus(Map<String, Long> ticketsByStatus) { this.ticketsByStatus = ticketsByStatus; }
 }

@@ -1,6 +1,8 @@
 package tn.enicarthage.plate_be.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,34 +13,38 @@ import java.util.Collections;
 @Entity
 public class Utilisateur implements UserDetails {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
+    @Setter
     private String nom;
 
+    @Getter
+    @Setter
     @Column(unique = true)
     private String email;
 
+    @Setter
     @Column(nullable = false)
     private String password;
 
+    @Setter
     private boolean enabled = true;
 
+    @Setter
+    @Getter
     @Enumerated(EnumType.STRING)
     private ROLE role;
 
     public Utilisateur() {}
 
-    public Long getId() { return id; }
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public void setPassword(String password) { this.password = password; }
-    public ROLE getRole() { return role; }
-    public void setRole(ROLE role) { this.role = role; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
     public static UtilisateurBuilder builder() {
         return new UtilisateurBuilder();
@@ -75,8 +81,6 @@ public class Utilisateur implements UserDetails {
         );
     }
 
-    @Override
-    public String getPassword() { return password; }
 
     @Override
     public String getUsername() { return email; }

@@ -1,5 +1,8 @@
 package tn.enicarthage.plate_be.dtos;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 public class NotificationMessage {
@@ -7,7 +10,10 @@ public class NotificationMessage {
     private String type;
     private String title;
     private String message;
+    @Getter
     private String ticketId;
+    @Setter
+    @Getter
     private String sender;
     private LocalDateTime timestamp;
     private String severity;
@@ -24,27 +30,4 @@ public class NotificationMessage {
         this.timestamp = LocalDateTime.now();
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-
-    public String getTicketId() { return ticketId; }
-    public void setTicketId(String ticketId) { this.ticketId = ticketId; }
-
-    public String getSender() { return sender; }
-    public void setSender(String sender) { this.sender = sender; }
-
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
-
-    public String getSeverity() { return severity; }
-    public void setSeverity(String severity) { this.severity = severity; }
 }

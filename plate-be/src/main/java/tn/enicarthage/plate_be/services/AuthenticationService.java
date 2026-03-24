@@ -1,6 +1,5 @@
 package tn.enicarthage.plate_be.services;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -23,6 +21,22 @@ public class AuthenticationService {
     private final TraceLoginRepository traceRepo;
     private final EmailService emailService;
     private final RefreshTokenService refreshTokenService;
+
+    public AuthenticationService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil,
+            TraceLoginRepository traceRepo,
+            EmailService emailService,
+            RefreshTokenService refreshTokenService
+    ) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.traceRepo = traceRepo;
+        this.emailService = emailService;
+        this.refreshTokenService = refreshTokenService;
+    }
 
     public Utilisateur register(RegisterRequest request) {
 
