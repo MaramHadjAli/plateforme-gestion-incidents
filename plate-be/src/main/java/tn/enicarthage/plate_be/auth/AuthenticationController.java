@@ -1,5 +1,6 @@
 package tn.enicarthage.plate_be.auth;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,20 +38,20 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.ok(service.register(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request
     ) {
         return ResponseEntity.ok(service.login(request));
     }
 
     @PostMapping("/refreshtoken")
-    public ResponseEntity<?> refreshtoken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<?> refreshtoken(@Valid @RequestBody RefreshTokenRequest request) {
         String requestRefreshToken = request.getRefreshToken();
 
         return refreshTokenService.findByToken(requestRefreshToken)
@@ -64,7 +65,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         try {
             passwordResetService.initiateForgotPassword(request.getEmail());
             return ResponseEntity.ok(new PasswordResetResponse(
@@ -80,7 +81,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
             // Vérifie que les mots de passe correspondent
             if (!request.getNewPassword().equals(request.getConfirmPassword())) {
@@ -110,5 +111,6 @@ public class AuthenticationController {
             ));
         }
     }
+}
 
 
