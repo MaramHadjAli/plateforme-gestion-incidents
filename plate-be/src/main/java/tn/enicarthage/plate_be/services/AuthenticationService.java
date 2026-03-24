@@ -11,6 +11,7 @@ import tn.enicarthage.plate_be.repositories.*;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TraceLoginRepository traceRepo;
+    private final EmailService emailService;
 
     public Utilisateur register(RegisterRequest request) {
 
@@ -27,13 +29,20 @@ public class AuthenticationService {
             throw new RuntimeException("Email déjà utilisé");
         }
 
-        Utilisateur user = new Utilisateur();
-        user.setNom(request.getNom());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+        Utilisateur user = Utilisateur.builder()
+                .nom(request.getNom())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .enabled(false)
+                .build();
 
-        return userRepository.save(user);
+        Utilisateur savedUser = userRepository.save(user);
+
+        String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
+        emailService.sendConfirmationEmail(user.getEmail(), user.getNom(), confirmationLink);
+
+        return savedUser;
     }
 
     public String login(LoginRequest request) {

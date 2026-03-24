@@ -30,7 +30,6 @@ public class Utilisateur implements UserDetails {
 
     public Utilisateur() {}
 
-    // GETTERS / SETTERS
     public Long getId() { return id; }
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
@@ -39,8 +38,36 @@ public class Utilisateur implements UserDetails {
     public void setPassword(String password) { this.password = password; }
     public ROLE getRole() { return role; }
     public void setRole(ROLE role) { this.role = role; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 
-    // 🔐 SECURITY
+    public static UtilisateurBuilder builder() {
+        return new UtilisateurBuilder();
+    }
+
+    public static class UtilisateurBuilder {
+        private String nom;
+        private String email;
+        private String password;
+        private ROLE role;
+        private boolean enabled = true;
+
+        public UtilisateurBuilder nom(String nom) { this.nom = nom; return this; }
+        public UtilisateurBuilder email(String email) { this.email = email; return this; }
+        public UtilisateurBuilder password(String password) { this.password = password; return this; }
+        public UtilisateurBuilder role(ROLE role) { this.role = role; return this; }
+        public UtilisateurBuilder enabled(boolean enabled) { this.enabled = enabled; return this; }
+        
+        public Utilisateur build() {
+            Utilisateur user = new Utilisateur();
+            user.setNom(nom);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setRole(role);
+            user.setEnabled(enabled);
+            return user;
+        }
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(
