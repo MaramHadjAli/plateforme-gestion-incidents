@@ -22,6 +22,7 @@ public class AuthenticationService {
     private final JwtUtil jwtUtil;
     private final TraceLoginRepository traceRepo;
     private final EmailService emailService;
+    private final RefreshTokenService refreshTokenService;
 
     public Utilisateur register(RegisterRequest request) {
 
@@ -45,7 +46,7 @@ public class AuthenticationService {
         return savedUser;
     }
 
-    public String login(LoginRequest request) {
+    public AuthenticationResponse login(LoginRequest request) {
 
         Utilisateur user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -60,6 +61,9 @@ public class AuthenticationService {
         log.setDate(LocalDateTime.now());
         traceRepo.save(log);
 
-        return jwtUtil.generateToken(user);
+        String jwt = jwtUtil.generateToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+        return new AuthenticationResponse(jwt, refreshToken.getToken());
     }
 }
