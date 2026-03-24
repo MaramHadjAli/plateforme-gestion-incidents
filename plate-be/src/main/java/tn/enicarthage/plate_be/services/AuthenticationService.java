@@ -1,9 +1,10 @@
-package tn.enicarthage.plate_be.auth;
+package tn.enicarthage.plate_be.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import tn.enicarthage.plate_be.auth.RegisterRequest;
 import tn.enicarthage.plate_be.dtos.auth.*;
 import tn.enicarthage.plate_be.entities.*;
 import tn.enicarthage.plate_be.repositories.*;
