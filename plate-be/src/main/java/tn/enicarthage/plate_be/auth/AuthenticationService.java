@@ -44,7 +44,6 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid password");
         }
 
-        // LOG
         TraceLogin log = new TraceLogin();
         log.setEmail(user.getEmail());
         log.setAction("LOGIN_SUCCESS");
