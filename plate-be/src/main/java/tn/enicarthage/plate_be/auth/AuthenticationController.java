@@ -5,12 +5,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tn.enicarthage.plate_be.dtos.auth.LoginRequest;
-import tn.enicarthage.plate_be.dtos.auth.RefreshTokenRequest;
-import tn.enicarthage.plate_be.dtos.auth.RefreshTokenResponse;
+import tn.enicarthage.plate_be.dtos.auth.*;
 import tn.enicarthage.plate_be.entities.RefreshToken;
+import tn.enicarthage.plate_be.exceptions.PasswordResetException;
 import tn.enicarthage.plate_be.services.AuthenticationService;
 import tn.enicarthage.plate_be.services.RefreshTokenService;
+import tn.enicarthage.plate_be.services.PasswordResetService;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
 @RestController
@@ -19,12 +19,19 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
     private final RefreshTokenService refreshTokenService;
+    private final PasswordResetService passwordResetService;
     private final JwtUtil jwtUtil;
 
 
-    public AuthenticationController(AuthenticationService service, RefreshTokenService refreshTokenService, JwtUtil jwtUtil) {
+    public AuthenticationController(
+            AuthenticationService service,
+            RefreshTokenService refreshTokenService,
+            PasswordResetService passwordResetService,
+            JwtUtil jwtUtil
+    ) {
         this.service = service;
         this.refreshTokenService = refreshTokenService;
+        this.passwordResetService = passwordResetService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -55,4 +62,53 @@ public class AuthenticationController {
                 })
                 .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }
-}
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        try {
+            passwordResetService.initiateForgotPassword(request.getEmail());
+            return ResponseEntity.ok(new PasswordResetResponse(
+                    true,
+                    "Un email de réinitialisation a été envoyé à votre adresse email"
+            ));
+        } catch (PasswordResetException e) {
+            return ResponseEntity.ok(new PasswordResetResponse(
+                    false,
+                    e.getMessage()
+            ));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            // Vérifie que les mots de passe correspondent
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body(new PasswordResetResponse(
+                        false,
+                        "Les mots de passe ne correspondent pas"
+                ));
+            }
+
+            // Vérifie la longueur minimale du mot de passe
+            if (request.getNewPassword().length() < 6) {
+                return ResponseEntity.badRequest().body(new PasswordResetResponse(
+                        false,
+                        "Le mot de passe doit contenir au moins 6 caractères"
+                ));
+            }
+
+            passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+            return ResponseEntity.ok(new PasswordResetResponse(
+                    true,
+                    "Votre mot de passe a été réinitialisé avec succès"
+            ));
+        } catch (PasswordResetException e) {
+            return ResponseEntity.badRequest().body(new PasswordResetResponse(
+                    false,
+                    e.getMessage()
+            ));
+        }
+    }
+
+
