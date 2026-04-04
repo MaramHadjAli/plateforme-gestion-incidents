@@ -1,8 +1,12 @@
 package tn.enicarthage.plate_be.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +14,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+@Builder
+@AllArgsConstructor
 @Entity
+@NullMarked
+@NoArgsConstructor
 public class Utilisateur implements UserDetails {
 
     @Getter
@@ -31,7 +39,7 @@ public class Utilisateur implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Setter
+    @Builder.Default
     private boolean enabled = true;
 
     @Setter
@@ -39,39 +47,9 @@ public class Utilisateur implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ROLE role;
 
-    public Utilisateur() {}
-
     @Override
     public String getPassword() {
         return password;
-    }
-
-    public static UtilisateurBuilder builder() {
-        return new UtilisateurBuilder();
-    }
-
-    public static class UtilisateurBuilder {
-        private String nom;
-        private String email;
-        private String password;
-        private ROLE role;
-        private boolean enabled = true;
-
-        public UtilisateurBuilder nom(String nom) { this.nom = nom; return this; }
-        public UtilisateurBuilder email(String email) { this.email = email; return this; }
-        public UtilisateurBuilder password(String password) { this.password = password; return this; }
-        public UtilisateurBuilder role(ROLE role) { this.role = role; return this; }
-        public UtilisateurBuilder enabled(boolean enabled) { this.enabled = enabled; return this; }
-        
-        public Utilisateur build() {
-            Utilisateur user = new Utilisateur();
-            user.setNom(nom);
-            user.setEmail(email);
-            user.setPassword(password);
-            user.setRole(role);
-            user.setEnabled(enabled);
-            return user;
-        }
     }
 
     @Override
@@ -80,7 +58,6 @@ public class Utilisateur implements UserDetails {
                 new SimpleGrantedAuthority("ROLE_" + role.name())
         );
     }
-
 
     @Override
     public String getUsername() { return email; }

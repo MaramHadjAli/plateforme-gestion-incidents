@@ -3,15 +3,7 @@ package tn.enicarthage.plate_be.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-/**
- * Entité Badge - Représente les badges que les techniciens peuvent obtenir
- * 
- * Badges disponibles :
- * - Expert : plus de 50 tickets résolus
- * - Rapide : temps moyen < 4 heures
- * - Excellent : satisfaction ≥ 4,5/5
- * - Précis : 20 tickets sans réouverture
- */
+
 @Entity
 @Table(name = "badges")
 @Getter
@@ -38,5 +30,5 @@ public class Badge {
     private String critereObtention;
     
     @Column(name = "icon", length = 500)
-    private String icon; // URL vers l'icône du badge
+    private String icon;
 }

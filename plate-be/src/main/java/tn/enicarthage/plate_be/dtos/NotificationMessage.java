@@ -6,17 +6,27 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 public class NotificationMessage {
-    private String id;
-    private String type;
-    private String title;
-    private String message;
+
     @Getter
     private String ticketId;
     @Setter
     @Getter
     private String sender;
+
+
+    @Getter @Setter
+    private String id;
+    @Getter @Setter
+    private String type;
+    @Getter @Setter
+    private String title;
+    @Getter @Setter
+    private String message;
+    @Getter @Setter
     private LocalDateTime timestamp;
+    @Getter @Setter
     private String severity;
+
 
     public NotificationMessage() {}
 

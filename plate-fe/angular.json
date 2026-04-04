@@ -24,6 +24,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/logos",
+                "output": "logos"
               }
             ],
             "styles": [
@@ -41,8 +51,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kB",
-                  "maximumError": "4kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
@@ -82,6 +92,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/logos",
+                "output": "logos"
               }
             ],
             "styles": [
@@ -92,5 +112,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "78185ac8-016d-4385-997c-5f28a10d81d9"
   }
 }
