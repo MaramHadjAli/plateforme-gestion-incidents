@@ -2,10 +2,7 @@ package tn.enicarthage.plate_be.auth;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tn.enicarthage.plate_be.dtos.auth.*;
 import tn.enicarthage.plate_be.entities.RefreshToken;
 import tn.enicarthage.plate_be.exceptions.PasswordResetException;
@@ -14,6 +11,7 @@ import tn.enicarthage.plate_be.services.RefreshTokenService;
 import tn.enicarthage.plate_be.services.PasswordResetService;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {

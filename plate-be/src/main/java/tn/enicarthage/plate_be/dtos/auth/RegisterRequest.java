@@ -1,7 +1,12 @@
 package tn.enicarthage.plate_be.dtos.auth;
 
+import lombok.Getter;
+
 public class RegisterRequest {
-    public String nom;
     public String email;
-    public String password;
+    @Getter
+    private String nom;
+    @Getter
+    private String password;
+
 }

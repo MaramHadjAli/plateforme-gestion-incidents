@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +23,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Builder;
 
 @Entity
-@Table(name = "tickets")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,14 +34,13 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String idTicket;
-    
     private String titre;
     private String description;
-    
     private Date dateCreation;
-    
     private Date dateCloture;
-    
+
+
+
     @Enumerated(EnumType.STRING)
     private PRIORITE_TICKET priorite;
     

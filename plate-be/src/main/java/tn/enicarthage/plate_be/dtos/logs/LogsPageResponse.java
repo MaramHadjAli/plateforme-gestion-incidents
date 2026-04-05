@@ -9,7 +9,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class LogsPageResponse {
     private List<TraceLoginDTO> logs;
     private int currentPage;
@@ -17,5 +16,15 @@ public class LogsPageResponse {
     private long totalElements;
     private boolean hasNext;
     private boolean hasPrevious;
+
+    public LogsPageResponse(List<TraceLoginDTO> logs, int currentPage, int totalPages, long totalElements, boolean hasNext, boolean hasPrevious) {
+        this.logs = logs;
+        this.currentPage = currentPage;
+        this.totalPages = totalPages;
+        this.totalElements = totalElements;
+        this.hasNext = hasNext;
+        this.hasPrevious = hasPrevious;
+    }
+
 }
 

@@ -6,13 +6,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class PasswordResetResponse {
     private boolean success;
     private String message;
 
-    public PasswordResetResponse(boolean success) {
+    public PasswordResetResponse(boolean success, String message) {
         this.success = success;
+        this.message = message;
     }
 }
 

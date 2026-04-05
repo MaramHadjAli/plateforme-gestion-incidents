@@ -47,16 +47,10 @@ public class TraceLogin {
     @Column(nullable = false)
     @Builder.Default
     private String status = "SUCCESS";
-    
-    /**
-     * Actions possibles:
-     * - LOGIN_SUCCESS
-     * - LOGIN_FAILED
-     * - LOGOUT
-     * - REGISTER
-     * - PASSWORD_RESET
-     * - PASSWORD_CHANGE
-     * - PERMISSION_DENIED
-     */
+
+    public static TraceLoginBuilder builder() {
+        return new TraceLoginBuilder();
+    }
+
 }
 
