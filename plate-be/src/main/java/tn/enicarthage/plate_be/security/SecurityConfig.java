@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -34,30 +35,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF Protection (désactivée pour API stateless)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // CORS Configuration - Angular uniquement
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Headers de Sécurité
                 .headers(headers -> headers
-                        // X-Frame-Options: DENY (Clickjacking protection)
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
 
-                        // X-Content-Type-Options: nosniff (MIME type sniffing protection)
                         .contentTypeOptions(contentTypeOptions -> {
-                            // comportement par défaut (nosniff)
                         })
 
-                        // Strict-Transport-Security (HTTPS only)
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .maxAgeInSeconds(31536000) // 1 an
                                 .includeSubDomains(true)
                                 .preload(true)
                         )
 
-                        // Content Security Policy (CSP)
                         .contentSecurityPolicy(csp -> csp
                                 .policyDirectives("default-src 'self'; " +
                                         "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
@@ -70,12 +63,10 @@ public class SecurityConfig {
                                         "form-action 'self'")
                         )
 
-                        // Referrer-Policy
                         .referrerPolicy(ref -> ref
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER)
                         )
 
-                        // Permissions-Policy via header custom (remplace l’API dépréciée)
                         .addHeaderWriter((request, response) -> {
                             response.setHeader(
                                     "Permissions-Policy",
@@ -131,6 +122,10 @@ public class SecurityConfig {
                 "http://localhost:3000",      // Alternative port
                 "https://yourdomain.com"      // Production domain
         ));
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "https://localhost:*"
+        ));
 
         // Methods autorisées
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -157,7 +152,7 @@ public class SecurityConfig {
         configuration.setMaxAge(1800L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }

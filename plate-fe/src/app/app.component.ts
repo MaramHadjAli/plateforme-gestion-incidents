@@ -33,7 +33,8 @@ export class AppComponent implements OnInit {
     return (
       currentUrl.includes('/login') ||
       currentUrl.includes('/register') ||
-      currentUrl.includes('/forgot-password')
+      currentUrl.includes('/forgot-password') ||
+      currentUrl.includes('/dashboard')
     );
   }
 }

@@ -7,7 +7,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = 'http://localhost:8080/api/auth';
   private currentUserSubject: BehaviorSubject<any>;
   public currentUser: Observable<any>;
   private tokenKey = 'token';
@@ -26,8 +26,11 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password })
       .pipe(
         tap(response => {
-          if (response && response.token) {
-            localStorage.setItem(this.tokenKey, response.token);
+          console.log('Login response:', response);
+          console.log('Response keys:', Object.keys(response));
+          const token = response?.accessToken ?? response?.token;
+          if (token) {
+            localStorage.setItem(this.tokenKey, token);
             if (response.user) {
               localStorage.setItem(this.userKey, JSON.stringify(response.user));
               this.currentUserSubject.next(response.user);
@@ -43,11 +46,11 @@ export class AuthService {
   }
 
   requestPasswordReset(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password/request`, { email });
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
   }
 
   resetPassword(email: string, code: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password/reset`, {
+    return this.http.post(`${this.apiUrl}/reset-password`, {
       email,
       code,
       newPassword
@@ -70,6 +73,40 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  private decodeJwtPayload(token: string): any | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return null;
+      }
+
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+      const json = decodeURIComponent(
+        atob(padded)
+          .split('')
+          .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+          .join('')
+      );
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  getUserRoleFromToken(token: string | null = this.getToken()): string | null {
+    if (!token) {
+      return null;
+    }
+
+    const payload = this.decodeJwtPayload(token);
+    return payload?.role ?? null;
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRoleFromToken() === 'ADMIN';
   }
 
   getUserData(): any {

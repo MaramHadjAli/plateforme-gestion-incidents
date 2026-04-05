@@ -22,8 +22,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(
-            MethodArgumentNotValidException ex,
-            WebRequest request) {
+            MethodArgumentNotValidException ex) {
         
         Map<String, Object> response = new HashMap<>();
         Map<String, String> errors = new HashMap<>();
@@ -67,13 +66,13 @@ public class GlobalExceptionHandler {
             WebRequest request) {
         
         ErrorResponse errorResponse = new ErrorResponse(
-            "Une erreur interne s'est produite",
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            ex.getMessage() != null ? ex.getMessage() : "Une erreur interne s'est produite",
+            HttpStatus.BAD_REQUEST.value(),
             System.currentTimeMillis(),
             request.getDescription(false).replace("uri=", "")
         );
         
-        return ResponseEntity.internalServerError().body(errorResponse);
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     /**
