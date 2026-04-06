@@ -1,10 +1,10 @@
 <div class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col">
   <app-toast-container></app-toast-container>
-  <app-bar *ngIf="!isAuthRoute()"></app-bar>
+  <app-bar *ngIf="showShell"></app-bar>
 
   <main class="flex-1">
     <router-outlet></router-outlet>
   </main>
 
-  <app-footer *ngIf="!isAuthRoute()"></app-footer>
+  <app-footer *ngIf="showShell"></app-footer>
 </div>

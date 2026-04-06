@@ -5,6 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { AppBarComponent } from './shared/app-bar/app-bar.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { ToastContainerComponent } from './shared/toast-container/toast-container.component';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -22,10 +23,18 @@ import { ToastContainerComponent } from './shared/toast-container/toast-containe
 export class AppComponent implements OnInit {
   title = 'plate-fe';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
     initFlowbite();
+  }
+
+  get isLoggedIn(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  get showShell(): boolean {
+    return this.authService.isAuthenticated() && !this.isAuthRoute();
   }
 
   isAuthRoute(): boolean {

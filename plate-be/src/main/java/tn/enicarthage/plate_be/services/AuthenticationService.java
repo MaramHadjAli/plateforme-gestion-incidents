@@ -61,7 +61,12 @@ public class AuthenticationService {
         logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit");
 
         String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
-        emailService.sendConfirmationEmail(user.getEmail(), user.getNom(), confirmationLink);
+        try {
+            emailService.sendConfirmationEmail(user.getEmail(), user.getNom(), confirmationLink);
+        } catch (RuntimeException ex) {
+            // Ne pas bloquer l'inscription si le SMTP n'est pas configure.
+            System.err.println("Echec envoi email confirmation: " + ex.getMessage());
+        }
 
         return savedUser;
     }

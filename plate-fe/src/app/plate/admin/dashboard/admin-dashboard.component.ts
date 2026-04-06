@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AdminDashboardStats } from '../models/admin-dashboard.model';
 import { AdminDashboardService } from '../services/admin-dashboard.service';
+import { AdvancedDonutChartComponent } from '../../../shared/components/advanced-donut-chart.component';
+import { CinematicHybridChartComponent } from '../../../shared/components/cinematic-hybrid-chart.component';
 
 type SeriesItem = {
   label: string;
@@ -14,7 +16,7 @@ type SeriesItem = {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AdvancedDonutChartComponent, CinematicHybridChartComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
@@ -22,6 +24,27 @@ export class AdminDashboardComponent implements OnInit {
   stats: AdminDashboardStats | null = null;
   loading = true;
   errorMessage = '';
+
+  activePriorityLabel: string | null = null;
+  activeStatusLabel: string | null = null;
+
+  // Cinematic Hybrid Chart Properties
+  cinematicChartSegments: { label: string; value: number; color: string; glowColor?: string }[] = [
+    { label: 'Critique', value: 0, color: '#ff0088', glowColor: '#ff4db3' },
+    { label: 'Élevée', value: 0, color: '#00ff88', glowColor: '#00ffaa' },
+    { label: 'Moyenne', value: 0, color: '#0088ff', glowColor: '#00aaff' },
+    { label: 'Faible', value: 0, color: '#ffaa00', glowColor: '#ffcc00' }
+  ];
+
+  // Donut Chart Segments Property (pour éviter les assignments dans le template)
+  get donutSegments(): { label: string; value: number; color: string; glowColor: string }[] {
+    return this.prioritySeries.map(s => ({
+      label: s.label,
+      value: s.value,
+      color: s.color,
+      glowColor: s.color  // Toujours une string, jamais undefined
+    }));
+  }
 
   readonly sidebarItems = [
     {
@@ -68,6 +91,7 @@ export class AdminDashboardComponent implements OnInit {
     this.dashboardService.getStats().subscribe({
       next: (stats) => {
         this.stats = stats;
+        this.updateCinematicChartData();
         this.loading = false;
       },
       error: () => {
@@ -161,6 +185,49 @@ export class AdminDashboardComponent implements OnInit {
     ];
   }
 
+  get priorityBreakdown() {
+    const total = this.totalTickets || 1;
+    return this.prioritySeries.map((item) => ({
+      ...item,
+      percent: Math.round((item.value / total) * 100)
+    }));
+  }
+
+  get statusBars() {
+    const max = Math.max(...this.statusSeries.map((item) => item.value), 1);
+    return this.statusSeries.map((item) => ({
+      ...item,
+      percent: Math.round((item.value / max) * 100)
+    }));
+  }
+
+  get priorityLabelPositions() {
+    const total = this.prioritySeries.reduce((sum, item) => sum + item.value, 0) || 1;
+    let cursor = 0;
+
+    return this.prioritySeries.map((item) => {
+      const start = cursor;
+      const sweep = (item.value / total) * 100;
+      cursor += sweep;
+      const mid = (start + sweep / 2) * 3.6;
+      const radius = 8.6;
+      const radians = (mid - 90) * (Math.PI / 180);
+
+      return {
+        label: item.label,
+        percent: Math.round((item.value / total) * 100),
+        color: item.color,
+        x: `${Math.cos(radians) * radius}rem`,
+        y: `${Math.sin(radians) * radius}rem`
+      };
+    });
+  }
+
+  get statusAxisTicks() {
+    const max = Math.max(...this.statusSeries.map((item) => item.value), 1);
+    return Array.from({ length: 5 }, (_, index) => Math.round((max / 4) * index));
+  }
+
   getPriorityClass(priority: string | null | undefined): string {
     switch (priority) {
       case 'CRITIQUE':
@@ -210,5 +277,67 @@ export class AdminDashboardComponent implements OnInit {
       default: return '—';
     }
   }
-}
 
+  setActivePriority(label: string | null): void {
+    this.activePriorityLabel = label;
+  }
+
+  setActiveStatus(label: string | null): void {
+    this.activeStatusLabel = label;
+  }
+
+  getPriorityPercent(label: string | null): number {
+    if (!label) {
+      return 0;
+    }
+    return this.priorityBreakdown.find((item) => item.label === label)?.percent ?? 0;
+  }
+
+  getStatusValue(label: string | null): number {
+    if (!label) {
+      return 0;
+    }
+    return this.statusSeries.find((item) => item.label === label)?.value ?? 0;
+  }
+
+  // Cinematic Chart Methods
+  onCinematicSegmentSelected(segment: any): void {
+    console.log('Cinematic segment selected:', segment);
+  }
+
+  onCinematicSegmentHovered(segment: any): void {
+    console.log('Cinematic segment hovered:', segment);
+  }
+
+  private updateCinematicChartData(): void {
+    if (!this.stats) return;
+
+    // Mettre à jour les données du graphique cinématique basé sur les stats
+    this.cinematicChartSegments = [
+      {
+        label: 'Critique',
+        value: this.stats.ticketsByPriority?.['CRITIQUE'] || 0,
+        color: '#ff0088',
+        glowColor: '#ff4db3'
+      },
+      {
+        label: 'Élevée',
+        value: this.stats.ticketsByPriority?.['HAUTE'] || 0,
+        color: '#00ff88',
+        glowColor: '#00ffaa'
+      },
+      {
+        label: 'Moyenne',
+        value: this.stats.ticketsByPriority?.['NORMALE'] || 0,
+        color: '#0088ff',
+        glowColor: '#00aaff'
+      },
+      {
+        label: 'Faible',
+        value: this.stats.ticketsByPriority?.['FAIBLE'] || 0,
+        color: '#ffaa00',
+        glowColor: '#ffcc00'
+      }
+    ];
+  }
+}
