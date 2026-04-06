@@ -137,14 +137,26 @@
           </div>
 
           <div class="donut-wrap">
-            <div class="donut" [style.background]="'conic-gradient(' + priorityGradient + ')'">
+            <div class="donut" [style.background]="'conic-gradient(' + priorityGradient + ')'" [class.is-active]="activePriorityLabel">
               <div class="donut__inner">
-                <strong>{{ totalTickets }}</strong>
-                <span>Total incidents</span>
+                <ng-container *ngIf="activePriorityLabel; else totalViewDonut">
+                  <strong>{{ getPriorityPercent(activePriorityLabel) }}%</strong>
+                  <span>{{ activePriorityLabel }}</span>
+                </ng-container>
+                <ng-template #totalViewDonut>
+                  <strong>{{ totalTickets }}</strong>
+                  <span>Total incidents</span>
+                </ng-template>
               </div>
             </div>
             <div class="donut-legend">
-              <div *ngFor="let item of prioritySeries" class="donut-legend__item">
+              <div
+                *ngFor="let item of prioritySeries"
+                class="donut-legend__item"
+                [class.is-active]="activePriorityLabel === item.label"
+                (mouseenter)="setActivePriority(item.label)"
+                (mouseleave)="setActivePriority(null)"
+              >
                 <span class="donut-legend__dot" [style.background]="item.color"></span>
                 <div>
                   <strong>{{ item.label }}</strong>
@@ -182,6 +194,113 @@
 
             <p *ngIf="!recentTickets.length" class="empty-state">Aucun ticket récent à afficher.</p>
           </div>
+        </article>
+      </section>
+
+      <section class="charts-grid">
+        <article class="card-panel chart-card">
+          <div class="section-heading">
+            <div>
+              <p class="section-heading__eyebrow">Incidents par priorité</p>
+              <h2>Répartition des priorités</h2>
+            </div>
+          </div>
+
+          <div class="pie-layout">
+            <div class="pie-stage">
+              <div class="pie" [class.is-active]="activePriorityLabel">
+                <div class="pie__inner">
+                  <ng-container *ngIf="activePriorityLabel; else totalView">
+                    <strong>{{ getPriorityPercent(activePriorityLabel) }}%</strong>
+                    <span>{{ activePriorityLabel }}</span>
+                  </ng-container>
+                  <ng-template #totalView>
+                    <strong>{{ totalTickets }}</strong>
+                    <span>Tous</span>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+
+            <div class="pie-legend">
+              <div
+                *ngFor="let item of priorityBreakdown"
+                class="pie-legend__item"
+                [class.is-active]="activePriorityLabel === item.label"
+                (mouseenter)="setActivePriority(item.label)"
+                (mouseleave)="setActivePriority(null)"
+              >
+                <span class="pie-legend__dot" [style.background]="item.color"></span>
+                <div>
+                  <strong>{{ item.label }}</strong>
+                  <span>{{ item.percent }}% ({{ item.value }})</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card-panel chart-card">
+          <div class="section-heading">
+            <div>
+              <p class="section-heading__eyebrow">Incidents par statut</p>
+              <h2>Flux des tickets</h2>
+            </div>
+          </div>
+
+          <div class="bar-chart">
+            <div class="bar-chart__axis">
+              <span *ngFor="let tick of statusAxisTicks" class="bar-chart__tick">{{ tick }}</span>
+            </div>
+
+            <div class="bars">
+              <div
+                *ngFor="let item of statusBars"
+                class="bar-row"
+                [class.is-active]="activeStatusLabel === item.label"
+                (mouseenter)="setActiveStatus(item.label)"
+                (mouseleave)="setActiveStatus(null)"
+              >
+                <span class="bar-row__label">{{ item.label }}</span>
+                <div class="bar-row__track">
+                  <div class="bar-row__fill" [style.width.%]="item.percent" [style.background]="item.color"></div>
+                </div>
+                <strong class="bar-row__value">{{ item.value }}</strong>
+                <span *ngIf="activeStatusLabel === item.label" class="bar-row__tooltip">
+                  {{ item.label }}: {{ getStatusValue(item.label) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="charts-grid premium-section">
+        <article class="card-panel chart-panel premium-chart-wrapper">
+          <!-- Advanced Premium Donut Chart -->
+          <div class="premium-chart-container">
+            <app-advanced-donut-chart
+              [segments]="donutSegments"
+              title="Priorités des Incidents"
+              subtitle="Distribution temps réel avec analyse avancée"
+            ></app-advanced-donut-chart>
+          </div>
+        </article>
+      </section>
+
+      <!-- Section Cinematic Hybrid Chart -->
+      <section class="cinematic-section">
+        <article class="card-panel chart-panel cinematic-card">
+          <app-cinematic-hybrid-chart
+            [segments]="cinematicChartSegments"
+            [title]="'Analyse cinématique des incidents'"
+            [subtitle]="'Visualisation interactive harmonisée'"
+            [enableSound]="false"
+            [enableParticles]="false"
+            [darkMode]="false"
+            (segmentSelected)="onCinematicSegmentSelected($event)"
+            (segmentHovered)="onCinematicSegmentHovered($event)"
+          ></app-cinematic-hybrid-chart>
         </article>
       </section>
     </ng-container>

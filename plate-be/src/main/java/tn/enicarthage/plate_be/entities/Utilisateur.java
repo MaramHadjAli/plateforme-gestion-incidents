@@ -47,6 +47,11 @@ public class Utilisateur implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ROLE role;
 
+    @Getter
+    @Setter
+    @Column(length = 20)
+    private String telephone;
+
     @Override
     public String getPassword() {
         return password;

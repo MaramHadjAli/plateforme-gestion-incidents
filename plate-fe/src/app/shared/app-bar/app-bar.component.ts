@@ -3,14 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavLink } from '../../core/models/nav-link.model';
 import { ProfileMenuItem } from '../../core/models/profile-menu-item.model';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 interface Notification {
   id: number;
-  type: string;
+  type: 'critical' | 'assign' | 'sla' | 'badge' | 'status' | 'maintenance';
+  title: string;
   message: string;
   time: string;
   unread: boolean;
+  ticketId?: string;
 }
 
 @Component({
@@ -44,11 +46,11 @@ export class AppBarComponent implements OnInit {
   ];
 
   notifications: Notification[] = [
-    { id: 1, type: 'critical', message: 'Ticket #042 — Panne critique en Salle B12', time: '2 min', unread: true },
-    { id: 2, type: 'assign', message: 'Ticket #039 vous a été assigné', time: '15 min', unread: true },
-    { id: 3, type: 'sla', message: 'SLA dépassé pour Ticket #037', time: '1h', unread: true },
-    { id: 4, type: 'badge', message: 'Badge « Rapide » obtenu ! 🏅', time: '3h', unread: false },
-    { id: 5, type: 'status', message: 'Ticket #031 — Statut changé : Résolu', time: '5h', unread: false }
+    { id: 1, type: 'critical', title: 'Incident critique', message: 'Ticket #042 — Panne critique en Salle B12', time: '2 min', unread: true, ticketId: '042' },
+    { id: 2, type: 'assign', title: 'Ticket assigné', message: 'Ticket #039 vous a été assigné', time: '15 min', unread: true, ticketId: '039' },
+    { id: 3, type: 'sla', title: 'SLA dépassé', message: 'SLA dépassé pour Ticket #037', time: '1h', unread: true, ticketId: '037' },
+    { id: 4, type: 'badge', title: 'Nouveau badge', message: 'Badge « Rapide » obtenu !', time: '3h', unread: false },
+    { id: 5, type: 'status', title: 'Statut mis à jour', message: 'Ticket #031 — Statut changé : Résolu', time: '5h', unread: false, ticketId: '031' }
   ];
 
   profileMenuItems: ProfileMenuItem[] = [
@@ -58,23 +60,27 @@ export class AppBarComponent implements OnInit {
     { label: 'Paramètres', route: '/settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
   ];
 
-  typeColors: Record<string, string> = {
+  typeColors: Record<Notification['type'], string> = {
     critical: 'bg-red-500',
     assign: 'bg-blue-500',
     sla: 'bg-amber-500',
     badge: 'bg-purple-500',
-    status: 'bg-emerald-500'
+    status: 'bg-emerald-500',
+    maintenance: 'bg-cyan-500'
   };
 
-  roleColors: Record<string, string> = {
-    Administrateur: 'text-violet-400 bg-violet-400/10 border-violet-400/30',
-    Technicien: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/30',
-    Utilisateur: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30'
+  typeIcons: Record<Notification['type'], string> = {
+    critical: '⚠️',
+    assign: '📌',
+    sla: '⏱️',
+    badge: '🏅',
+    status: '✅',
+    maintenance: '🛠️'
   };
 
   private searchTerms = ['Ticket #042', 'Salle B12', 'Projecteur Sony', 'Technicien Ounelli', 'Rapport mensuel'];
 
-  constructor(private elRef: ElementRef) {}
+  constructor(private elRef: ElementRef, private router: Router) {}
 
   ngOnInit(): void {}
 
@@ -114,22 +120,36 @@ export class AppBarComponent implements OnInit {
     console.log('logout');
   }
 
+  openNotification(notification: Notification): void {
+    this.markRead(notification.id);
+
+    if (notification.ticketId) {
+      this.router.navigate(['/ticket-list'], { queryParams: { ticket: notification.ticketId } });
+    }
+
+    this.notifOpen = false;
+  }
+
+  trackNotification(index: number, notification: Notification): number {
+    return notification.id;
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    
+
     const profileContainer = this.elRef.nativeElement.querySelector('[data-profile]');
     const notifContainer = this.elRef.nativeElement.querySelector('[data-notif]');
     const searchContainer = this.elRef.nativeElement.querySelector('[data-search]');
-    
+
     if (profileContainer && !profileContainer.contains(target)) {
       this.profileOpen = false;
     }
-    
+
     if (notifContainer && !notifContainer.contains(target)) {
       this.notifOpen = false;
     }
-    
+
     if (searchContainer && !searchContainer.contains(target)) {
       this.searchOpen = false;
       this.searchQuery = '';

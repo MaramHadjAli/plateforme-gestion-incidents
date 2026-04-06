@@ -2,9 +2,15 @@ package tn.enicarthage.plate_be.entities;
 
 import jakarta.persistence.*;
 import java.util.Date;
+import lombok.*;
 
 @Entity
 @Table(name = "notifications")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Notification {
 
 	@Id
@@ -12,69 +18,39 @@ public class Notification {
 	private Long idNotification;
 
 	@Column(length = 50)
-	private String type;
+	private String type; // TICKET_ASSIGNED, STATUS_CHANGED, MAINTENANCE_REMINDER, BADGE_AWARDED, SLA_EXCEEDED
+
+	@Lob
+	private String title;
 
 	@Lob
 	private String message;
+
+	@Column(length = 20)
+	private String severity; // INFO, WARNING, ERROR, CRITICAL
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateEnvoi;
 
 	private boolean isRead;
 
+	private boolean emailSent;
+	private boolean smsSent;
+
+	@Column(length = 50)
+	private String ticketId;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "utilisateur_id")
 	private Utilisateur utilisateur;
 
-	public Notification() {
-	}
+	@Column(name = "created_at")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdAt;
 
-
-	public Long getIdNotification() {
-		return idNotification;
-	}
-
-	public void setIdNotification(Long idNotification) {
-		this.idNotification = idNotification;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public Date getDateEnvoi() {
-		return dateEnvoi;
-	}
-
-	public void setDateEnvoi(Date dateEnvoi) {
-		this.dateEnvoi = dateEnvoi;
-	}
-
-	public boolean isRead() {
-		return isRead;
-	}
-
-	public void setRead(boolean read) {
-		isRead = read;
-	}
-
-	public Utilisateur getUtilisateur() {
-		return utilisateur;
-	}
-
-	public void setUtilisateur(Utilisateur utilisateur) {
-		this.utilisateur = utilisateur;
+	@PrePersist
+	protected void onCreate() {
+		createdAt = new Date();
+		dateEnvoi = new Date();
 	}
 }

@@ -59,15 +59,22 @@
           <div class="notif-scroll app-dropdown__list">
             <button
               type="button"
-              *ngFor="let n of notifications"
-              (click)="markRead(n.id)"
-              class="app-dropdown__item"
+              *ngFor="let n of notifications; trackBy: trackNotification"
+              (click)="openNotification(n)"
+              class="app-dropdown__item notif-item"
+              [class.is-unread]="n.unread"
             >
               <span [class]="'app-dot ' + typeColors[n.type]"></span>
+              <span class="notif-icon">{{ typeIcons[n.type] }}</span>
               <span class="app-dropdown__content">
-                <span [class]="n.unread ? 'is-unread' : ''">{{ n.message }}</span>
-                <small>{{ n.time }}</small>
+                <span class="notif-title">{{ n.title }}</span>
+                <span class="notif-message" [class.is-unread]="n.unread">{{ n.message }}</span>
+                <span class="notif-meta">
+                  <small>{{ n.time }}</small>
+                  <span *ngIf="n.ticketId" class="notif-pill">#{{ n.ticketId }}</span>
+                </span>
               </span>
+              <span class="notif-action">Voir</span>
             </button>
           </div>
         </div>

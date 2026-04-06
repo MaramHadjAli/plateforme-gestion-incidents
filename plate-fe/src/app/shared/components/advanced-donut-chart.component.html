@@ -1,0 +1,95 @@
+<div class="advanced-donut-wrapper" [style.--mouse-x]="mouseX + 'px'" [style.--mouse-y]="mouseY + 'px'">
+  <!-- Animated background particles -->
+  <div class="particles-container">
+    <div class="particle" *ngFor="let i of [0, 1, 2, 3, 4]" [style.--particle-delay]="i * 0.2 + 's'"></div>
+  </div>
+
+  <!-- Glass morphism background -->
+  <div class="glass-bg" [style.backdropFilter]="getGlassBlur()"></div>
+
+  <!-- Main donut container -->
+  <div class="donut-container" #donutContainer>
+    <!-- SVG Donut Chart -->
+    <svg class="donut-svg" viewBox="0 0 200 200">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <radialGradient id="light-reflect">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.8)" />
+          <stop offset="50%" stop-color="rgba(255,255,255,0.2)" />
+          <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+        </radialGradient>
+      </defs>
+
+      <!-- Glow background layer -->
+      <circle cx="100" cy="100" r="85" fill="none" stroke="url(#light-reflect)" stroke-width="30" opacity="0.3" class="glow-layer" />
+
+      <!-- Donut segments -->
+      <g class="segments-group">
+        <circle
+          *ngFor="let item of segmentAngleItems"
+          cx="100"
+          cy="100"
+          r="70"
+          fill="none"
+          [attr.stroke]="item.segment.color"
+          stroke-width="20"
+          [attr.stroke-dasharray]="(item.angles.percent / 100) * 440 + ' 440'"
+          [attr.stroke-dashoffset]="-(item.angles.start / 360) * 440"
+          filter="url(#glow)"
+          class="donut-segment"
+          [class.active]="activeSegment === item.segment"
+          (mouseenter)="setActiveSegment(item.segment)"
+          (mouseleave)="setActiveSegment(null)"
+          [style.--segment-color]="item.segment.color"
+          [style.--glow-color]="item.segment.glowColor"
+        />
+      </g>
+
+      <!-- Center circle with glass effect -->
+      <circle cx="100" cy="100" r="45" fill="rgba(15, 23, 42, 0.4)" class="center-circle" filter="url(#glow)" />
+      <circle cx="100" cy="100" r="45" fill="none" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1" class="center-border" />
+    </svg>
+
+    <!-- Center content with animated counter -->
+    <div class="center-content" [style.boxShadow]="getShadowDepth()">
+      <div class="counter-display">
+        <span class="percentage-number">{{ displayedPercentage }}<span class="percent-sign">%</span></span>
+      </div>
+      <div class="label-text" *ngIf="activeSegment">{{ activeSegment.label }}</div>
+      <div class="label-text" *ngIf="!activeSegment">Total</div>
+    </div>
+
+    <!-- Light reflection effect -->
+    <div class="light-reflection"></div>
+  </div>
+
+  <!-- Legend with labels -->
+  <div class="legend-container">
+    <div
+      *ngFor="let item of segmentAngleItems"
+      class="legend-item"
+      [class.active]="activeSegment === item.segment"
+      (mouseenter)="setActiveSegment(item.segment)"
+      (mouseleave)="setActiveSegment(null)"
+    >
+      <div class="legend-dot" [style.background]="item.segment.color"></div>
+      <div class="legend-info">
+        <span class="legend-label">{{ item.segment.label }}</span>
+        <span class="legend-value">{{ item.angles.percent.toFixed(1) }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Title and subtitle -->
+  <div class="title-section">
+    <h2 class="chart-title">{{ title }}</h2>
+    <p class="chart-subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+  </div>
+</div>
+

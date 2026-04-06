@@ -1,0 +1,399 @@
+/* ============================================================================
+   Advanced Donut Chart - Global Configuration & Customization
+   ============================================================================
+
+   Ce fichier contient les configurations globales pour adapter le composant
+   à votre design system et à vos préférences de marque.
+
+   IMPORTANT: Copie cette configuration dans votre global styles.css ou styles.scss
+   ========================================================================== */
+
+/* ============================================================================
+   1. COLOR PALETTE CONFIGURATION
+   ========================================================================== */
+
+:root {
+  /* Primary Colors (Neon Soft) */
+  --color-primary-purple: #a855f7;
+  --color-primary-blue: #2563eb;
+  --color-primary-pink: #ec4899;
+
+  /* Secondary Colors (Glow) */
+  --color-glow-purple: #d8b4fe;
+  --color-glow-blue: #bfdbfe;
+  --color-glow-pink: #fbcfe8;
+
+  /* Background */
+  --color-dark-bg: #0f172a;
+  --color-dark-secondary: #1a2e4a;
+  --color-glass-bg: rgba(30, 41, 59, 0.7);
+
+  /* Light Mode */
+  --color-light-bg: #f8fafc;
+  --color-light-secondary: #f1f5f9;
+
+  /* Priority Colors */
+  --color-critical: #dc2626;
+  --color-critical-glow: #f87171;
+  --color-high: #f97316;
+  --color-high-glow: #fb923c;
+  --color-medium: #eab308;
+  --color-medium-glow: #facc15;
+  --color-low: #2563eb;
+  --color-low-glow: #60a5fa;
+
+  /* Status Colors */
+  --color-open: #2563eb;
+  --color-open-glow: #60a5fa;
+  --color-assigned: #8b5cf6;
+  --color-assigned-glow: #d8b4fe;
+  --color-progress: #f59e0b;
+  --color-progress-glow: #fbbf24;
+  --color-resolved: #22c55e;
+  --color-resolved-glow: #86efac;
+
+  /* Neutral Colors */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-tertiary: #cbd5e1;
+  --color-border: rgba(148, 163, 184, 0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-tertiary: #94a3b8;
+  }
+}
+
+/* ============================================================================
+   2. TYPOGRAPHY CONFIGURATION
+   ========================================================================== */
+
+:root {
+  /* Font Family */
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-family-mono: 'Monaco', 'Menlo', 'Consolas', monospace;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.05em;
+  --letter-spacing-wider: 0.08em;
+}
+
+/* ============================================================================
+   3. ANIMATION CONFIGURATION
+   ========================================================================== */
+
+:root {
+  /* Durations */
+  --animation-duration-fast: 150ms;
+  --animation-duration-base: 300ms;
+  --animation-duration-slow: 600ms;
+  --animation-duration-slower: 1s;
+  --animation-duration-slowest: 1.5s;
+
+  /* Easing Functions */
+  --easing-linear: linear;
+  --easing-ease-in: ease-in;
+  --easing-ease-out: ease-out;
+  --easing-ease-in-out: ease-in-out;
+  --easing-cubic-in: cubic-bezier(0.32, 0, 0.67, 0);
+  --easing-cubic-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --easing-cubic-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --easing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================================
+   4. SPACING CONFIGURATION
+   ========================================================================== */
+
+:root {
+  /* Spacing Scale */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Common Paddings */
+  --padding-xs: 0.5rem;
+  --padding-sm: 0.75rem;
+  --padding-md: 1rem;
+  --padding-lg: 1.5rem;
+  --padding-xl: 2rem;
+
+  /* Common Gaps */
+  --gap-xs: 0.5rem;
+  --gap-sm: 0.75rem;
+  --gap-md: 1rem;
+  --gap-lg: 1.5rem;
+  --gap-xl: 2rem;
+}
+
+/* ============================================================================
+   5. RADIUS CONFIGURATION
+   ========================================================================== */
+
+:root {
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-full: 999px;
+}
+
+/* ============================================================================
+   6. SHADOW CONFIGURATION
+   ========================================================================== */
+
+:root {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  /* Neon Shadows */
+  --shadow-neon-purple: 0 0 20px rgba(168, 85, 247, 0.3);
+  --shadow-neon-blue: 0 0 20px rgba(37, 99, 235, 0.3);
+  --shadow-neon-pink: 0 0 20px rgba(236, 72, 153, 0.3);
+
+  /* Glass Effect */
+  --shadow-glass: 0 18px 36px rgba(15, 23, 42, 0.08);
+  --shadow-glass-elevated: 0 20px 40px rgba(15, 23, 42, 0.12);
+
+  /* Inset (Glass inner) */
+  --shadow-inset-sm: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-inset-md: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-inset-lg: inset 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================================
+   7. DONUT CHART SPECIFIC CONFIGURATION
+   ========================================================================== */
+
+:root {
+  /* Chart Dimensions */
+  --donut-size: 300px;
+  --donut-stroke-width: 20px;
+  --donut-radius: 70px;
+  --donut-center-radius: 45px;
+
+  /* Chart Animations */
+  --donut-animation-rotate-duration: 8s;
+  --donut-animation-pulse-duration: 4s;
+  --donut-animation-glow-duration: 3s;
+  --donut-animation-reflection-duration: 6s;
+  --donut-animation-particle-duration: 20s;
+
+  /* Glassmorphism */
+  --donut-backdrop-blur: 20px;
+  --donut-glass-opacity: 0.7;
+  --donut-border-opacity: 0.2;
+
+  /* Interaction */
+  --donut-hover-scale: 1.04;
+  --donut-hover-duration: 0.3s;
+  --donut-parallax-max-depth: 10px;
+}
+
+/* ============================================================================
+   8. Z-INDEX SCALE
+   ========================================================================== */
+
+:root {
+  --z-hidden: -1;
+  --z-background: 0;
+  --z-content: 1;
+  --z-floating: 10;
+  --z-modal: 100;
+  --z-notification: 1000;
+  --z-tooltip: 10000;
+}
+
+/* ============================================================================
+   9. BREAKPOINTS
+   ========================================================================== */
+
+:root {
+  /* Mobile First */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ============================================================================
+   10. APLICAÇÃO GLOBAL
+   ========================================================================== */
+
+/* Appliquer au composant donut chart */
+app-advanced-donut-chart {
+  --primary-purple: var(--color-primary-purple);
+  --primary-blue: var(--color-primary-blue);
+  --primary-pink: var(--color-primary-pink);
+  --dark-bg: var(--color-dark-bg);
+  --glass-bg: var(--color-glass-bg);
+}
+
+/* ============================================================================
+   11. DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  app-advanced-donut-chart {
+    --color-text-primary: var(--color-light-bg);
+    --color-text-secondary: #cbd5e1;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  app-advanced-donut-chart {
+    --color-text-primary: var(--color-dark-bg);
+    --color-text-secondary: #64748b;
+  }
+}
+
+/* ============================================================================
+   12. ACCESSIBILITY
+   ========================================================================== */
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    --animation-duration-fast: 0.01ms;
+    --animation-duration-base: 0.01ms;
+    --animation-duration-slow: 0.01ms;
+    --animation-duration-slower: 0.01ms;
+    --animation-duration-slowest: 0.01ms;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+  :root {
+    --color-primary-purple: #8b3ce1;
+    --color-primary-blue: #0047b3;
+    --color-border: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ============================================================================
+   13. THEMING UTILITIES (OPTIONAL)
+   ========================================================================== */
+
+/* Utiliser ces classes pour changer de thème au runtime */
+
+.theme-dark {
+  color-scheme: dark;
+  background: var(--color-dark-bg);
+  color: var(--color-text-primary);
+}
+
+.theme-light {
+  color-scheme: light;
+  background: var(--color-light-bg);
+  color: var(--color-text-primary);
+}
+
+.theme-neon {
+  --primary-purple: #a855f7;
+  --primary-blue: #2563eb;
+  --primary-pink: #ec4899;
+}
+
+.theme-cyberpunk {
+  --primary-purple: #ff006e;
+  --primary-blue: #00f5ff;
+  --primary-pink: #ffbe0b;
+}
+
+.theme-ocean {
+  --primary-purple: #0369a1;
+  --primary-blue: #0891b2;
+  --primary-pink: #06b6d4;
+}
+
+/* ============================================================================
+   14. CUSTOM PROPERTIES FOR ADVANCED USERS
+   ========================================================================== */
+
+/*
+   Customiser ces propriétés pour ajuster le comportement du composant:
+
+   :root {
+     --donut-animation-rotate-duration: 6s;    // Plus rapide
+     --donut-backdrop-blur: 30px;              // Plus flou
+     --donut-parallax-max-depth: 20px;         // Parallax plus fort
+   }
+*/
+
+/* ============================================================================
+   15. PRINT STYLES (OPTIONAL)
+   ========================================================================== */
+
+@media print {
+  app-advanced-donut-chart {
+    --animation-duration-fast: 0;
+    --animation-duration-base: 0;
+    --animation-duration-slow: 0;
+  }
+
+  /* Desactiver les ombres pour l'impression */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-lg: none;
+}
+
+/* ============================================================================
+   NOTES D'UTILISATION:
+
+   1. Copiez cette configuration dans votre global styles.css/scss
+   2. Ajustez les couleurs selon votre brand guide
+   3. Modifiez les animations si nécessaire
+   4. Respectez les variables existantes du composant
+   5. Testez sur tous les appareils et modes
+   6. Vérifiez l'accessibilité (contrast, prefers-reduced-motion)
+
+   ========================================================================== */
+

@@ -1,0 +1,123 @@
+<div class="cinematic-chart-container" [class.dark-mode]="darkMode" [class.zoomed]="state.zoomedIn">
+  <!-- Animated background -->
+  <div class="chart-background">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <!-- Header Section -->
+  <div class="chart-header">
+    <div class="header-content">
+      <h2 class="chart-title">{{ title }}</h2>
+      <p class="chart-subtitle">{{ subtitle }}</p>
+    </div>
+    <button class="mode-toggle" (click)="toggleMode()" [attr.data-mode]="state.mode">
+      <span class="toggle-icon"></span>
+      {{ state.mode === 'pie' ? 'Switch to Donut' : 'Switch to Pie' }}
+    </button>
+  </div>
+
+  <!-- Main Chart Container -->
+  <div class="chart-canvas-wrapper">
+    <!-- Background grid -->
+    <svg class="background-grid" viewBox="0 0 400 400">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(100, 200, 255, 0.1)" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="400" height="400" fill="url(#grid)" />
+    </svg>
+
+    <!-- Main Canvas -->
+    <canvas
+      #chartCanvas
+      class="chart-canvas"
+      width="400"
+      height="400"
+      (click)="onCanvasClick($event)"
+      (mousemove)="onCanvasMouseMove($event)"
+      (mouseleave)="onCanvasMouseLeave()"
+    ></canvas>
+
+    <!-- Particle Canvas -->
+    <canvas
+      #particleCanvas
+      class="particle-canvas"
+      width="400"
+      height="400"
+    ></canvas>
+
+    <!-- Animated center info -->
+    <div class="center-info" [class.active]="state.selectedSegment">
+      <div class="info-content" *ngIf="state.selectedSegment">
+        <div class="segment-name">{{ state.selectedSegment.label }}</div>
+        <div class="segment-value">{{ state.selectedSegment.value }}</div>
+        <div class="segment-percentage">
+          {{ ((state.selectedSegment.value / totalValue) * 100).toFixed(1) }}%
+        </div>
+      </div>
+      <div class="info-placeholder" *ngIf="!state.selectedSegment">
+        <div class="pulse-dot"></div>
+        <span>Click to explore</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend Section -->
+  <div class="chart-legend">
+    <div
+      *ngFor="let segment of segments; let i = index"
+      class="legend-item"
+      [class.active]="state.hoveredSegment === segment || state.selectedSegment === segment"
+      [style.--item-color]="segment.color"
+      [style.--item-glow]="segment.glowColor || segment.color"
+    >
+      <div class="legend-marker">
+        <div class="marker-glow"></div>
+        <div class="marker-dot"></div>
+      </div>
+      <div class="legend-text">
+        <div class="legend-label">{{ segment.label }}</div>
+        <div class="legend-stat">{{ segment.value }} • {{ ((segment.value / totalValue) * 100).toFixed(1) }}%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interaction hints -->
+  <div class="interaction-hints" *ngIf="!state.selectedSegment">
+    <div class="hint">
+      <span class="hint-icon">🖱️</span>
+      <span class="hint-text">Hover over segments for details</span>
+    </div>
+    <div class="hint">
+      <span class="hint-icon">👆</span>
+      <span class="hint-text">Click to zoom and explore</span>
+    </div>
+  </div>
+
+  <!-- Stats Panel (when zoomed) -->
+  <div class="stats-panel" [class.active]="state.selectedSegment">
+    <div class="stats-content" *ngIf="state.selectedSegment">
+      <div class="stat-row">
+        <span class="stat-label">Value</span>
+        <span class="stat-value">{{ state.selectedSegment.value }}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Percentage</span>
+        <span class="stat-value">{{ ((state.selectedSegment.value / totalValue) * 100).toFixed(2) }}%</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Ratio</span>
+        <span class="stat-value">1 : {{ (totalValue / state.selectedSegment.value).toFixed(2) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sound toggle -->
+  <button class="sound-toggle" [class.active]="enableSound" (click)="enableSound = !enableSound">
+    {{ enableSound ? '🔊' : '🔇' }}
+  </button>
+</div>
+
