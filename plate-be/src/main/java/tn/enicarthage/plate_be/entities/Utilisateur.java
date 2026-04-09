@@ -3,6 +3,7 @@ package tn.enicarthage.plate_be.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.util.Collections;
 @Entity
 @NullMarked
 @NoArgsConstructor
+@Data
 public class Utilisateur implements UserDetails {
 
     @Getter
