@@ -1,36 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
-interface Salle {
-  idSalle: string;
-  nomSalle: string;
-  etage: string;
-  batiment: string;
-}
- 
-interface Equipement {
-  idEquipement: string;
-  nomEquipement: string;
-  type: string;
-  modele: string;
-  numSerie: string;
-  etat: 'FONCTIONNELLE' | 'EN_PANNE' | 'EN_MAINTENNANCE';
-  idSalle: string;
-}
- 
-interface Priority {
-  value: string;
-  label: string;
-  icon: string;
-}
- 
-interface PanneType {
-  value: string;
-  label: string;
-  icon: string;
-}
-
+import { Priority } from '../../../core/models/priority.model';
+import { PanneType } from '../../../core/models/panne-type.model';
+import { Salle } from '../../../core/models/salle.model';
+import { Equipement } from '../../../core/models/equipement.model';
+import { TicketResponse } from '../../../core/models/ticket-response.model';
+import { TicketsService } from '../../../core/services/tickets.service';
+import { TicketRequest } from '../../../core/models/ticket-request.model';
 
 @Component({
   selector: 'app-create-ticket',
@@ -39,10 +16,8 @@ interface PanneType {
   templateUrl: './create-ticket.component.html',
   styleUrl: './create-ticket.component.css'
 })
-export class CreateTicketComponent implements OnInit{
-etatColorLight(arg0: string) {
-throw new Error('Method not implemented.');
-}
+export class CreateTicketComponent implements OnInit {
+
   ticketForm!: FormGroup;
   currentStep = 1;
   isLoading = false;
@@ -54,14 +29,16 @@ throw new Error('Method not implemented.');
   selectedPanneType = '';
   generatedTicketId = '';
   today = new Date().toISOString().split('T')[0];
- 
+
+  ticketsList: TicketResponse[] = [];
+
   priorities: Priority[] = [
     { value: 'CRITIQUE', label: 'Critique', icon: '🔴' },
     { value: 'HAUTE', label: 'Haute', icon: '🟠' },
     { value: 'NORMAL', label: 'Normal', icon: '🟡' },
     { value: 'FAIBLE', label: 'Faible', icon: '🟢' },
   ];
- 
+
   panneTypes: PanneType[] = [
     { value: 'Matériel', label: 'Matériel', icon: '🔧' },
     { value: 'Logiciel', label: 'Logiciel', icon: '💻' },
@@ -70,63 +47,66 @@ throw new Error('Method not implemented.');
     { value: 'Climatisation', label: 'Climatisation', icon: '❄️' },
     { value: 'Autre', label: 'Autre', icon: '🔍' },
   ];
- 
-  salles: Salle[] = [
-    { idSalle: 'S01', nomSalle: 'Salle A01', etage: 'RDC', batiment: 'Principale' },
-    { idSalle: 'S02', nomSalle: 'Salle B12', etage: '1er', batiment: 'Principale' },
-    { idSalle: 'S03', nomSalle: 'Salle Labo Réseau', etage: '2ème', batiment: 'Annexe' },
-    { idSalle: 'S04', nomSalle: 'Amphi 1', etage: 'RDC', batiment: 'Principale' },
-    { idSalle: 'S05', nomSalle: 'Salle Informatique C3', etage: '3ème', batiment: 'Annexe' },
-  ];
- 
-  equipements: Equipement[] = [
-    { idEquipement: 'E01', nomEquipement: 'Projecteur Sony', type: 'Vidéoprojecteur', modele: 'VPL-EX435', numSerie: 'SN-2024-001', etat: 'EN_PANNE', idSalle: 'S01' },
-    { idEquipement: 'E02', nomEquipement: 'PC Bureau HP', type: 'Ordinateur', modele: 'EliteDesk 800', numSerie: 'SN-2023-045', etat: 'FONCTIONNELLE', idSalle: 'S01' },
-    { idEquipement: 'E03', nomEquipement: 'Tableau Interactif', type: 'TBI', modele: 'SMART Board 7086', numSerie: 'SN-2022-012', etat: 'EN_MAINTENNANCE', idSalle: 'S02' },
-    { idEquipement: 'E04', nomEquipement: 'Switch Cisco', type: 'Réseau', modele: 'Catalyst 2960', numSerie: 'SN-2021-099', etat: 'FONCTIONNELLE', idSalle: 'S03' },
-    { idEquipement: 'E05', nomEquipement: 'Climatiseur Daikin', type: 'Climatisation', modele: 'FTXB25C', numSerie: 'SN-2023-201', etat: 'EN_PANNE', idSalle: 'S02' },
-    { idEquipement: 'E06', nomEquipement: 'Système Audio', type: 'Audio', modele: 'Bose FreeSpace', numSerie: 'SN-2020-033', etat: 'FONCTIONNELLE', idSalle: 'S04' },
-  ];
- 
-  constructor(private fb: FormBuilder) {}
- 
+
+  salles: Salle[] = []; 
+  equipements: Equipement[] = [];
+
+  constructor(
+    private fb: FormBuilder,
+    private ticketsService: TicketsService
+  ) {}
+
   ngOnInit(): void {
     this.ticketForm = this.fb.group({
       titre: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(120)]],
       description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]],
       priorite: ['', Validators.required],
-      idSalle: ['', Validators.required],
-      idEquipement: ['', Validators.required],
+      //idSalle: ['', Validators.required],
+      //idEquipement: ['', Validators.required],
+      idSalle: [''],
+      idEquipement: [''],
       dateLimiteReparation: [''],
     });
- 
+
     this.ticketForm.get('idSalle')!.valueChanges.subscribe(() => {
       this.ticketForm.get('idEquipement')!.setValue('');
     });
+
+    this.loadTickets();
   }
- 
-  get f() {
-    return this.ticketForm.controls;
+
+  loadTickets(): void {
+    this.ticketsService.getAllTickets().subscribe({
+      next: (data) => {
+        this.ticketsList = data;
+        console.log('Tickets loaded:', this.ticketsList);
+      },
+      error: (err) => {
+        console.error('Error fetching tickets', err);
+      }
+    });
   }
- 
+
+  get f() { return this.ticketForm.controls; }
+
   get filteredEquipements(): Equipement[] {
     const idSalle = this.f['idSalle'].value;
-    return idSalle ? this.equipements.filter((e) => e.idSalle === idSalle) : [];
+    return idSalle ? this.equipements.filter(e => e.idSalle === idSalle) : [];
   }
- 
+
   get selectedEquipement(): Equipement | undefined {
-    return this.equipements.find((e) => e.idEquipement === this.f['idEquipement'].value);
+    return this.equipements.find(e => e.idEquipement === this.f['idEquipement'].value);
   }
- 
+
   setPriority(value: string): void {
     this.f['priorite'].setValue(value);
     this.f['priorite'].markAsTouched();
   }
- 
+
   setPanneType(value: string): void {
     this.selectedPanneType = value;
   }
- 
+
   nextStep(): void {
     if (this.currentStep === 1) {
       this.f['titre'].markAsTouched();
@@ -141,74 +121,78 @@ throw new Error('Method not implemented.');
     }
     if (this.currentStep < 3) this.currentStep++;
   }
- 
+
   prevStep(): void {
     if (this.currentStep > 1) this.currentStep--;
   }
- 
+
   onSubmit(): void {
     if (this.ticketForm.invalid) {
       this.ticketForm.markAllAsTouched();
       return;
     }
+    
     this.isLoading = true;
-    const payload = {
-      ...this.ticketForm.value,
-      typePanne: this.selectedPanneType,
-      status: 'OUVERT',
-      dateCreation: new Date().toISOString(),
-      photo: this.selectedFile ? this.selectedFile.name : null,
+
+    const payload: TicketRequest = {
+      titre: this.f['titre'].value,
+      description: this.f['description'].value,
+      priorite: this.f['priorite'].value,
+      dateLimite: this.f['dateLimiteReparation'].value,
+      demandeurId: 'INSERT_ACTUAL_USER_ID_HERE' 
     };
-    console.log('Ticket payload:', payload);
- 
-    setTimeout(() => {
-      this.isLoading = false;
-      this.submitted = true;
-      this.generatedTicketId = 'TK-' + Math.floor(Math.random() * 900 + 100);
-    }, 1800);
+
+    this.ticketsService.createTicket(payload).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.submitted = true;
+        
+        this.generatedTicketId = response.idTicket; 
+
+        this.loadTickets(); 
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error creating ticket:', err);
+      }
+    });
   }
- 
+
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) this.processFile(input.files[0]);
   }
- 
+
   onDragOver(event: DragEvent): void {
     event.preventDefault();
     this.isDragging = true;
   }
- 
+
   onDrop(event: DragEvent): void {
     event.preventDefault();
     this.isDragging = false;
     const file = event.dataTransfer?.files[0];
     if (file) this.processFile(file);
   }
- 
+
   processFile(file: File): void {
     this.fileError = '';
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      this.fileError = 'Format non supporté. Utilisez JPG, PNG ou WEBP.';
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      this.fileError = 'Fichier trop volumineux. Maximum 5 Mo.';
-      return;
-    }
+    if (!allowed.includes(file.type)) { this.fileError = 'Format non supporté. Utilisez JPG, PNG ou WEBP.'; return; }
+    if (file.size > 5 * 1024 * 1024) { this.fileError = 'Fichier trop volumineux. Maximum 5 Mo.'; return; }
     this.selectedFile = file;
     const reader = new FileReader();
-    reader.onload = (e) => (this.previewUrl = e.target?.result as string);
+    reader.onload = e => this.previewUrl = e.target?.result as string;
     reader.readAsDataURL(file);
   }
- 
+
   removePhoto(event: Event): void {
     event.stopPropagation();
     this.previewUrl = null;
     this.selectedFile = null;
     this.fileError = '';
   }
- 
+
   etatColor(etat: string): string {
     const map: Record<string, string> = {
       FONCTIONNELLE: 'text-emerald-400',
@@ -217,7 +201,7 @@ throw new Error('Method not implemented.');
     };
     return map[etat] || 'text-gray-400';
   }
- 
+
   priorityTextColor(value: string): string {
     const map: Record<string, string> = {
       CRITIQUE: 'text-red-400',
@@ -227,19 +211,19 @@ throw new Error('Method not implemented.');
     };
     return map[value] || 'text-gray-400';
   }
- 
+
   priorityLabel(value: string): string {
-    return this.priorities.find((p) => p.value === value)?.label || '';
+    return this.priorities.find(p => p.value === value)?.label || '';
   }
- 
+
   salleName(id: string): string {
-    return this.salles.find((s) => s.idSalle === id)?.nomSalle || '';
+    return this.salles.find(s => s.idSalle === id)?.nomSalle || '';
   }
- 
+
   equipementName(id: string): string {
-    return this.equipements.find((e) => e.idEquipement === id)?.nomEquipement || '';
+    return this.equipements.find(e => e.idEquipement === id)?.nomEquipement || '';
   }
- 
+
   slaLabel(priority: string): string {
     const map: Record<string, string> = {
       CRITIQUE: '⏱ Résolution sous 2h',
