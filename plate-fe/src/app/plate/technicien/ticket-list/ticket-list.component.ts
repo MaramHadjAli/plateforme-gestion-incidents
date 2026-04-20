@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { initFlowbite } from 'flowbite';
 import { Ticket } from '../../../core/models/ticket.model';
-import { RouterModule } from '@angular/router';
-import { RouterLink } from '@angular/router';
+import { RouterModule, RouterLink } from '@angular/router';
+import { TicketsService } from '../../../core/services/tickets.service';
+
 @Component({
   selector: 'app-ticket-list',
   standalone: true,
@@ -12,82 +12,68 @@ import { RouterLink } from '@angular/router';
   templateUrl: './ticket-list.component.html',
   styleUrl: './ticket-list.component.css'
 })
-export class TicketListComponent {
+export class TicketListComponent implements OnInit {
+
   searchTerm: string = '';
   selectedTicket: Ticket | null = null;
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 0;
+  pages: (number | string)[] = [];
 
-  tickets: Ticket[] = [
-    {
-      id: 'TICK-001',
-      titre: 'Imprimante hors service',
-      description: "L'imprimante du bureau 204 ne répond plus, impossible d'imprimer des documents depuis ce matin. L'écran affiche une erreur de bourrage papier mais aucun papier bloqué détecté.",
-      priorite: 'Élevée',
-      statut: 'En cours',
-      dateCreation: '2025-03-20',
-      dateLimite: '2025-03-27',
-      dateCloture: null,
-      technicien: 'Karim Benali'
-    },
-    {
-      id: 'TICK-002',
-      titre: 'Connexion VPN impossible',
-      description: "Impossible de se connecter au VPN de l'entreprise depuis mon ordinateur portable. Le message d'erreur indique 'Authentification échouée' alors que mes identifiants sont corrects.",
-      priorite: 'Critique',
-      statut: 'Assigné',
-      dateCreation: '2025-03-21',
-      dateLimite: '2025-03-24',
-      dateCloture: null,
-      technicien: 'Sophia El Mansouri'
-    },
-    {
-      id: 'TICK-003',
-      titre: 'Problème de son sur PC',
-      description: 'Après la mise à jour Windows, le son ne fonctionne plus sur mon poste de travail. Les haut-parleurs sont détectés mais aucun son ne sort.',
-      priorite: 'Moyenne',
-      statut: 'Résolu',
-      dateCreation: '2025-03-18',
-      dateLimite: '2025-03-25',
-      dateCloture: '2025-03-23',
-      technicien: 'Mehdi Laaroussi'
-    },
-    {
-      id: 'TICK-004',
-      titre: 'Logiciel ERP ne démarre pas',
-      description: "Le logiciel de gestion ERP affiche une erreur au lancement : 'Database connection failed'. Impossible d'accéder aux données clients depuis ce matin.",
-      priorite: 'Élevée',
-      statut: 'En cours',
-      dateCreation: '2025-03-22',
-      dateLimite: '2025-03-29',
-      dateCloture: null,
-      technicien: 'Nadia Tazi'
-    },
-    {
-      id: 'TICK-005',
-      titre: 'Demande de nouvel équipement',
-      description: 'Besoin d\'un nouvel ordinateur portable pour le nouveau stagiaire qui arrive la semaine prochaine. Configuration standard avec 16Go RAM et SSD 512Go.',
-      priorite: 'Basse',
-      statut: 'Ouvert',
-      dateCreation: '2025-03-23',
-      dateLimite: '2025-04-06',
-      dateCloture: null,
-      technicien: 'À assigner'
-    },
-    {
-      id: 'TICK-006',
-      titre: "Problème d'accès au serveur",
-      description: 'Plusieurs utilisateurs signalent ne pas pouvoir accéder au serveur partagé Z:. Le dossier de travail est inaccessible depuis 14h.',
-      priorite: 'Critique',
-      statut: 'En cours',
-      dateCreation: '2025-03-21',
-      dateLimite: '2025-03-26',
-      dateCloture: null,
-      technicien: 'Rachid El Fassi'
-    }
-  ];
+  tickets: Ticket[] = [];
+
+  constructor(private ticketsService: TicketsService) {} 
+
+  ngOnInit(): void {
+    this.loadTickets();
+  }
+
+  loadTickets(): void {
+    this.ticketsService.getAllTickets().subscribe({
+      next: (data) => {
+        this.tickets = data.map(t => ({
+          id: t.idTicket,
+          titre: t.titre,
+          description: t.description,
+          priorite: this.mapBackendPriority(t.priorite),
+          statut: this.mapBackendStatus(t.status),
+          dateCreation: t.dateCreation ? new Date(t.dateCreation).toISOString().split('T')[0] : '', 
+          dateLimite: t.dateLimite ? new Date(t.dateLimite).toISOString().split('T')[0] : '',
+          dateCloture: null,
+          technicien: t.demandeurNom || 'À assigner'
+        }));
+        
+        this.updatePages();
+      },
+      error: (err) => console.error('Error fetching tickets:', err)
+    });
+  }
+
+  private mapBackendPriority(priorite: string): string {
+    const map: { [key: string]: string } = {
+      'CRITIQUE': 'Critique',
+      'HAUTE': 'Élevée',
+      'NORMAL': 'Moyenne',
+      'FAIBLE': 'Basse'
+    };
+    return map[priorite] || 'Moyenne';
+  }
+
+  private mapBackendStatus(status: string): string {
+    const map: { [key: string]: string } = {
+      'OUVERT': 'Ouvert',
+      'EN_COURS': 'En cours',
+      'RESOLU': 'Résolu',
+      'FERME': 'Fermé'
+    };
+    return map[status] || 'Ouvert';
+  }
+
 
   get filteredTickets(): Ticket[] {
     if (!this.searchTerm) return this.tickets;
-    return this.tickets.filter(ticket => 
+    return this.tickets.filter(ticket =>
       ticket.id.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       ticket.titre.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
@@ -103,31 +89,114 @@ export class TicketListComponent {
   }
 
   getPriorityClass(priority: string): string {
-    const classes = {
-      'Critique': 'px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-      'Élevée': 'px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-      'Moyenne': 'px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-      'Basse': 'px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+    const classes: { [key: string]: string } = {
+      'Critique': 'Critique',
+      'Élevée': 'Élevée',
+      'Moyenne': 'Moyenne',
+      'Basse': 'Basse'
     };
-    return classes[priority as keyof typeof classes] || classes['Moyenne'];
+    return classes[priority] || 'Moyenne';
+  }
+
+  getPriorityDotClass(priority: string): string {
+    const classes: { [key: string]: string } = {
+      'Basse': 'bg-green-500',
+      'Moyenne': 'bg-yellow-500',
+      'Élevée': 'bg-orange-500',
+      'Critique': 'bg-red-500'
+    };
+    return classes[priority] || 'bg-gray-500';
   }
 
   getStatusClass(status: string): string {
-    const classes = {
-      'En cours': 'px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-      'Assigné': 'px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-      'Résolu': 'px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-      'Ouvert': 'px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+    const classes: { [key: string]: string } = {
+      'En cours': 'En cours',
+      'Assigné': 'Assigné',
+      'Résolu': 'Résolu',
+      'Ouvert': 'Ouvert'
     };
-    return classes[status as keyof typeof classes] || classes['Ouvert'];
+    return classes[status] || 'Ouvert';
   }
 
-  openModal(ticket: Ticket) {
+  getStatusDotClass(status: string): string {
+    const classes: { [key: string]: string } = {
+      'En cours': 'bg-yellow-500',
+      'Assigné': 'bg-blue-500',
+      'Résolu': 'bg-green-500',
+      'Ouvert': 'bg-gray-500'
+    };
+    return classes[status] || 'bg-gray-500';
+  }
+
+  getDateLimitClass(dateLimite: string): string {
+    if (!dateLimite) return '';
+    const today = new Date();
+    const limit = new Date(dateLimite);
+    const diffDays = Math.ceil((limit.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 'text-red-600';
+    if (diffDays <= 2) return 'text-orange-600';
+    return '';
+  }
+
+  getProgressPercentage(): string {
+    if (this.stats.total === 0) return '0%';
+    return `${Math.round((this.stats.enCours / this.stats.total) * 100)}%`;
+  }
+
+  getResolutionRate(): number {
+    if (this.stats.total === 0) return 0;
+    return Math.round((this.stats.resolus / this.stats.total) * 100);
+  }
+
+  getInitials(name: string | undefined): string {
+    if (!name) return 'NA';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
+  getPageButtonClass(page: number): string {
+    return this.currentPage === page ? 'px-4 text-white' : 'px-4';
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePages();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePages();
+    }
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.updatePages();
+  }
+
+  updatePages(): void {
+    this.totalPages = Math.ceil(this.filteredTickets.length / this.pageSize);
+    this.pages = this.generatePageArray(this.currentPage, this.totalPages);
+  }
+
+  generatePageArray(currentPage: number, totalPages: number): (number | string)[] {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (currentPage <= 3) {
+      pages.push(1, 2, 3, 4, '...', totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+    return pages;
+  }
+
+  openModal(ticket: Ticket): void {
     this.selectedTicket = ticket;
-    setTimeout(() => {
-      if (typeof initFlowbite === 'function') {
-        
-      }
-    }, 0);
   }
 }
