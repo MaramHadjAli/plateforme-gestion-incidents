@@ -12,12 +12,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@Entity
-@Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "utilisateurs")
+@NoArgsConstructor
+@Entity
+@NullMarked
 public class Utilisateur implements UserDetails {
 
     @Id

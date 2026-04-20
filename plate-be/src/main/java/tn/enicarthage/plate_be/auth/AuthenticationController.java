@@ -11,7 +11,6 @@ import tn.enicarthage.plate_be.services.RefreshTokenService;
 import tn.enicarthage.plate_be.services.PasswordResetService;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
@@ -35,7 +34,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(
+    public ResponseEntity<AuthenticationResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.ok(service.register(request));
