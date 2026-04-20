@@ -25,9 +25,11 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    // Génération du token avec tous les claims explicites (pas de setSubject)
     public String generateToken(Utilisateur user) {
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .claim("username", user.getNom())
+                .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
@@ -37,7 +39,7 @@ public class JwtUtil {
 
     public String generateTokenFromEmail(String email) {
         return Jwts.builder()
-                .setSubject(email)
+                .claim("email", email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -50,7 +52,7 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject();
+                .get("email", String.class);
     }
 
     public boolean validateToken(String token) {

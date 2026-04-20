@@ -42,6 +42,14 @@ public class Utilisateur implements UserDetails {
     @Column(length = 20)
     private String telephone;
 
+    @Getter
+    @Setter
+    @Column(length = 500)
+    private String avatarUrl;
+    public String getPassword() {
+        return password;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(

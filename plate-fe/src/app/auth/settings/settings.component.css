@@ -238,6 +238,81 @@
   to { transform: rotate(360deg); }
 }
 
+/* Password Form */
+.password-form {
+  background: #F9FAFB;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 1px solid #E5E7EB;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-input:disabled {
+  background-color: #F3F4F6;
+  color: #9CA3AF;
+  cursor: not-allowed;
+}
+
+.error-text {
+  display: block;
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.form-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #4F46E5;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #4338CA;
+}
+
 @media (max-width: 768px) {
   .settings-grid {
     grid-template-columns: 1fr;

@@ -1,0 +1,115 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Mon Profil</h1>
+    <div class="header-actions">
+      <button
+        *ngIf="!isEditing"
+        class="btn-edit"
+        (click)="toggleEditMode()"
+        [disabled]="isLoading">
+        Modifier
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <div *ngIf="!isLoading && userProfile" class="profile-content">
+    <div class="profile-section">
+      <div class="profile-avatar-container">
+        <div class="avatar-wrapper">
+          <img
+            *ngIf="avatarPreview"
+            [src]="avatarPreview"
+            alt="Avatar"
+            class="avatar-image">
+          <div
+            *ngIf="!avatarPreview"
+            class="avatar-placeholder">
+            {{ userProfile.nom.charAt(0).toUpperCase() }}
+          </div>
+          <div class="avatar-overlay" *ngIf="isEditing">
+            <label class="avatar-upload">
+              📷
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onAvatarSelected($event)"
+                style="display: none;">
+            </label>
+          </div>
+        </div>
+        <div *ngIf="avatarPreview && isEditing" class="avatar-actions">
+          <button
+            class="btn-delete-avatar"
+            (click)="deleteAvatar()"
+            [disabled]="isLoading">
+            Supprimer photo
+          </button>
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="info-item">
+          <label>Nom Complet</label>
+          <div *ngIf="!isEditing" class="value">{{ userProfile.nom }}</div>
+          <input
+            *ngIf="isEditing"
+            type="text"
+            formControlName="nom"
+            class="edit-input"
+            placeholder="Entrez votre nom">
+          <div *ngIf="isEditing && editForm.get('nom')?.invalid" class="error-message">
+            Le nom doit contenir au moins 2 caractères
+          </div>
+        </div>
+
+        <div class="info-item">
+          <label>Email</label>
+          <div class="value">{{ userProfile.email }}</div>
+        </div>
+
+        <div class="info-item">
+          <label>Numéro de Téléphone</label>
+          <div *ngIf="!isEditing" class="value">{{ userProfile.telephone || 'Non fourni' }}</div>
+          <input
+            *ngIf="isEditing"
+            type="tel"
+            formControlName="telephone"
+            class="edit-input"
+            placeholder="Entrez votre numéro (+216 XX XXX XXX)">
+          <div *ngIf="isEditing && editForm.get('telephone')?.invalid" class="error-message">
+            Format de téléphone invalide
+          </div>
+        </div>
+
+        <div class="info-item">
+          <label>Rôle</label>
+          <div class="value">{{ getRoleLabel() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-actions" *ngIf="isEditing">
+      <button class="btn-save" (click)="saveProfile()" [disabled]="isLoading || editForm.invalid">
+        Enregistrer
+      </button>
+      <button class="btn-cancel" (click)="toggleEditMode()" [disabled]="isLoading">
+        Annuler
+      </button>
+    </div>
+
+    <div class="additional-options">
+      <a routerLink="/settings" class="option-link">
+        <span class="icon">⚙️</span>
+        Paramètres
+      </a>
+    </div>
+  </div>
+</div>
+
+
+
