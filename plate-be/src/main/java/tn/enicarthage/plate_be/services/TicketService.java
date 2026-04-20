@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -183,6 +184,25 @@ public class TicketService {
     private void broadcastAdminDashboard() {
         AdminDashboardStats stats = adminDashboardService.getStats();
         messagingTemplate.convertAndSend("/topic/admin-dashboard", stats);
+    }
+
+    /**
+     * Récupérer les tickets de l'utilisateur actuel
+     */
+    public List<Ticket> getTicketsByCurrentUser() {
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Utilisateur user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non trouvé"));
+
+            if (user instanceof Demandeur) {
+                return ticketRepository.findByCreatedBy((Demandeur) user);
+            }
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seuls les demandeurs peuvent voir leurs tickets");
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifié");
+        }
     }
 }
 

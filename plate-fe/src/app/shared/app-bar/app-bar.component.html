@@ -24,6 +24,15 @@
     </nav>
 
     <div class="app-navbar__actions">
+      <button
+        type="button"
+        (click)="toggleTheme()"
+        class="app-icon-btn"
+        title="Basculer mode sombre"
+        aria-label="Basculer mode sombre">
+        {{ isDarkMode ? '☀️' : '🌙' }}
+      </button>
+
       <div class="relative" data-search>
         <div *ngIf="searchOpen" class="app-search">
           <input

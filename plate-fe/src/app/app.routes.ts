@@ -9,6 +9,8 @@ import { HomeComponent } from './auth/home/home.component';
 import { AuthGuard } from './core/guard/auth.guard';
 import { AdminGuard } from './core/guard/admin.guard';
 import { AdminDashboardComponent } from './plate/admin/dashboard';
+import { ProfileComponent } from './features/profile/profile.component';
+import { SettingsComponent } from './auth/settings/settings.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -23,9 +25,9 @@ export const routes: Routes = [
   { path: 'equipements', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'maintenance', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'classement', component: ClassementComponent, canActivate: [AuthGuard] },
-  { path: 'profile', component: TicketListComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'my-tickets', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'badges', component: TicketListComponent, canActivate: [AuthGuard] },
-  { path: 'settings', component: TicketListComponent, canActivate: [AuthGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/home' }
 ];

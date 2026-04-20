@@ -54,7 +54,10 @@ public class Utilisateur implements UserDetails {
     @Column(length = 20)
     private String telephone;
 
-    @Override
+    @Getter
+    @Setter
+    @Column(length = 500)
+    private String avatarUrl;
     public String getPassword() {
         return password;
     }
