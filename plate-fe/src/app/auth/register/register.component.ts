@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -21,7 +22,7 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
+    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -44,15 +45,26 @@ export class RegisterComponent {
 
     this.isSubmitting = true;
 
-    this.http
-      .post('http://localhost:8080/api/auth/register', this.registerForm.getRawValue())
+    this.authService
+      .register(this.registerForm.getRawValue())
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: () => {
-          this.router.navigate(['/login']);
+        next: (response) => {
+          const redirectUrl = this.authService.getRedirectUrl(response.role);
+          this.router.navigate([redirectUrl]);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || "Erreur lors de l'inscription.";
+          console.error('Registration failed:', err);
+          
+          // Enhanced error parsing for production-grade debugging
+          const backendError = err.error?.message || err.error?.error || err.message;
+          this.errorMessage = typeof backendError === 'string' 
+            ? backendError 
+            : "Erreur de connexion au serveur. Veuillez vérifier votre connexion ou le statut du backend.";
+          
+          if (err.status === 0) {
+            this.errorMessage = "Impossible de contacter le serveur (Network Error). Vérifiez que le backend tourne sur le port 8080 et que CORS est bien configuré.";
+          }
         }
       });
   }

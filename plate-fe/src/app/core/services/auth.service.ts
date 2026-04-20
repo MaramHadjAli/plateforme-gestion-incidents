@@ -1,115 +1,105 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+
+export interface AuthenticationResponse {
+  token: string;
+  refreshToken: string;
+  role: string;
+  email: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
-  private currentUserSubject: BehaviorSubject<any>;
-  public currentUser: Observable<any>;
-  private tokenKey = 'token';
-  private userKey = 'currentUser';
+  private currentUserSubject = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient) {
-    this.currentUserSubject = new BehaviorSubject<any>(JSON.parse(localStorage.getItem(this.userKey) || '{}'));
-    this.currentUser = this.currentUserSubject.asObservable();
+    const token = localStorage.getItem('token');
+    if (token) {
+       this.currentUserSubject.next(jwtDecode(token));
+    }
   }
 
-  public get currentUserValue(): any {
-    return this.currentUserSubject.value;
+  login(credentials: any): Observable<AuthenticationResponse> {
+    return this.http.post<AuthenticationResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response) => this.handleAuthentication(response))
+    );
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password })
-      .pipe(
-        tap(response => {
-          console.log('Login response:', response);
-          console.log('Response keys:', Object.keys(response));
-          const token = response?.accessToken ?? response?.token;
-          if (token) {
-            localStorage.setItem(this.tokenKey, token);
-            if (response.user) {
-              localStorage.setItem(this.userKey, JSON.stringify(response.user));
-              this.currentUserSubject.next(response.user);
-            }
-          }
-          return response;
-        })
-      );
+  register(user: any): Observable<AuthenticationResponse> {
+    return this.http.post<AuthenticationResponse>(`${this.apiUrl}/register`, user).pipe(
+      tap((response) => this.handleAuthentication(response))
+    );
   }
 
-  register(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+  private handleAuthentication(response: AuthenticationResponse) {
+    const token = response.token;
+    if (token) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user_role', response.role);
+      localStorage.setItem('user_email', response.email);
+      try {
+        const decodedToken = jwtDecode(token);
+        this.currentUserSubject.next(decodedToken);
+      } catch (e) {
+        console.error('Invalid token payload');
+      }
+    }
   }
 
-  requestPasswordReset(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  getRedirectUrl(role: string): string {
+    switch (role) {
+      case 'ADMIN':
+        return '/admin';
+      case 'TECHNICIEN':
+      case 'TECHNICIAN':
+        return '/technician';
+      case 'DEMANDEUR':
+      case 'USER':
+        return '/tickets/new';
+      default:
+        return '/';
+    }
   }
 
-  resetPassword(email: string, code: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, {
-      email,
-      code,
-      newPassword
-    });
-  }
-
-  verifyEmail(token: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-email`, { token });
-  }
-
-  logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('user_email');
     this.currentUserSubject.next(null);
   }
 
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
-  }
-
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem('token');
   }
 
-  private decodeJwtPayload(token: string): any | null {
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  getUserRoleFromToken(token: string): string {
+    if (!token) return '';
     try {
-      const payload = token.split('.')[1];
-      if (!payload) {
-        return null;
-      }
-
-      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
-      const json = decodeURIComponent(
-        atob(padded)
-          .split('')
-          .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-          .join('')
-      );
-      return JSON.parse(json);
-    } catch {
-      return null;
+      const decoded: any = jwtDecode(token);
+      let role = decoded.role || decoded.authorities;
+      if (Array.isArray(role)) role = role[0];
+      return typeof role === 'string' ? role.replace('ROLE_', '') : '';
+    } catch (e) {
+      return '';
     }
   }
 
-  getUserRoleFromToken(token: string | null = this.getToken()): string | null {
-    if (!token) {
-      return null;
-    }
-
-    const payload = this.decodeJwtPayload(token);
-    return payload?.role ?? null;
+  getUserRole(): string {
+    const token = this.getToken();
+    return token ? this.getUserRoleFromToken(token) : '';
   }
 
   isAdmin(): boolean {
-    return this.getUserRoleFromToken() === 'ADMIN';
-  }
-
-  getUserData(): any {
-    return this.currentUserValue;
+    return this.getUserRole() === 'ADMIN';
   }
 }
+

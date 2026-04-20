@@ -48,6 +48,16 @@ public class Ticket {
     private STATUS_TICKET status;
     
     private Date dateLimiteReparation;
+    private String typePanne;
+    private String photoUrl;
+    
+    @ManyToOne
+    @JoinColumn(name = "salle_id")
+    private Salle salle;
+    
+    @ManyToOne
+    @JoinColumn(name = "equipement_id")
+    private Equipement equipement;
     
     @ManyToOne
     @JoinColumn(name = "demandeur_id")

@@ -52,15 +52,18 @@ public class SecurityConfig {
                         )
 
                         .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'; " +
+                                .policyDirectives(
+                                        // --- DEVELOPMENT CSP (RELAXED) ---
+                                        "default-src 'self'; " +
                                         "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
                                         "style-src 'self' 'unsafe-inline'; " +
                                         "img-src 'self' data: https:; " +
-                                        "font-src 'self'; " +
-                                        "connect-src 'self' http://localhost:* https://; " +
+                                        "font-src 'self' https://fonts.gstatic.com; " +
+                                        "connect-src 'self' http://localhost:* https://* ws://localhost:* wss://*; " +
                                         "frame-ancestors 'none'; " +
                                         "base-uri 'self'; " +
-                                        "form-action 'self'")
+                                        "form-action 'self'"
+                                )
                         )
 
                         .referrerPolicy(ref -> ref
@@ -136,7 +139,9 @@ public class SecurityConfig {
                 "Authorization",
                 "X-Requested-With",
                 "Accept",
-                "Origin"
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
         ));
 
         // Headers exposés au frontend

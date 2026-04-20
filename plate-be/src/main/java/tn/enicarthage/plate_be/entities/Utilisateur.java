@@ -14,11 +14,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @NullMarked
-@NoArgsConstructor
 public class Utilisateur implements UserDetails {
 
     @Getter
