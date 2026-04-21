@@ -41,10 +41,10 @@ export class ThemeService {
   private applyTheme(isDark: boolean): void {
     const htmlElement = document.documentElement;
     if (isDark) {
-      htmlElement.classList.add('dark-mode');
+      htmlElement.classList.add('dark');
       htmlElement.style.colorScheme = 'dark';
     } else {
-      htmlElement.classList.remove('dark-mode');
+      htmlElement.classList.remove('dark');
       htmlElement.style.colorScheme = 'light';
     }
   }

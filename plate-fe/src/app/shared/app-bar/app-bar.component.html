@@ -91,7 +91,8 @@
 
       <div class="relative" data-profile>
         <button type="button" (click)="toggleProfile()" class="app-profile-btn" aria-label="Profil utilisateur">
-          <span class="app-avatar">{{ userInitials }}</span>
+          <img *ngIf="avatarUrl" [src]="avatarUrl" alt="Avatar" class="app-avatar-img w-9 h-9 rounded-full object-cover">
+          <span *ngIf="!avatarUrl" class="app-avatar">{{ userInitials }}</span>
           <span class="hidden sm:flex app-profile-btn__meta">
             <strong>{{ userName }}</strong>
             <small>{{ userRole }}</small>

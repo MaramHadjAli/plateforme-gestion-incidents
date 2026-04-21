@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { NotificationService } from '../../core/services/notification.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -24,7 +24,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private notificationService: NotificationService,
+    private toastService: ToastService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -61,14 +61,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   loadUserData(): void {
     this.user = this.authService.getUserData();
     if (!this.user || Object.keys(this.user).length === 0) {
-      this.notificationService.warning('Informations utilisateur non disponibles');
+      this.toastService.showWarning('Informations utilisateur non disponibles');
     }
   }
 
   logout(): void {
     this.isLoading = true;
     this.authService.logout();
-    this.notificationService.success('Déconnexion réussie');
+    this.toastService.showSuccess('Déconnexion réussie');
     setTimeout(() => {
       this.router.navigate(['/home']);
     }, 500);
@@ -83,7 +83,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   changePassword(): void {
     if (!this.passwordForm.valid) {
-      this.notificationService.warning('Veuillez corriger les erreurs du formulaire');
+      this.toastService.showWarning('Veuillez corriger les erreurs du formulaire');
       return;
     }
 
@@ -95,14 +95,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.notificationService.success('Mot de passe changé avec succès');
+          this.toastService.showSuccess('Mot de passe changé avec succès');
           this.passwordForm.reset();
           this.showPasswordForm = false;
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Erreur lors du changement de mot de passe:', error);
-          this.notificationService.error('Erreur lors du changement de mot de passe');
+          this.toastService.showError('Erreur lors du changement de mot de passe');
           this.isLoading = false;
         }
       });
@@ -120,14 +120,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
-              this.notificationService.success('Compte supprimé avec succès');
+              this.toastService.showSuccess('Compte supprimé avec succès');
               setTimeout(() => {
                 this.router.navigate(['/home']);
               }, 500);
             },
             error: (error) => {
               console.error('Erreur lors de la suppression du compte:', error);
-              this.notificationService.error('Erreur lors de la suppression du compte');
+              this.toastService.showError('Erreur lors de la suppression du compte');
               this.isLoading = false;
             }
           });
