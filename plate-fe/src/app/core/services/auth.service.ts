@@ -15,6 +15,7 @@ export interface UserInfo {
   email: string;
   name: string;
   role: string;
+  avatarUrl?: string;
 }
 
 @Injectable({
@@ -83,7 +84,8 @@ export class AuthService {
         const user: UserInfo = {
           email: decodedToken.email || '',
           name: decodedToken.username || '',
-          role: decodedToken.role || ''
+          role: decodedToken.role || '',
+          avatarUrl: localStorage.getItem('avatarUrl') || undefined
         };
 
         this.currentUserSubject.next(user);
@@ -161,6 +163,37 @@ export class AuthService {
    */
   getCurrentUser(): UserInfo | null {
     return this.currentUserSubject.value;
+  }
+
+  /**
+   * Update the user's avatar globally
+   */
+  updateAvatarUrl(url: string | undefined): void {
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) {
+      if (url) {
+        localStorage.setItem('avatarUrl', url);
+      } else {
+        localStorage.removeItem('avatarUrl');
+      }
+      this.currentUserSubject.next({
+        ...currentUser,
+        avatarUrl: url
+      });
+    }
+  }
+
+  /**
+   * Update user details globally
+   */
+  updateUserDetails(name: string, telephone?: string): void {
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) {
+      this.currentUserSubject.next({
+        ...currentUser,
+        name: name
+      });
+    }
   }
 
   /**

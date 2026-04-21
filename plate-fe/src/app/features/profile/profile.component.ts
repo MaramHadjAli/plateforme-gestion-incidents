@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ProfileService, UserProfile, UpdateProfile } from './profile.service';
-import { NotificationService } from '../../core/services/notification.service';
+import { ToastService } from '../../core/services/toast.service';
 import { AvatarService } from '../../core/services/avatar.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -25,8 +26,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   constructor(
     private profileService: ProfileService,
-    private notificationService: NotificationService,
+    private toastService: ToastService,
     private avatarService: AvatarService,
+    private authService: AuthService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -62,12 +64,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
           });
           if (profile.avatarUrl) {
             this.avatarPreview = profile.avatarUrl;
+            this.authService.updateAvatarUrl(profile.avatarUrl);
+          } else {
+            this.authService.updateAvatarUrl(undefined);
           }
+          this.authService.updateUserDetails(profile.nom, profile.telephone);
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Erreur lors du chargement du profil:', error);
-          this.notificationService.error('Impossible de charger le profil');
+          this.toastService.showError('Impossible de charger le profil');
           this.isLoading = false;
           this.router.navigate(['/login']);
         }
@@ -86,7 +92,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   saveProfile(): void {
     if (!this.editForm.valid) {
-      this.notificationService.warning('Veuillez corriger les erreurs du formulaire');
+      this.toastService.showWarning('Veuillez corriger les erreurs du formulaire');
       return;
     }
 
@@ -99,12 +105,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUserProfile();
           this.isEditing = false;
-          this.notificationService.success('Profil mis à jour avec succès');
+          this.toastService.showSuccess('Profil mis à jour avec succès', 'Succès');
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Erreur lors de la mise à jour du profil:', error);
-          this.notificationService.error('Erreur lors de la mise à jour du profil');
+          this.toastService.showError('Erreur lors de la mise à jour du profil');
           this.isLoading = false;
         }
       });
@@ -115,13 +121,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (file) {
       // Vérifier la taille du fichier (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        this.notificationService.error('La taille du fichier ne doit pas dépasser 5MB');
+        this.toastService.showError('La taille du fichier ne doit pas dépasser 5MB');
         return;
       }
 
       // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
-        this.notificationService.error('Veuillez sélectionner une image valide');
+        this.toastService.showError('Veuillez sélectionner une image valide');
         return;
       }
 
@@ -138,13 +144,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            this.notificationService.success('Avatar mis à jour avec succès');
+            this.toastService.showSuccess('Avatar mis à jour avec succès', 'Succès');
+            if (response && response.avatarUrl) {
+              this.authService.updateAvatarUrl(response.avatarUrl); // Update globally instantly
+            }
             this.loadUserProfile();
             this.isLoading = false;
           },
           error: (error) => {
             console.error('Erreur lors de l\'upload de l\'avatar:', error);
-            this.notificationService.error('Erreur lors de l\'upload de l\'avatar');
+            this.toastService.showError('Erreur lors de l\'upload de l\'avatar');
             this.isLoading = false;
           }
         });
@@ -159,13 +168,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.avatarPreview = null;
+            this.authService.updateAvatarUrl(undefined);
             this.loadUserProfile();
-            this.notificationService.success('Avatar supprimé avec succès');
+            this.toastService.showSuccess('Avatar supprimé avec succès', 'Succès');
             this.isLoading = false;
           },
           error: (error) => {
             console.error('Erreur lors de la suppression de l\'avatar:', error);
-            this.notificationService.error('Erreur lors de la suppression de l\'avatar');
+            this.toastService.showError('Erreur lors de la suppression de l\'avatar');
             this.isLoading = false;
           }
         });

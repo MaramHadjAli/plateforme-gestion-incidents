@@ -43,6 +43,7 @@ export class AppBarComponent implements OnInit, OnDestroy {
   userName = 'Utilisateur';
   userInitials = 'U';
   userEmail = 'user@example.com';
+  avatarUrl: string | undefined = undefined;
   userRole: 'Administrateur' | 'Technicien' | 'Utilisateur' = 'Utilisateur';
 
   navLinks: NavLink[] = [
@@ -106,6 +107,7 @@ export class AppBarComponent implements OnInit, OnDestroy {
         this.userName = user.name || 'Utilisateur';
         this.userEmail = user.email || 'user@example.com';
         this.userInitials = this.getInitials(this.userName);
+        this.avatarUrl = user.avatarUrl;
         // Extract role from user data if available
         this.userRole = this.mapRole(user.role || 'UTILISATEUR');
       } else {
@@ -114,6 +116,7 @@ export class AppBarComponent implements OnInit, OnDestroy {
         this.userInitials = 'U';
         this.userEmail = 'user@example.com';
         this.userRole = 'Utilisateur';
+        this.avatarUrl = undefined;
       }
     });
 
