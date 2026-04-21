@@ -25,6 +25,15 @@
     </nav>
 
     <div class="app-navbar__actions">
+      <button
+        type="button"
+        (click)="toggleTheme()"
+        class="app-icon-btn"
+        title="Basculer mode sombre"
+        aria-label="Basculer mode sombre">
+        {{ isDarkMode ? '☀️' : '🌙' }}
+      </button>
+
       <div class="relative" data-search>
         <div *ngIf="searchOpen" class="app-search">
           <svg class="app-search__icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +115,8 @@
 
       <div class="relative" data-profile>
         <button type="button" (click)="toggleProfile()" class="app-profile-btn" aria-label="Profil utilisateur">
-          <span class="app-avatar">{{ userInitials }}</span>
+          <img *ngIf="avatarUrl" [src]="avatarUrl" alt="Avatar" class="app-avatar-img w-9 h-9 rounded-full object-cover">
+          <span *ngIf="!avatarUrl" class="app-avatar">{{ userInitials }}</span>
           <span class="hidden sm:flex app-profile-btn__meta">
             <strong>{{ userName }}</strong>
             <small>{{ userRole }}</small>

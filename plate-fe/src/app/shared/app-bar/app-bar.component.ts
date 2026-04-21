@@ -1,9 +1,13 @@
-import { Component, HostListener, OnInit, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavLink } from '../../core/models/nav-link.model';
 import { ProfileMenuItem } from '../../core/models/profile-menu-item.model';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService, UserInfo } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface Notification {
   id: number;
@@ -22,21 +26,26 @@ interface Notification {
   templateUrl: './app-bar.component.html',
   styleUrls: ['./app-bar.component.css']
 })
-export class AppBarComponent implements OnInit {
+export class AppBarComponent implements OnInit, OnDestroy {
   activeNav = 'Dashboard';
   notifOpen = false;
   profileOpen = false;
   searchOpen = false;
   mobileOpen = false;
   searchQuery = '';
-  searchSuggestions: string[] = [];
-  
-  userName = 'Mohamed Amine O.';
-  userInitials = 'MA';
-  userEmail = 'm.ounelli@enicarthage.tn';
-  userRole: 'Administrateur' | 'Technicien' | 'Utilisateur' = 'Technicien';
-  userPoints = 680;
-  pointsPercent = 68;
+  searchSuggestions: string[] = []; // ✅ Added this property
+  isDarkMode = false;
+  private destroy$ = new Subject<void>();
+
+  // Observable for reactive user data binding
+  user$: Observable<UserInfo | null>;
+
+  // Fallback values (will be overridden by user$ observable)
+  userName = 'Utilisateur';
+  userInitials = 'U';
+  userEmail = 'user@example.com';
+  avatarUrl: string | undefined = undefined;
+  userRole: 'Administrateur' | 'Technicien' | 'Utilisateur' = 'Utilisateur';
 
   navLinks: NavLink[] = [
     { label: 'Dashboard', route: '/dashboard', icon: '' },
@@ -81,9 +90,71 @@ export class AppBarComponent implements OnInit {
 
   private searchTerms = ['Ticket #042', 'Salle B12', 'Projecteur Sony', 'Technicien Ounelli', 'Rapport mensuel'];
 
-  constructor(private elRef: ElementRef, private router: Router) {}
+  constructor(
+    private elRef: ElementRef,
+    private router: Router,
+    private authService: AuthService,
+    private themeService: ThemeService
+  ) {
+    // Subscribe to user$ observable to get reactive updates
+    this.user$ = this.authService.user$;
+  }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Subscribe to user$ to update local display values
+    this.user$.subscribe((user: UserInfo | null) => {
+      if (user) {
+        // ✅ Use username for display, email for secondary display
+        this.userName = user.name || 'Utilisateur';
+        this.userEmail = user.email || 'user@example.com';
+        this.userInitials = this.getInitials(this.userName);
+        this.avatarUrl = user.avatarUrl;
+        // Extract role from user data if available
+        this.userRole = this.mapRole(user.role || 'UTILISATEUR');
+      } else {
+        // Reset to defaults when user logs out
+        this.userName = 'Utilisateur';
+        this.userInitials = 'U';
+        this.userEmail = 'user@example.com';
+        this.userRole = 'Utilisateur';
+        this.avatarUrl = undefined;
+      }
+    });
+
+    // Subscribe to dark mode changes
+    this.themeService.darkMode$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isDark: boolean) => {
+        this.isDarkMode = isDark;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Extract initials from user name
+   */
+  private getInitials(name: string): string {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  /**
+   * Map backend roles to display roles
+   */
+  private mapRole(role: string): 'Administrateur' | 'Technicien' | 'Utilisateur' {
+    const normalized = role.toUpperCase();
+    if (normalized.includes('ADMIN')) return 'Administrateur';
+    if (normalized.includes('TECHNIC')) return 'Technicien';
+    return 'Utilisateur';
+  }
 
   get unreadCount(): number {
     return this.notifications.filter((n) => n.unread).length;
@@ -103,6 +174,7 @@ export class AppBarComponent implements OnInit {
   closeSearch(): void {
     this.searchOpen = false;
     this.searchQuery = '';
+    this.searchSuggestions = []; // ✅ Clear suggestions when closing
   }
 
   markAllRead(): void {
@@ -113,8 +185,18 @@ export class AppBarComponent implements OnInit {
     this.notifications = this.notifications.map((n) => (n.id === id ? { ...n, unread: false } : n));
   }
 
+  /**
+   * Logout: call auth service logout which will clear auth data and redirect to login
+   */
   logout(): void {
-    console.log('logout');
+    this.authService.logout();
+  }
+
+  /**
+   * Toggle dark mode theme
+   */
+  toggleTheme(): void {
+    this.themeService.toggleDarkMode();
   }
 
   openNotification(notification: Notification): void {
@@ -151,8 +233,6 @@ export class AppBarComponent implements OnInit {
     console.log('Searching for:', suggestion);
   }
 
-
-
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
@@ -172,6 +252,7 @@ export class AppBarComponent implements OnInit {
     if (searchContainer && !searchContainer.contains(target)) {
       this.searchOpen = false;
       this.searchQuery = '';
+      this.searchSuggestions = []; // ✅ Clear suggestions when clicking outside
     }
   }
 }

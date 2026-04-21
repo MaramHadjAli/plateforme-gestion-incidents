@@ -11,7 +11,6 @@ import tn.enicarthage.plate_be.services.RefreshTokenService;
 import tn.enicarthage.plate_be.services.PasswordResetService;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
@@ -35,7 +34,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(
+    public ResponseEntity<AuthenticationResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.ok(service.register(request));
@@ -81,7 +80,6 @@ public class AuthenticationController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
-            // Vérifie que les mots de passe correspondent
             if (!request.getNewPassword().equals(request.getConfirmPassword())) {
                 return ResponseEntity.badRequest().body(new PasswordResetResponse(
                         false,
@@ -89,7 +87,6 @@ public class AuthenticationController {
                 ));
             }
 
-            // Vérifie la longueur minimale du mot de passe
             if (request.getNewPassword().length() < 6) {
                 return ResponseEntity.badRequest().body(new PasswordResetResponse(
                         false,

@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import tn.enicarthage.plate_be.auth.RegisterRequest;
 import tn.enicarthage.plate_be.dtos.auth.*;
 import tn.enicarthage.plate_be.entities.*;
+import tn.enicarthage.plate_be.entities.ROLE;
 import tn.enicarthage.plate_be.repositories.*;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
@@ -41,45 +41,61 @@ public class AuthenticationService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public Utilisateur register(RegisterRequest request) {
+    public AuthenticationResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
         }
 
-        Utilisateur user = Utilisateur.builder()
-                .nom(request.getNom())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .enabled(false)
-                .build();
+        Utilisateur user;
+
+        switch (request.getRole()) {
+            case DEMANDEUR:
+                user = new Demandeur();
+                break;
+            case TECHNICIEN:
+                user = new Technicien();
+                break;
+            case ADMIN:
+                user = new Adminstrateur();
+                break;
+            default:
+                user = new Utilisateur();
+        }
+
+        user.setNom(request.getNom());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
+        user.setEnabled(true);
 
         Utilisateur savedUser = userRepository.save(user);
 
         // Log l'enregistrement
         logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit");
 
-        String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
+        // Envoi email (optionnel, ne bloque pas)
         try {
+            String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
             emailService.sendConfirmationEmail(user.getEmail(), user.getNom(), confirmationLink);
-        } catch (RuntimeException ex) {
-            // Ne pas bloquer l'inscription si le SMTP n'est pas configure.
+        } catch (Exception ex) {
             System.err.println("Echec envoi email confirmation: " + ex.getMessage());
         }
 
-        return savedUser;
+        // Auto-login après inscription
+        String jwt = jwtUtil.generateToken(savedUser);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser.getId());
+
+        return new AuthenticationResponse(jwt, refreshToken.getToken(), savedUser.getRole().name(), savedUser.getEmail());
     }
 
     public AuthenticationResponse login(LoginRequest request) {
         String email = request.getEmail();
 
-        // Vérifie si l'utilisateur existe
         Utilisateur user = userRepository.findByEmail(email)
                 .orElse(null);
 
         if (user == null) {
-            // Log tentative avec email inexistant
             logAction(email, "LOGIN_FAILED", "FAILED", "Utilisateur non trouvé");
             throw new RuntimeException("User not found");
         }
@@ -91,13 +107,10 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid password");
         }
 
-        // Log la connexion réussie
-        logAction(email, "LOGIN_SUCCESS", "SUCCESS", "Connexion réussie");
-
         String jwt = jwtUtil.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthenticationResponse(jwt, refreshToken.getToken());
+        return new AuthenticationResponse(jwt, refreshToken.getToken(), user.getRole().name(), user.getEmail());
     }
 
     /**

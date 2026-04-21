@@ -763,9 +763,23 @@
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  padding: 18px 28px;
   background: #fafbfd;
   border-top: 1px solid var(--c-border);
+  padding: 18px 28px 10px 10px;
+  gap: 12px;}
+
+.btn-call-modal {
+  padding: 9px 28px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: 0 2px 8px rgba(5,150,105,.35);
 }
 
 .btn-close-modal {
@@ -785,6 +799,11 @@
 .btn-close-modal:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(37,99,235,.45);
+}
+
+.btn-call-modal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(5,150,105,.45);
 }
 
 @media (max-width: 900px) {

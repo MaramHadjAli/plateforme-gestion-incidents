@@ -1,115 +1,225 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
+
+export interface AuthenticationResponse {
+  token: string;
+  refreshToken: string;
+  role: string;
+  email: string;
+}
+
+export interface UserInfo {
+  email: string;
+  name: string;
+  role: string;
+  avatarUrl?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
-  private currentUserSubject: BehaviorSubject<any>;
-  public currentUser: Observable<any>;
-  private tokenKey = 'token';
-  private userKey = 'currentUser';
+  private currentUserSubject = new BehaviorSubject<UserInfo | null>(null);
 
-  constructor(private http: HttpClient) {
-    this.currentUserSubject = new BehaviorSubject<any>(JSON.parse(localStorage.getItem(this.userKey) || '{}'));
-    this.currentUser = this.currentUserSubject.asObservable();
+  // Expose user as observable for reactive binding in components
+  public user$ = this.currentUserSubject.asObservable();
+
+  constructor(private http: HttpClient, private router: Router) {
+    // Initialize user from stored token on service creation
+    this.initializeUserFromToken();
   }
 
-  public get currentUserValue(): any {
-    return this.currentUserSubject.value;
+  /**
+   * Initialize user state from stored token (useful on app startup/refresh)
+   */
+  private initializeUserFromToken(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+
+        const user: UserInfo = {
+          email: decoded.email || '',
+          name: decoded.username || '',
+          role: decoded.role || ''
+        };
+
+        this.currentUserSubject.next(user);
+
+      } catch (e) {
+        this.clearAuthData();
+      }
+    }
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password })
-      .pipe(
-        tap(response => {
-          console.log('Login response:', response);
-          console.log('Response keys:', Object.keys(response));
-          const token = response?.accessToken ?? response?.token;
-          if (token) {
-            localStorage.setItem(this.tokenKey, token);
-            if (response.user) {
-              localStorage.setItem(this.userKey, JSON.stringify(response.user));
-              this.currentUserSubject.next(response.user);
-            }
-          }
-          return response;
-        })
-      );
+  login(credentials: any): Observable<AuthenticationResponse> {
+    return this.http.post<AuthenticationResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(res => this.handleAuthentication(res))
+    );
   }
 
-  register(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+  register(user: any): Observable<AuthenticationResponse> {
+    return this.http.post<AuthenticationResponse>(`${this.apiUrl}/register`, user).pipe(
+      tap(res => this.handleAuthentication(res))
+    );
   }
 
-  requestPasswordReset(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  /**
+   * Handle successful authentication by storing token and updating user state
+   */
+  private handleAuthentication(response: AuthenticationResponse): void {
+    const token = response.token;
+
+    if (token) {
+      try {
+        localStorage.setItem('token', token);
+
+        const decodedToken: any = jwtDecode(token);
+
+        // ✅ Extract username, email, and role from JWT claims (no 'sub' field)
+        const user: UserInfo = {
+          email: decodedToken.email || '',
+          name: decodedToken.username || '',
+          role: decodedToken.role || '',
+          avatarUrl: localStorage.getItem('avatarUrl') || undefined
+        };
+
+        this.currentUserSubject.next(user);
+
+      } catch (e) {
+        console.error('Failed to handle authentication:', e);
+        this.clearAuthData();
+      }
+    }
+  }
+  getRedirectUrl(role: string): string {
+    switch (role) {
+      case 'ADMIN':
+        return '/dashboard';
+      case 'TECHNICIEN':
+      case 'TECHNICIAN':
+        return '/ticket-list';
+      case 'DEMANDEUR':
+      case 'USER':
+        return '/create-ticket';
+      default:
+        return '/home';
+    }
   }
 
-  resetPassword(email: string, code: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, {
-      email,
-      code,
-      newPassword
-    });
-  }
-
-  verifyEmail(token: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-email`, { token });
-  }
-
+  /**
+   * Logout: clear all auth data and redirect to login
+   */
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
+    this.clearAuthData();
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Clear all authentication data from localStorage and BehaviorSubject
+   */
+  private clearAuthData(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('user_email');
     this.currentUserSubject.next(null);
   }
 
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
-  }
-
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem('token');
   }
 
-  private decodeJwtPayload(token: string): any | null {
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  getUserRoleFromToken(token: string): string {
+    if (!token) return '';
     try {
-      const payload = token.split('.')[1];
-      if (!payload) {
-        return null;
-      }
-
-      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
-      const json = decodeURIComponent(
-        atob(padded)
-          .split('')
-          .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-          .join('')
-      );
-      return JSON.parse(json);
-    } catch {
-      return null;
+      const decoded: any = jwtDecode(token);
+      let role = decoded.role || decoded.authorities;
+      if (Array.isArray(role)) role = role[0];
+      return typeof role === 'string' ? role.replace('ROLE_', '') : '';
+    } catch (e) {
+      return '';
     }
   }
 
-  getUserRoleFromToken(token: string | null = this.getToken()): string | null {
-    if (!token) {
-      return null;
-    }
-
-    const payload = this.decodeJwtPayload(token);
-    return payload?.role ?? null;
+  getUserRole(): string {
+    const token = this.getToken();
+    return token ? this.getUserRoleFromToken(token) : '';
   }
 
   isAdmin(): boolean {
-    return this.getUserRoleFromToken() === 'ADMIN';
+    return this.getUserRole() === 'ADMIN';
   }
 
+  /**
+   * Get current user info synchronously (useful for templates with async pipe)
+   */
+  getCurrentUser(): UserInfo | null {
+    return this.currentUserSubject.value;
+  }
+
+  /**
+   * Update the user's avatar globally
+   */
+  updateAvatarUrl(url: string | undefined): void {
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) {
+      if (url) {
+        localStorage.setItem('avatarUrl', url);
+      } else {
+        localStorage.removeItem('avatarUrl');
+      }
+      this.currentUserSubject.next({
+        ...currentUser,
+        avatarUrl: url
+      });
+    }
+  }
+
+  /**
+   * Update user details globally
+   */
+  updateUserDetails(name: string, telephone?: string): void {
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) {
+      this.currentUserSubject.next({
+        ...currentUser,
+        name: name
+      });
+    }
+  }
+
+  /**
+   * Get user data from localStorage (backward compatibility)
+   */
   getUserData(): any {
-    return this.currentUserValue;
+    const currentUser = this.currentUserSubject.value;
+    return currentUser || {};
+  }
+
+  /**
+   * Change user password
+   */
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(`http://localhost:8080/api/users/change-password`, {
+      oldPassword,
+      newPassword,
+      confirmPassword: newPassword
+    });
+  }
+
+  /**
+   * Delete user account
+   */
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`http://localhost:8080/api/users/delete-account`);
   }
 }
+

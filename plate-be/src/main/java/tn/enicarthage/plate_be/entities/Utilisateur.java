@@ -9,12 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@Entity
-@Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "utilisateurs")
+@NoArgsConstructor
+@Entity
+@Table(name = "utilisateurs")cd
 public class Utilisateur implements UserDetails {
 
     @Id
@@ -37,6 +38,9 @@ public class Utilisateur implements UserDetails {
 
     @Column(length = 20)
     private String telephone;
+
+    @Column(length = 500)
+    private String avatarUrl;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

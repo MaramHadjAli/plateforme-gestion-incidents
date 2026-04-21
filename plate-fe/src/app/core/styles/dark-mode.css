@@ -1,0 +1,141 @@
+/* Dark Mode Theme */
+
+:root {
+  /* Light Mode (default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --button-hover: rgba(0, 0, 0, 0.05);
+}
+
+:root.dark-mode {
+  /* Dark Mode */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-color: #404040;
+  --input-bg: #2d2d2d;
+  --input-border: #404040;
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --button-hover: rgba(255, 255, 255, 0.1);
+}
+
+/* Apply dark mode styles */
+:root.dark-mode {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root.dark-mode body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root.dark-mode .profile-container,
+:root.dark-mode .settings-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root.dark-mode .profile-content,
+:root.dark-mode .settings-card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:root.dark-mode .profile-header,
+:root.dark-mode .card-header {
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark-mode .edit-input,
+:root.dark-mode .form-input {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--input-border);
+}
+
+:root.dark-mode .edit-input:focus,
+:root.dark-mode .form-input:focus {
+  border-color: #007bff;
+  background-color: var(--input-bg);
+}
+
+:root.dark-mode .value {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+:root.dark-mode .setting-item,
+:root.dark-mode .info-item {
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark-mode .btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root.dark-mode .btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-secondary);
+  border-color: #007bff;
+}
+
+:root.dark-mode .password-form {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:root.dark-mode .form-group label {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .user-details {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .user-name {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .user-email,
+:root.dark-mode .user-role,
+:root.dark-mode .setting-description {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode .setting-title {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .card-header h2 {
+  color: var(--text-primary);
+}
+
+:root.dark-mode .toggle-slider {
+  background-color: #555555;
+}
+
+:root.dark-mode .toggle input:checked + .toggle-slider {
+  background-color: #007bff;
+}
+
+/* Smooth transition for theme change */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+button,
+input,
+select,
+textarea {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+

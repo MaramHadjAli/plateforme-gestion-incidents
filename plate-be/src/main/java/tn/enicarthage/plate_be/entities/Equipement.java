@@ -46,6 +46,9 @@ public class Equipement {
     @OneToMany(mappedBy = "equipement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MaintenancePreventive> maintenancesPreventives;
 
+    @OneToMany(mappedBy = "equipement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ticket> tickets;
+
 
     public Equipement() {
     }
@@ -155,6 +158,14 @@ public class Equipement {
 
     public void setMaintenancesPreventives(List<MaintenancePreventive> maintenancesPreventives) {
         this.maintenancesPreventives = maintenancesPreventives;
+    }
+
+    public List<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
     }
 
     @Override

@@ -2,12 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #2563eb;
+@layer base {
+  body {
+    background-color: rgb(249, 250, 251);
+    color: rgb(17, 24, 39);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition-property: background-color, color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  body.dark {
+    background-color: rgb(9, 9, 11);
+    color: rgb(244, 244, 245);
+  }
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+:root {
+  --primary: #2563eb;
 }
 
 .dark {

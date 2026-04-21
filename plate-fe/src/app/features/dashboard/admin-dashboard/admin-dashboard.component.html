@@ -1,0 +1,52 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white p-6 md:p-10 transition-colors">
+  
+  <header class="flex justify-between items-center mb-10">
+    <div>
+      <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">Admin Dashboard</h1>
+      <p class="text-gray-500 dark:text-gray-400 font-medium">Real-time SaaS monitoring</p>
+    </div>
+    
+    <!-- Notification Bell Placeholder -->
+    <div class="relative cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm">
+      <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+      <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">3</span>
+    </div>
+  </header>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl shadow-indigo-100/50 dark:shadow-none border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform">
+      <div class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-1">Total Tickets</div>
+      <div class="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400">{{ stats.totalTickets }}</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl shadow-blue-100/50 dark:shadow-none border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform">
+      <div class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-1">Open Tickets</div>
+      <div class="text-4xl font-extrabold text-blue-500">{{ stats.openTickets }}</div>
+    </div>
+    <div class="bg-gradient-to-br from-red-500 to-rose-600 p-6 rounded-2xl shadow-xl shadow-red-200/50 dark:shadow-none border border-red-400 hover:-translate-y-1 transition-transform text-white">
+      <div class="text-red-100 text-sm font-bold uppercase mb-1">Critical SLA Breach</div>
+      <div class="text-4xl font-extrabold">{{ stats.criticalSLA }}</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl shadow-green-100/50 dark:shadow-none border border-gray-100 dark:border-gray-700 hover:-translate-y-1 transition-transform">
+      <div class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase mb-1">Avg Resolution Time</div>
+      <div class="text-4xl font-extrabold text-emerald-500">{{ stats.avgResolution }}</div>
+    </div>
+  </div>
+
+  <!-- Charts Area -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="col-span-1 lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700">
+      <h3 class="text-lg font-bold mb-4">Tickets Lifecycle</h3>
+      <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="'line'"></canvas>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700">
+      <h3 class="text-lg font-bold mb-4">Ticket Status</h3>
+      <canvas baseChart [datasets]="pieChartDatasets" [labels]="pieChartLabels" [options]="pieChartOptions" [type]="'pie'"></canvas>
+    </div>
+    <div class="col-span-1 lg:col-span-3 bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700">
+      <h3 class="text-lg font-bold mb-4">Technician Performance</h3>
+      <canvas baseChart class="max-h-80" [datasets]="barChartDatasets" [labels]="barChartLabels" [options]="barChartOptions" [type]="'bar'"></canvas>
+    </div>
+  </div>
+
+</div>

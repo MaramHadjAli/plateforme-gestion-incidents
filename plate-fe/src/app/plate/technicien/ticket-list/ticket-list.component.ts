@@ -20,10 +20,11 @@ export class TicketListComponent implements OnInit {
   pageSize: number = 10;
   totalPages: number = 0;
   pages: (number | string)[] = [];
+  pdfLoading: boolean = false;  // spinner pendant la génération
 
   tickets: Ticket[] = [];
 
-  constructor(private ticketsService: TicketsService) {} 
+  constructor(private ticketsService: TicketsService) {}
 
   ngOnInit(): void {
     this.loadTickets();
@@ -38,17 +39,30 @@ export class TicketListComponent implements OnInit {
           description: t.description,
           priorite: this.mapBackendPriority(t.priorite),
           statut: this.mapBackendStatus(t.status),
-          dateCreation: t.dateCreation ? new Date(t.dateCreation).toISOString().split('T')[0] : '', 
+          dateCreation: t.dateCreation ? new Date(t.dateCreation).toISOString().split('T')[0] : '',
           dateLimite: t.dateLimite ? new Date(t.dateLimite).toISOString().split('T')[0] : '',
           dateCloture: null,
           technicien: t.demandeurNom || 'À assigner'
         }));
-        
         this.updatePages();
       },
       error: (err) => console.error('Error fetching tickets:', err)
     });
   }
+
+  generateAppelOffre(): void {
+    if (!this.selectedTicket) return;
+    this.pdfLoading = true;
+    this.ticketsService.downloadDemandePrixPdf(
+      this.selectedTicket.id,
+      5 
+    );
+    setTimeout(() => {
+      this.pdfLoading = false;
+      this.selectedTicket = null;
+    }, 1500);
+  }
+
 
   private mapBackendPriority(priorite: string): string {
     const map: { [key: string]: string } = {
@@ -70,7 +84,6 @@ export class TicketListComponent implements OnInit {
     return map[status] || 'Ouvert';
   }
 
-
   get filteredTickets(): Ticket[] {
     if (!this.searchTerm) return this.tickets;
     return this.tickets.filter(ticket =>
@@ -90,40 +103,30 @@ export class TicketListComponent implements OnInit {
 
   getPriorityClass(priority: string): string {
     const classes: { [key: string]: string } = {
-      'Critique': 'Critique',
-      'Élevée': 'Élevée',
-      'Moyenne': 'Moyenne',
-      'Basse': 'Basse'
+      'Critique': 'Critique', 'Élevée': 'Élevée', 'Moyenne': 'Moyenne', 'Basse': 'Basse'
     };
     return classes[priority] || 'Moyenne';
   }
 
   getPriorityDotClass(priority: string): string {
     const classes: { [key: string]: string } = {
-      'Basse': 'bg-green-500',
-      'Moyenne': 'bg-yellow-500',
-      'Élevée': 'bg-orange-500',
-      'Critique': 'bg-red-500'
+      'Basse': 'bg-green-500', 'Moyenne': 'bg-yellow-500',
+      'Élevée': 'bg-orange-500', 'Critique': 'bg-red-500'
     };
     return classes[priority] || 'bg-gray-500';
   }
 
   getStatusClass(status: string): string {
     const classes: { [key: string]: string } = {
-      'En cours': 'En cours',
-      'Assigné': 'Assigné',
-      'Résolu': 'Résolu',
-      'Ouvert': 'Ouvert'
+      'En cours': 'En cours', 'Assigné': 'Assigné', 'Résolu': 'Résolu', 'Ouvert': 'Ouvert'
     };
     return classes[status] || 'Ouvert';
   }
 
   getStatusDotClass(status: string): string {
     const classes: { [key: string]: string } = {
-      'En cours': 'bg-yellow-500',
-      'Assigné': 'bg-blue-500',
-      'Résolu': 'bg-green-500',
-      'Ouvert': 'bg-gray-500'
+      'En cours': 'bg-yellow-500', 'Assigné': 'bg-blue-500',
+      'Résolu': 'bg-green-500', 'Ouvert': 'bg-gray-500'
     };
     return classes[status] || 'bg-gray-500';
   }
@@ -158,17 +161,11 @@ export class TicketListComponent implements OnInit {
   }
 
   previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePages();
-    }
+    if (this.currentPage > 1) { this.currentPage--; this.updatePages(); }
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePages();
-    }
+    if (this.currentPage < this.totalPages) { this.currentPage++; this.updatePages(); }
   }
 
   goToPage(page: number): void {
