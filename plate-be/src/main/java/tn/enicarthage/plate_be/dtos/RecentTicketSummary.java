@@ -1,5 +1,6 @@
 package tn.enicarthage.plate_be.dtos;
 
+import jdk.jshell.Snippet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,6 @@ public class RecentTicketSummary {
     private String statut;
     private String dateCreation;
     private String technicien;
+
 }
 

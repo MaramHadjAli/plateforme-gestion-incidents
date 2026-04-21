@@ -8,16 +8,13 @@ import tn.enicarthage.plate_be.converters.TicketConverter;
 import tn.enicarthage.plate_be.dtos.TicketRequestDTO;
 import tn.enicarthage.plate_be.dtos.TicketResponseDTO;
 import tn.enicarthage.plate_be.entities.Demandeur;
-import tn.enicarthage.plate_be.entities.Equipement;
 import tn.enicarthage.plate_be.entities.STATUS_TICKET;
 import tn.enicarthage.plate_be.entities.Ticket;
 import tn.enicarthage.plate_be.repositories.DemandeurRepository;
 import tn.enicarthage.plate_be.repositories.TicketRepository;
-import tn.enicarthage.plate_be.services.TicketService;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,12 +33,12 @@ public class TicketServiceImpl implements TicketService {
         }
         return authentication.getName();
     }
+
     @Override
     public TicketResponseDTO createTicket(TicketRequestDTO dto) {
         Demandeur demandeur = demandeurRepository.findByEmail(getCurrentUserId());
 
         Ticket ticket = ticketConverter.dtoToEntity(dto);
-
         ticket.setDateCreation(new Date());
         ticket.setStatus(STATUS_TICKET.OUVERT);
         ticket.setCreatedBy(demandeur);
@@ -56,5 +53,20 @@ public class TicketServiceImpl implements TicketService {
                 .stream()
                 .map(ticketConverter::entityToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TicketResponseDTO> getTicketsByIds(List<String> ids) {
+        return ticketRepository.findAllById(ids)   // findAllById est fourni par JpaRepository
+                .stream()
+                .map(ticketConverter::entityToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TicketResponseDTO getTicketById(String id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket introuvable : " + id));
+        return ticketConverter.entityToDto(ticket);
     }
 }

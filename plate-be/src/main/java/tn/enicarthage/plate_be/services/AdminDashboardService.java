@@ -54,15 +54,14 @@ public class AdminDashboardService {
                 .sorted(Comparator.comparing(Ticket::getDateCreation, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .limit(5)
                 .map(ticket -> new RecentTicketSummary(
-                        ticket.getIdTicket(),
+                        String.valueOf(ticket.getIdTicket()),  // Convert Long to String
                         ticket.getTitre(),
-                        ticket.getPriorite() != null ? ticket.getPriorite().name() : null,
-                        ticket.getStatus() != null ? ticket.getStatus().name() : null,
-                        ticket.getDateCreation() != null ? ticket.getDateCreation().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() : null,
+                        ticket.getPriorite() != null ? ticket.getPriorite().name() : null,  // Convert Enum to String
+                        ticket.getStatus() != null ? ticket.getStatus().name() : null,      // Convert Enum to String
+                        ticket.getDateCreation() != null ? ticket.getDateCreation().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() : null,  // Convert Date to String
                         ticket.getAssignedTo() != null ? ticket.getAssignedTo().getNom() : "Non assigné"
                 ))
                 .collect(Collectors.toList());
-
         return new AdminDashboardStats(
                 totalTickets,
                 openTickets,
