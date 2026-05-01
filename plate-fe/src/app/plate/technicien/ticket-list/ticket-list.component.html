@@ -4,10 +4,20 @@
     <div class="header-left">
       <div class="header-eyebrow">
         <span class="eyebrow-dot"></span>
-        <span>Support Technique</span>
+        <span *ngIf="userRole === 'ADMIN'">Administration</span>
+        <span *ngIf="userRole === 'TECHNICIEN'">Support Technique</span>
+        <span *ngIf="userRole === 'DEMANDEUR'">Espace Utilisateur</span>
       </div>
-      <h1 class="page-title">Gestion des <span class="title-accent">Tickets</span></h1>
-      <p class="page-subtitle">Suivez et gérez l'ensemble des demandes d'assistance</p>
+      <h1 class="page-title">
+        <ng-container *ngIf="userRole === 'ADMIN'">Gestion globale des <span class="title-accent">Tickets</span></ng-container>
+        <ng-container *ngIf="userRole === 'TECHNICIEN'">Gestion des <span class="title-accent">Tickets</span></ng-container>
+        <ng-container *ngIf="userRole === 'DEMANDEUR'">Mes <span class="title-accent">Tickets</span></ng-container>
+      </h1>
+      <p class="page-subtitle">
+        <ng-container *ngIf="userRole === 'ADMIN'">Supervisez et gérez l'ensemble des tickets du système</ng-container>
+        <ng-container *ngIf="userRole === 'TECHNICIEN'">Suivez et gérez les demandes d'assistance qui vous sont assignées</ng-container>
+        <ng-container *ngIf="userRole === 'DEMANDEUR'">Suivez l'état et la progression de vos demandes d'assistance</ng-container>
+      </p>
     </div>
     <div class="header-right">
       <div class="live-badge">
@@ -98,7 +108,7 @@
           <svg class="select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
       </div>
-      <button routerLink="/create-ticket" class="btn-new">
+      <button *ngIf="userRole === 'DEMANDEUR' || userRole === 'ADMIN'" routerLink="/create-ticket" class="btn-new">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         Nouveau Ticket
       </button>
@@ -156,10 +166,30 @@
               </div>
             </td>
             <td class="td-center">
-              <button (click)="openModal(ticket)" class="btn-details">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                Détails
-              </button>
+              <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                <button (click)="openModal(ticket)" class="btn-details">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  Détails
+                </button>
+                <!-- Admin: Assign button -->
+                <button *ngIf="userRole === 'ADMIN' && ticket.statut === 'Ouvert'" 
+                        (click)="openAssignModal(ticket.id)" 
+                        class="btn-details" style="background: rgba(99,102,241,0.1); color: #818cf8;">
+                  Assigner
+                </button>
+                <!-- Technician: Status progression -->
+                <button *ngIf="userRole === 'TECHNICIEN' && getNextStatus(ticket.statut)"
+                        (click)="updateTicketStatus(ticket.id, getNextStatus(ticket.statut)!)"
+                        class="btn-details" style="background: rgba(34,197,94,0.1); color: #22c55e;">
+                  {{ getNextStatusLabel(ticket.statut) }}
+                </button>
+                <!-- Admin: Delete -->
+                <button *ngIf="userRole === 'ADMIN'"
+                        (click)="deleteTicket(ticket.id)"
+                        class="btn-details" style="background: rgba(239,68,68,0.1); color: #ef4444;">
+                  ✕
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -247,6 +277,35 @@
 
     <div class="modal-footer">
       <button class="btn-close-modal" (click)="selectedTicket = null">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Modal (Admin only) -->
+<div class="modal-backdrop" [class.modal-open]="showAssignModal" (click)="closeAssignModal()" *ngIf="showAssignModal">
+  <div class="modal-box" (click)="$event.stopPropagation()" style="max-width: 420px;">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Assigner un Technicien</h3>
+          <p class="modal-subtitle">Ticket #{{ assignTicketId }}</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="closeAssignModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding: 20px;">
+      <label class="field-label" style="display: block; margin-bottom: 8px;">ID du Technicien</label>
+      <input type="number" [(ngModel)]="assignTechnicienId" placeholder="Entrez l'ID du technicien"
+             style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text); font-size: 14px; outline: none;">
+    </div>
+    <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn-close-modal" (click)="closeAssignModal()">Annuler</button>
+      <button class="btn-new" (click)="confirmAssign()" [disabled]="!assignTechnicienId">Assigner</button>
     </div>
   </div>
 </div>

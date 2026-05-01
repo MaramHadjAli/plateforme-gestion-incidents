@@ -8,4 +8,5 @@ export interface Ticket {
     dateLimite: string;
     dateCloture: string | null;
     technicien: string;
+    demandeur: string;
   }

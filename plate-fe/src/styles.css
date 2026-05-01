@@ -2,12 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
 :root {
   --primary: #2563eb;
+  --c-bg: #f4f5f9;
+  --c-surface: #ffffff;
+  --c-border: #e5e7ef;
+  --c-text: #111827;
+  --c-text-muted: #6b7280;
+  --c-blue: #2563eb;
+  --c-blue-soft: #eff6ff;
+  --c-amber: #d97706;
+  --c-amber-soft: #fffbeb;
+  --c-red: #dc2626;
+  --c-red-soft: #fef2f2;
+  --c-green: #059669;
+  --c-green-soft: #ecfdf5;
+  --c-purple: #7c3aed;
+  --c-purple-soft: #f5f3ff;
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.14);
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--c-bg);
+  color: var(--c-text);
 }
 
 .dark {

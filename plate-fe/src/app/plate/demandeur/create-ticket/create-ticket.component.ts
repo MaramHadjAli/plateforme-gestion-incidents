@@ -8,11 +8,14 @@ import { Equipement } from '../../../core/models/equipement.model';
 import { TicketResponse } from '../../../core/models/ticket-response.model';
 import { TicketsService } from '../../../core/services/tickets.service';
 import { TicketRequest } from '../../../core/models/ticket-request.model';
+import { SalleService } from '../../../core/services/salle.service';
+import { EquipementService } from '../../../core/services/equipement.service';
+import { RouterModule, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-create-ticket',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, RouterLink],
   templateUrl: './create-ticket.component.html',
   styleUrl: './create-ticket.component.css'
 })
@@ -35,7 +38,7 @@ export class CreateTicketComponent implements OnInit {
   priorities: Priority[] = [
     { value: 'CRITIQUE', label: 'Critique', icon: '🔴' },
     { value: 'HAUTE', label: 'Haute', icon: '🟠' },
-    { value: 'NORMAL', label: 'Normal', icon: '🟡' },
+    { value: 'NORMALE', label: 'Normal', icon: '🟡' },
     { value: 'FAIBLE', label: 'Faible', icon: '🟢' },
   ];
 
@@ -53,7 +56,9 @@ export class CreateTicketComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private ticketsService: TicketsService
+    private ticketsService: TicketsService,
+    private salleService: SalleService,
+    private equipementService: EquipementService
   ) {}
 
   ngOnInit(): void {
@@ -73,6 +78,22 @@ export class CreateTicketComponent implements OnInit {
     });
 
     this.loadTickets();
+    this.loadSalles();
+    this.loadEquipements();
+  }
+
+  loadSalles(): void {
+    this.salleService.getAll().subscribe({
+      next: (data) => this.salles = data,
+      error: (err) => console.error('Error fetching salles', err)
+    });
+  }
+
+  loadEquipements(): void {
+    this.equipementService.getAll().subscribe({
+      next: (data) => this.equipements = data,
+      error: (err) => console.error('Error fetching equipements', err)
+    });
   }
 
   loadTickets(): void {
@@ -138,8 +159,9 @@ export class CreateTicketComponent implements OnInit {
       titre: this.f['titre'].value,
       description: this.f['description'].value,
       priorite: this.f['priorite'].value,
-      dateLimite: this.f['dateLimiteReparation'].value,
-      demandeurId: 'INSERT_ACTUAL_USER_ID_HERE' 
+      dateLimite: this.f['dateLimiteReparation'].value || undefined,
+      idSalle: this.f['idSalle'].value || undefined,
+      idEquipement: this.f['idEquipement'].value || undefined
     };
 
     this.ticketsService.createTicket(payload).subscribe({
@@ -206,6 +228,7 @@ export class CreateTicketComponent implements OnInit {
     const map: Record<string, string> = {
       CRITIQUE: 'text-red-400',
       HAUTE: 'text-orange-400',
+      NORMALE: 'text-yellow-400',
       NORMAL: 'text-yellow-400',
       FAIBLE: 'text-emerald-400',
     };
@@ -228,9 +251,21 @@ export class CreateTicketComponent implements OnInit {
     const map: Record<string, string> = {
       CRITIQUE: '⏱ Résolution sous 2h',
       HAUTE: '⏱ Résolution sous 8h',
-      NORMAL: '⏱ Résolution sous 24h',
+      NORMALE: '⏱ Résolution sous 24h',
+      NORMAL: '⏱ Résolution sous 24h',   // keep both for safety
       FAIBLE: '⏱ Résolution sous 72h',
     };
     return map[priority] || '— Dépend de la priorité';
+  }
+
+  resetForm(): void {
+    this.submitted = false;
+    this.generatedTicketId = '';
+    this.currentStep = 1;
+    this.selectedPanneType = '';
+    this.previewUrl = null;
+    this.selectedFile = null;
+    this.fileError = '';
+    this.ticketForm.reset();
   }
 }

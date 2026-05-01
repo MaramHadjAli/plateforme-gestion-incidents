@@ -76,7 +76,9 @@ export class LoginComponent {
           if (role === 'ADMIN') {
             this.router.navigate(['/dashboard']);
           } else if (role === 'TECHNICIEN') {
-            this.router.navigate(['/ticket-list']);
+            this.router.navigate(['/technicien/dashboard']);
+          } else if (role === 'DEMANDEUR') {
+            this.router.navigate(['/create-ticket']);
           } else {
             this.router.navigate(['/home']);
           }

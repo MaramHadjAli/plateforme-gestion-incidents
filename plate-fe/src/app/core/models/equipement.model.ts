@@ -4,6 +4,6 @@ export interface Equipement {
   type: string;
   modele: string;
   numSerie: string;
-  etat: 'FONCTIONNELLE' | 'EN_PANNE' | 'EN_MAINTENNANCE';
+  etat: 'FONCTIONNELLE' | 'EN_PANNE' | 'EN_MAINTENANCE';
   idSalle: string;
 }

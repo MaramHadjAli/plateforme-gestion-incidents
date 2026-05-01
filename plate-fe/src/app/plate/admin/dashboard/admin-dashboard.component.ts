@@ -18,7 +18,7 @@ type SeriesItem = {
   standalone: true,
   imports: [CommonModule, RouterModule, AdvancedDonutChartComponent, CinematicHybridChartComponent],
   templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.css']
+  styleUrls: ['./admin-dashboard.component.css', '../../technicien/ticket-list/ticket-list.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   stats: AdminDashboardStats | null = null;

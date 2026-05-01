@@ -26,14 +26,19 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password })
       .pipe(
         tap(response => {
-          console.log('Login response:', response);
-          console.log('Response keys:', Object.keys(response));
           const token = response?.accessToken ?? response?.token;
           if (token) {
             localStorage.setItem(this.tokenKey, token);
+            // Store user info from response
             if (response.user) {
               localStorage.setItem(this.userKey, JSON.stringify(response.user));
               this.currentUserSubject.next(response.user);
+            } else {
+              // Fallback: build user info from JWT
+              const role = this.getUserRoleFromToken(token);
+              const userData = { email, role };
+              localStorage.setItem(this.userKey, JSON.stringify(userData));
+              this.currentUserSubject.next(userData);
             }
           }
           return response;
@@ -107,6 +112,14 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.getUserRoleFromToken() === 'ADMIN';
+  }
+
+  isTechnicien(): boolean {
+    return this.getUserRoleFromToken() === 'TECHNICIEN';
+  }
+
+  isDemandeur(): boolean {
+    return this.getUserRoleFromToken() === 'DEMANDEUR';
   }
 
   getUserData(): any {

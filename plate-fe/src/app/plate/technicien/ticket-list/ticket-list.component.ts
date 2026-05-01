@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Ticket } from '../../../core/models/ticket.model';
 import { RouterModule, RouterLink } from '@angular/router';
 import { TicketsService } from '../../../core/services/tickets.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-ticket-list',
@@ -22,15 +23,29 @@ export class TicketListComponent implements OnInit {
   pages: (number | string)[] = [];
 
   tickets: Ticket[] = [];
+  userRole: string = '';
 
-  constructor(private ticketsService: TicketsService) {} 
+  // For assign modal
+  showAssignModal = false;
+  assignTicketId = '';
+  assignTechnicienId: number | null = null;
+
+  constructor(
+    private ticketsService: TicketsService,
+    private authService: AuthService
+  ) {} 
 
   ngOnInit(): void {
+    this.userRole = this.authService.getUserRoleFromToken() || '';
     this.loadTickets();
   }
 
   loadTickets(): void {
-    this.ticketsService.getAllTickets().subscribe({
+    const source$ = this.userRole === 'ADMIN' 
+      ? this.ticketsService.getAllTickets() 
+      : this.ticketsService.getMyTickets();
+    
+    source$.subscribe({
       next: (data) => {
         this.tickets = data.map(t => ({
           id: t.idTicket,
@@ -40,8 +55,9 @@ export class TicketListComponent implements OnInit {
           statut: this.mapBackendStatus(t.status),
           dateCreation: t.dateCreation ? new Date(t.dateCreation).toISOString().split('T')[0] : '', 
           dateLimite: t.dateLimite ? new Date(t.dateLimite).toISOString().split('T')[0] : '',
-          dateCloture: null,
-          technicien: t.demandeurNom || 'À assigner'
+          dateCloture: t.dateCloture ? new Date(t.dateCloture).toISOString().split('T')[0] : null,
+          technicien: t.technicienNom || 'Non assigné',
+          demandeur: t.demandeurNom || '—'
         }));
         
         this.updatePages();
@@ -54,6 +70,7 @@ export class TicketListComponent implements OnInit {
     const map: { [key: string]: string } = {
       'CRITIQUE': 'Critique',
       'HAUTE': 'Élevée',
+      'NORMALE': 'Moyenne',
       'NORMAL': 'Moyenne',
       'FAIBLE': 'Basse'
     };
@@ -63,6 +80,7 @@ export class TicketListComponent implements OnInit {
   private mapBackendStatus(status: string): string {
     const map: { [key: string]: string } = {
       'OUVERT': 'Ouvert',
+      'ASSIGNE': 'Assigné',
       'EN_COURS': 'En cours',
       'RESOLU': 'Résolu',
       'FERME': 'Fermé'
@@ -70,6 +88,62 @@ export class TicketListComponent implements OnInit {
     return map[status] || 'Ouvert';
   }
 
+  // === Status update (for technician) ===
+  updateTicketStatus(ticketId: string, newStatus: string): void {
+    this.ticketsService.updateStatus(ticketId, newStatus).subscribe({
+      next: () => this.loadTickets(),
+      error: (err) => console.error('Error updating status:', err)
+    });
+  }
+
+  getNextStatus(currentStatus: string): string | null {
+    const flow: { [key: string]: string } = {
+      'Assigné': 'EN_COURS',
+      'En cours': 'RESOLU'
+    };
+    return flow[currentStatus] || null;
+  }
+
+  getNextStatusLabel(currentStatus: string): string | null {
+    const flow: { [key: string]: string } = {
+      'Assigné': 'Démarrer',
+      'En cours': 'Résoudre'
+    };
+    return flow[currentStatus] || null;
+  }
+
+  // === Assign (for admin) ===
+  openAssignModal(ticketId: string): void {
+    this.assignTicketId = ticketId;
+    this.assignTechnicienId = null;
+    this.showAssignModal = true;
+  }
+
+  closeAssignModal(): void {
+    this.showAssignModal = false;
+  }
+
+  confirmAssign(): void {
+    if (this.assignTechnicienId && this.assignTicketId) {
+      this.ticketsService.assignTicket(this.assignTicketId, this.assignTechnicienId).subscribe({
+        next: () => {
+          this.loadTickets();
+          this.closeAssignModal();
+        },
+        error: (err) => console.error('Error assigning ticket:', err)
+      });
+    }
+  }
+
+  // === Delete (admin) ===
+  deleteTicket(ticketId: string): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?')) {
+      this.ticketsService.deleteTicket(ticketId).subscribe({
+        next: () => this.loadTickets(),
+        error: (err) => console.error('Error deleting ticket:', err)
+      });
+    }
+  }
 
   get filteredTickets(): Ticket[] {
     if (!this.searchTerm) return this.tickets;
@@ -113,7 +187,8 @@ export class TicketListComponent implements OnInit {
       'En cours': 'En cours',
       'Assigné': 'Assigné',
       'Résolu': 'Résolu',
-      'Ouvert': 'Ouvert'
+      'Ouvert': 'Ouvert',
+      'Fermé': 'Fermé'
     };
     return classes[status] || 'Ouvert';
   }
@@ -123,7 +198,8 @@ export class TicketListComponent implements OnInit {
       'En cours': 'bg-yellow-500',
       'Assigné': 'bg-blue-500',
       'Résolu': 'bg-green-500',
-      'Ouvert': 'bg-gray-500'
+      'Ouvert': 'bg-gray-500',
+      'Fermé': 'bg-slate-500'
     };
     return classes[status] || 'bg-gray-500';
   }

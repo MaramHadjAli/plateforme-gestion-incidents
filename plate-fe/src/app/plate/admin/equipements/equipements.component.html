@@ -1,0 +1,112 @@
+<div class="tickets-page">
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>Administration</span>
+      </div>
+      <h1 class="page-title">Gestion des <span class="title-accent">Équipements</span></h1>
+      <p class="page-subtitle">Gérez le parc informatique et matériel.</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-new" (click)="openModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nouvel Équipement
+      </button>
+    </div>
+  </div>
+
+    <section *ngIf="loading" class="admin-loading card-panel">
+      Chargement des équipements...
+    </section>
+
+    <section *ngIf="errorMessage" class="admin-error card-panel">
+      {{ errorMessage }}
+      <button type="button" class="admin-retry" (click)="loadData()">Réessayer</button>
+    </section>
+
+    <ng-container *ngIf="!loading && !errorMessage">
+      <div class="salles-grid">
+        <article *ngFor="let eq of equipements" class="salle-card card-panel">
+          <div class="salle-card__header">
+            <div class="salle-icon" style="color: var(--violet); background: var(--violet-light);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <div class="salle-actions">
+              <button class="icon-btn edit-btn" (click)="openModal(eq)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="icon-btn delete-btn" (click)="deleteEquipement(eq.idEquipement)">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="salle-card__content">
+            <h3>{{ eq.nomEquipement }}</h3>
+            <p>{{ eq.type }} - Modèle: <span>{{ eq.modele || 'N/A' }}</span></p>
+            <div class="salle-meta" style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <span [class]="getEtatClass(eq.etat)">{{ eq.etat }}</span>
+              <span class="badge badge--neutral">Salle: {{ getNomSalle(eq.idSalle) }}</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div *ngIf="equipements.length === 0" class="empty-state card-panel">
+        <p>Aucun équipement trouvé.</p>
+      </div>
+    </ng-container>
+
+
+  <!-- Modal -->
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-content card-panel" style="max-height: 90vh; overflow-y: auto;">
+      <header class="modal-header">
+        <h2>{{ editingEquipement ? 'Modifier l\'équipement' : 'Nouvel équipement' }}</h2>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </header>
+      <form class="modal-form" (ngSubmit)="saveEquipement()">
+        <div class="form-group">
+          <label>ID Équipement</label>
+          <input type="text" name="idEquipement" [(ngModel)]="equipementForm.idEquipement" [disabled]="!!editingEquipement" required />
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" name="nomEquipement" [(ngModel)]="equipementForm.nomEquipement" required />
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" name="type" [(ngModel)]="equipementForm.type" required />
+        </div>
+        <div class="form-group">
+          <label>Modèle</label>
+          <input type="text" name="modele" [(ngModel)]="equipementForm.modele" />
+        </div>
+        <div class="form-group">
+          <label>Numéro de série</label>
+          <input type="text" name="numSerie" [(ngModel)]="equipementForm.numSerie" />
+        </div>
+        <div class="form-group">
+          <label>État</label>
+          <select name="etat" [(ngModel)]="equipementForm.etat" required>
+            <option value="FONCTIONNELLE">Fonctionnelle</option>
+            <option value="EN_PANNE">En panne</option>
+            <option value="EN_MAINTENANCE">En maintenance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Salle</label>
+          <select name="idSalle" [(ngModel)]="equipementForm.idSalle" required>
+            <option *ngFor="let salle of salles" [value]="salle.idSalle">{{ salle.nomSalle }}</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="action-btn is-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

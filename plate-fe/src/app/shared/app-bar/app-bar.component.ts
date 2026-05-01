@@ -15,6 +15,8 @@ interface Notification {
   ticketId?: string;
 }
 
+import { AuthService } from '../../core/services/auth.service';
+
 @Component({
   selector: 'app-bar',
   standalone: true,
@@ -38,13 +40,7 @@ export class AppBarComponent implements OnInit {
   userPoints = 680;
   pointsPercent = 68;
 
-  navLinks: NavLink[] = [
-    { label: 'Dashboard', route: '/dashboard', icon: '' },
-    { label: 'Tickets', route: '/ticket-list', icon: '' },
-    { label: 'Équipements', route: '/equipements', icon: '' },
-    { label: 'Maintenance', route: '/maintenance', icon: '' },
-    { label: 'Classement', route: '/classement', icon: '' }
-  ];
+  navLinks: NavLink[] = [];
 
   notifications: Notification[] = [
     { id: 1, type: 'critical', title: 'Incident critique', message: 'Ticket #042 — Panne critique en Salle B12', time: '2 min', unread: true, ticketId: '042' },
@@ -81,9 +77,43 @@ export class AppBarComponent implements OnInit {
 
   private searchTerms = ['Ticket #042', 'Salle B12', 'Projecteur Sony', 'Technicien Ounelli', 'Rapport mensuel'];
 
-  constructor(private elRef: ElementRef, private router: Router) {}
+  constructor(private elRef: ElementRef, private router: Router, private authService: AuthService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const role = this.authService.getUserRoleFromToken();
+    if (role === 'ADMIN') {
+      this.userRole = 'Administrateur';
+      this.navLinks = [
+        { label: 'Dashboard', route: '/dashboard', icon: '' },
+        { label: 'Tickets', route: '/ticket-list', icon: '' },
+        { label: 'Salles', route: '/admin/salles', icon: '' },
+        { label: 'Équipements', route: '/admin/equipements', icon: '' },
+        { label: 'Classement', route: '/classement', icon: '' }
+      ];
+    } else if (role === 'TECHNICIEN') {
+      this.userRole = 'Technicien';
+      this.navLinks = [
+        { label: 'Mon Dashboard', route: '/technicien/dashboard', icon: '' },
+        { label: 'Mes Tickets', route: '/ticket-list', icon: '' },
+        { label: 'Maintenance', route: '/maintenance', icon: '' },
+        { label: 'Classement', route: '/classement', icon: '' }
+      ];
+    } else {
+      this.userRole = 'Utilisateur';
+      this.navLinks = [
+        { label: 'Nouveau Ticket', route: '/create-ticket', icon: '' },
+        { label: 'Mes Tickets', route: '/ticket-list', icon: '' }
+      ];
+    }
+    
+    const user = this.authService.getUserData();
+    if (user && Object.keys(user).length > 0) {
+      this.userName = user.nom ? `${user.prenom || ''} ${user.nom}`.trim() : (user.email || 'Utilisateur');
+      this.userEmail = user.email || '';
+      const initials = ((user.prenom?.[0] || user.nom?.[0] || '') + (user.nom?.[1] || '')).toUpperCase();
+      this.userInitials = initials || 'U';
+    }
+  }
 
   get unreadCount(): number {
     return this.notifications.filter((n) => n.unread).length;
@@ -114,7 +144,8 @@ export class AppBarComponent implements OnInit {
   }
 
   logout(): void {
-    console.log('logout');
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   openNotification(notification: Notification): void {

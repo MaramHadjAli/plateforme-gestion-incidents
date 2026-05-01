@@ -4,8 +4,7 @@
 
 .admin-dashboard {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 17rem 1fr;
+  display: block;
   background:
     radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 28%),
     radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 24%),

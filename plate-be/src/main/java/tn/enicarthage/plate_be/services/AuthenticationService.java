@@ -19,6 +19,8 @@ import java.util.UUID;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final DemandeurRepository demandeurRepository;
+    private final TechnicienRepository technicienRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TraceLoginRepository traceRepo;
@@ -27,6 +29,8 @@ public class AuthenticationService {
 
     public AuthenticationService(
             UserRepository userRepository,
+            DemandeurRepository demandeurRepository,
+            TechnicienRepository technicienRepository,
             PasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
             TraceLoginRepository traceRepo,
@@ -34,6 +38,8 @@ public class AuthenticationService {
             RefreshTokenService refreshTokenService
     ) {
         this.userRepository = userRepository;
+        this.demandeurRepository = demandeurRepository;
+        this.technicienRepository = technicienRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.traceRepo = traceRepo;
@@ -47,22 +53,47 @@ public class AuthenticationService {
             throw new RuntimeException("Email déjà utilisé");
         }
 
-        Utilisateur user = Utilisateur.builder()
-                .nom(request.getNom())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .enabled(false)
-                .build();
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        ROLE role = request.getRole() != null ? request.getRole() : ROLE.DEMANDEUR;
 
-        Utilisateur savedUser = userRepository.save(user);
+        Utilisateur savedUser;
+
+        switch (role) {
+            case TECHNICIEN:
+                Technicien tech = new Technicien();
+                tech.setNom(request.getNom());
+                tech.setEmail(request.getEmail());
+                tech.setPassword(encodedPassword);
+                tech.setRole(ROLE.TECHNICIEN);
+                tech.setEnabled(true);
+                savedUser = technicienRepository.save(tech);
+                break;
+            case ADMIN:
+                Adminstrateur admin = new Adminstrateur();
+                admin.setNom(request.getNom());
+                admin.setEmail(request.getEmail());
+                admin.setPassword(encodedPassword);
+                admin.setRole(ROLE.ADMIN);
+                admin.setEnabled(true);
+                savedUser = userRepository.save(admin);
+                break;
+            default:
+                Demandeur demandeur = new Demandeur();
+                demandeur.setNom(request.getNom());
+                demandeur.setEmail(request.getEmail());
+                demandeur.setPassword(encodedPassword);
+                demandeur.setRole(ROLE.DEMANDEUR);
+                demandeur.setEnabled(true);
+                savedUser = demandeurRepository.save(demandeur);
+                break;
+        }
 
         // Log l'enregistrement
         logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit");
 
         String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
         try {
-            emailService.sendConfirmationEmail(user.getEmail(), user.getNom(), confirmationLink);
+            emailService.sendConfirmationEmail(savedUser.getEmail(), savedUser.getNom(), confirmationLink);
         } catch (RuntimeException ex) {
             // Ne pas bloquer l'inscription si le SMTP n'est pas configure.
             System.err.println("Echec envoi email confirmation: " + ex.getMessage());
@@ -97,7 +128,14 @@ public class AuthenticationService {
         String jwt = jwtUtil.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthenticationResponse(jwt, refreshToken.getToken());
+        AuthenticationResponse.UserInfo userInfo = new AuthenticationResponse.UserInfo(
+                user.getId(),
+                user.getNom(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return new AuthenticationResponse(jwt, refreshToken.getToken(), userInfo);
     }
 
     /**

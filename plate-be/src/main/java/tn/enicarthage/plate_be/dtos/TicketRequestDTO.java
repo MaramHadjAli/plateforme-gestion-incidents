@@ -1,7 +1,6 @@
 package tn.enicarthage.plate_be.dtos;
 
 import lombok.Data;
-import tn.enicarthage.plate_be.entities.PRIORITE_TICKET;
 
 import java.util.Date;
 
@@ -9,7 +8,9 @@ import java.util.Date;
 public class TicketRequestDTO {
     private String titre;
     private String description;
-    private PRIORITE_TICKET priorite;
+    private String priorite;   // String to avoid 400 on unknown values
     private Date dateLimite;
+    private String idSalle;
+    private String idEquipement;
     private String demandeurId;
 }

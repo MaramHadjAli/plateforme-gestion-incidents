@@ -77,7 +77,7 @@ public class NotificationService {
                 .severity(severity)
                 .ticketId(ticketId)
                 .utilisateur(utilisateur)
-                .isRead(false)
+                .read(false)
                 .emailSent(false)
                 .smsSent(false)
                 .dateEnvoi(new Date())

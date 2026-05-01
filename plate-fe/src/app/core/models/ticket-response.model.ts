@@ -1,12 +1,14 @@
-import { PrioriteTicket } from "./priority-ticket.enum";
-
 export interface TicketResponse {
   idTicket: string;
   titre: string;
   description: string;
   dateCreation: Date | string;
+  dateCloture: Date | string | null;
   dateLimite: Date | string;
-  priorite: PrioriteTicket | string;
+  priorite: string;
   status: string;
   demandeurNom: string;
+  demandeurEmail: string;
+  technicienNom: string | null;
+  technicienId: number | null;
 }

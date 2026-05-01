@@ -14,22 +14,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
-import lombok.Builder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-@Builder
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,8 +30,6 @@ public class Ticket {
     private String description;
     private Date dateCreation;
     private Date dateCloture;
-
-
 
     @Enumerated(EnumType.STRING)
     private PRIORITE_TICKET priorite;
@@ -62,4 +52,12 @@ public class Ticket {
     
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistoriqueMaintenance> historiqueMaintenances;
+
+    @ManyToOne
+    @JoinColumn(name = "salle_id")
+    private Salle salle;
+
+    @ManyToOne
+    @JoinColumn(name = "equipement_id")
+    private Equipement equipement;
 }

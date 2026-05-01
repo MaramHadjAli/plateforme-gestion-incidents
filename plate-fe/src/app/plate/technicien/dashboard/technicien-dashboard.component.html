@@ -1,0 +1,136 @@
+<div class="tickets-page">
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>Tableau de bord</span>
+      </div>
+      <h1 class="page-title">Aperçu de vos <span class="title-accent">interventions</span></h1>
+      <p class="page-subtitle">Suivez vos performances, vos tickets et vos prochaines maintenances.</p>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        Temps réel
+      </div>
+    </div>
+  </div>
+
+    <section *ngIf="loading" class="admin-loading card-panel">
+      Chargement du dashboard...
+    </section>
+
+    <section *ngIf="errorMessage" class="admin-error card-panel">
+      {{ errorMessage }}
+      <button type="button" class="admin-retry" (click)="loadDashboard()">Réessayer</button>
+    </section>
+
+    <ng-container *ngIf="!loading && !errorMessage && dashboardData">
+      
+      <!-- Performance Section -->
+      <section class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <article class="kpi-card card-panel">
+          <div class="kpi-card__content">
+            <span class="kpi-card__label">Mes Points</span>
+            <strong class="kpi-card__value">{{ dashboardData.totalPoints }}</strong>
+            <span class="kpi-card__note">Total cumulé</span>
+          </div>
+          <div class="kpi-card__icon is-yellow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+          </div>
+        </article>
+
+        <article class="kpi-card card-panel">
+          <div class="kpi-card__content">
+            <span class="kpi-card__label">Note Moyenne</span>
+            <strong class="kpi-card__value">{{ dashboardData.noteMoyenne }}/5</strong>
+            <span class="kpi-card__note" [style.color]="getPerformanceColor(dashboardData.noteMoyenne)">Performance globale</span>
+          </div>
+          <div class="kpi-card__icon is-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
+          </div>
+        </article>
+
+        <article class="kpi-card card-panel">
+          <div class="kpi-card__content">
+            <span class="kpi-card__label">Tickets Résolus</span>
+            <strong class="kpi-card__value">{{ dashboardData.ticketsResolus }}</strong>
+            <span class="kpi-card__note">{{ dashboardData.totalTicketsAssignes }} assignés au total</span>
+          </div>
+          <div class="kpi-card__icon is-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+        </article>
+        
+        <article class="kpi-card card-panel">
+          <div class="kpi-card__content">
+            <span class="kpi-card__label">En cours</span>
+            <strong class="kpi-card__value">{{ dashboardData.ticketsEnCours }}</strong>
+            <span class="kpi-card__note" style="color: var(--red);">{{ dashboardData.ticketsEnRetard }} en retard</span>
+          </div>
+          <div class="kpi-card__icon is-violet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+        </article>
+      </section>
+
+      <section class="detail-grid" style="margin-top: 1.5rem;">
+        <article class="card-panel chart-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-heading__eyebrow">Mes interventions</p>
+              <h2>Tickets récents assignés</h2>
+            </div>
+            <a routerLink="/ticket-list" class="section-link">Voir tous</a>
+          </div>
+
+          <div class="recent-list">
+            <article *ngFor="let ticket of dashboardData.ticketsRecents" class="recent-item">
+              <div class="recent-item__main">
+                <strong>{{ ticket.titre }}</strong>
+                <span>{{ ticket.idTicket }}</span>
+              </div>
+              <div class="recent-item__meta">
+                <span [class]="getPriorityClass(ticket.priorite)">{{ ticket.priorite }}</span>
+                <span [class]="getStatusClass(ticket.status)">{{ ticket.status }}</span>
+              </div>
+              <div class="recent-item__footer">
+                <span>{{ ticket.dateCreation }}</span>
+              </div>
+            </article>
+
+            <p *ngIf="!dashboardData.ticketsRecents?.length" class="empty-state">Aucun ticket récent assigné.</p>
+          </div>
+        </article>
+
+        <article class="card-panel chart-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-heading__eyebrow">Planification</p>
+              <h2>Prochaines Maintenances</h2>
+            </div>
+          </div>
+
+          <div class="recent-list">
+            <article *ngFor="let m of dashboardData.maintenancesProches" class="recent-item" style="border-left: 4px solid var(--violet);">
+              <div class="recent-item__main">
+                <strong>{{ m.nomEquipement }}</strong>
+                <span>{{ m.description }}</span>
+              </div>
+              <div class="recent-item__meta">
+                <span class="badge badge--high">{{ m.frequence }}</span>
+                <span *ngIf="m.enRetard" class="badge badge--critical">En retard</span>
+              </div>
+              <div class="recent-item__footer">
+                <span>Prévue le: <strong>{{ m.dateProgramme | date }}</strong></span>
+              </div>
+            </article>
+
+            <p *ngIf="!dashboardData.maintenancesProches?.length" class="empty-state">Aucune maintenance prévue prochainement.</p>
+          </div>
+        </article>
+      </section>
+
+    </ng-container>
+
+</div>
