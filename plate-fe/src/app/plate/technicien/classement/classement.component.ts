@@ -39,21 +39,15 @@ interface TechnicianScore {
   styleUrls: ['./classement.component.css']
 })
 export class ClassementComponent implements OnInit {
-  onSearchInput(event: any) {
-    this.searchTerm = event.target.value;
-  }
-
   ranking: TechnicianRank[] = [];
   topThree: TechnicianRank[] = [];
-  restRanking: TechnicianRank[] = [];
   loading = true;
   currentTechnician: TechnicianScore | null = null;
-  showMyRanking = false;
   userRole: string = '';
   errorMessage: string = '';
+  searchTerm: string = '';
 
   private apiUrl = 'http://localhost:8080/api';
-  searchTermControl: any;
 
   constructor(
     private http: HttpClient,
@@ -64,8 +58,6 @@ export class ClassementComponent implements OnInit {
   ngOnInit(): void {
     this.checkAuthentication();
   }
-
-  searchTerm: string = '';
 
   get filteredRanking(): TechnicianRank[] {
     if (!this.searchTerm) {
@@ -80,8 +72,10 @@ export class ClassementComponent implements OnInit {
   }
 
   getStarRating(averageNote: number): string {
+    // Assuming averageNote is 0-100
     const stars = Math.round(averageNote / 20);
-    return '★'.repeat(stars) + '☆'.repeat(5 - stars);
+    const clampedStars = Math.min(Math.max(stars, 0), 5);
+    return '★'.repeat(clampedStars) + '☆'.repeat(5 - clampedStars);
   }
 
   checkAuthentication(): void {
@@ -103,9 +97,6 @@ export class ClassementComponent implements OnInit {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No token found');
-    }
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -120,7 +111,6 @@ export class ClassementComponent implements OnInit {
       next: (data) => {
         this.ranking = data || [];
         this.topThree = this.ranking.slice(0, 3);
-        this.restRanking = this.ranking.slice(3);
         this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -133,44 +123,42 @@ export class ClassementComponent implements OnInit {
 
   loadCurrentTechnicianScore(): void {
     this.loading = true;
+    const headers = this.getAuthHeaders();
 
-    try {
-      const headers = this.getAuthHeaders();
-
-      this.http.get<TechnicianScore>(`${this.apiUrl}/technicien/my-score-details`, { headers }).subscribe({
-        next: (data) => {
-          this.currentTechnician = data;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading technician score:', error);
-          this.loading = false;
-          this.errorMessage = 'Erreur lors du chargement de vos performances';
-        }
-      });
-    } catch (error) {
-      console.error('Error in loadCurrentTechnicianScore:', error);
-      this.loading = false;
-      this.errorMessage = 'Erreur de connexion au serveur';
-    }
+    this.http.get<TechnicianScore>(`${this.apiUrl}/technicien/my-score-details`, { headers }).subscribe({
+      next: (data) => {
+        this.currentTechnician = data;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading technician score:', error);
+        this.loading = false;
+        this.errorMessage = 'Erreur lors du chargement de vos performances';
+      }
+    });
   }
 
   getBadgeIcon(badgeName: string): string {
     if (!badgeName) return '🏆';
-    if (badgeName.includes('SUPER')) return '👑';
-    if (badgeName.includes('EXPERT')) return '💎';
-    if (badgeName.includes('SENIOR')) return '⚙️';
-    if (badgeName.includes('JUNIOR')) return '🔧';
-    if (badgeName.includes('STAGIAIRE')) return '🟢';
+    const name = badgeName.toUpperCase();
+    if (name.includes('MAÎTRE') || name.includes('MAITRE')) return '🥇';
+    if (name.includes('SUPER')) return '👑';
+    if (name.includes('EXPERT')) return '💎';
+    if (name.includes('SENIOR')) return '⚙️';
+    if (name.includes('JUNIOR')) return '🔧';
+    if (name.includes('STAGIAIRE')) return '🟢';
     return '🏆';
   }
 
   getBadgeColor(badgeName: string): string {
     if (!badgeName) return '#6b7280';
-    if (badgeName.includes('SUPER')) return '#fbbf24';
-    if (badgeName.includes('EXPERT')) return '#8b5cf6';
-    if (badgeName.includes('SENIOR')) return '#3b82f6';
-    if (badgeName.includes('JUNIOR')) return '#10b981';
+    const name = badgeName.toUpperCase();
+    if (name.includes('MAÎTRE') || name.includes('MAITRE')) return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+    if (name.includes('SUPER')) return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
+    if (name.includes('EXPERT')) return 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)';
+    if (name.includes('SENIOR')) return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+    if (name.includes('JUNIOR')) return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+    if (name.includes('STAGIAIRE')) return 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)';
     return '#6b7280';
   }
 
@@ -179,26 +167,17 @@ export class ClassementComponent implements OnInit {
     return (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
   }
 
-  toggleMyRanking(): void {
-    this.showMyRanking = !this.showMyRanking;
-  }
-
   getProgressWidth(): string {
     if (!this.currentTechnician) return '0%';
     const total = this.currentTechnician.totalPoints;
     const pointsToNext = this.currentTechnician.pointsToNextBadge;
     if (pointsToNext <= 0) return '100%';
     const maxPoints = total + pointsToNext;
-    if (maxPoints <= 0) return '0%';
     const percentage = (total / maxPoints) * 100;
     return `${Math.min(percentage, 100)}%`;
   }
 
   retry(): void {
-    if (this.userRole === 'ADMIN') {
-      this.loadRanking();
-    } else if (this.userRole === 'TECHNICIEN') {
-      this.loadCurrentTechnicianScore();
-    }
+    this.checkAuthentication();
   }
 }

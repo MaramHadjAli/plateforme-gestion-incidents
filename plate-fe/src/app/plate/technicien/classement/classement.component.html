@@ -1,4 +1,4 @@
-<div class="tickets-page">
+<div class="tickets-page animate-fade-in">
   <div class="page-header">
     <div class="header-left">
       <div class="header-eyebrow">
@@ -10,94 +10,128 @@
         <span *ngIf="userRole === 'TECHNICIEN'">Mes <span class="title-accent">Performances</span></span>
       </h1>
       <p class="page-subtitle" *ngIf="userRole === 'ADMIN'">
-        Découvrez les techniciens les plus performants
+        Découvrez les techniciens les plus performants et récompensez l'excellence.
       </p>
       <p class="page-subtitle" *ngIf="userRole === 'TECHNICIEN'">
-        Suivez vos scores, votre progression et vos badges
+        Suivez vos scores, votre progression et vos badges en temps réel.
       </p>
     </div>
     <div class="header-right">
       <div class="live-badge">
         <span class="live-dot"></span>
-        Temps réel
+        Mise à jour en temps réel
       </div>
     </div>
   </div>
 
-  <div *ngIf="loading" class="loading-message">
-    <p>Chargement...</p>
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
   </div>
 
-  <div *ngIf="!loading && userRole === 'ADMIN' && ranking.length > 0">
-    <div class="table-card">
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <div class="search-wrap">
-            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input
-              type="text"
-              placeholder="Rechercher un technicien..."
-              class="search-input"
-              style="color: #1f2937;"
-              [(ngModel)]="searchTerm"
-            />
+  <div *ngIf="!loading && userRole === 'ADMIN' && ranking.length > 0" class="animate-slide-up">
+    
+    <!-- Podium for Top 3 -->
+    <div class="podium-container" *ngIf="topThree.length > 0">
+      <!-- 2nd Place -->
+      <div class="podium-item rank-2" *ngIf="topThree[1]">
+        <div class="podium-avatar-wrap">
+          <div class="podium-avatar" [style.background]="getBadgeColor(topThree[1].badge)">
+            {{ getInitials(topThree[1].nom, topThree[1].prenom) }}
           </div>
+          <div class="rank-badge">🥈</div>
+        </div>
+        <div class="podium-name">{{ topThree[1].prenom }} {{ topThree[1].nom }}</div>
+        <div class="podium-score">{{ topThree[1].totalPoints }} pts</div>
+        <div class="badge-pill mt-2">{{ topThree[1].badge }}</div>
+      </div>
+
+      <!-- 1st Place -->
+      <div class="podium-item rank-1" *ngIf="topThree[0]">
+        <div class="podium-avatar-wrap">
+          <div class="podium-avatar" [style.background]="getBadgeColor(topThree[0].badge)">
+            {{ getInitials(topThree[0].nom, topThree[0].prenom) }}
+          </div>
+          <div class="rank-badge">🥇</div>
+        </div>
+        <div class="podium-name">{{ topThree[0].prenom }} {{ topThree[0].nom }}</div>
+        <div class="podium-score">{{ topThree[0].totalPoints }} pts</div>
+        <div class="badge-pill mt-2">{{ topThree[0].badge }}</div>
+      </div>
+
+      <!-- 3rd Place -->
+      <div class="podium-item rank-3" *ngIf="topThree[2]">
+        <div class="podium-avatar-wrap">
+          <div class="podium-avatar" [style.background]="getBadgeColor(topThree[2].badge)">
+            {{ getInitials(topThree[2].nom, topThree[2].prenom) }}
+          </div>
+          <div class="rank-badge">🥉</div>
+        </div>
+        <div class="podium-name">{{ topThree[2].prenom }} {{ topThree[2].nom }}</div>
+        <div class="podium-score">{{ topThree[2].totalPoints }} pts</div>
+        <div class="badge-pill mt-2">{{ topThree[2].badge }}</div>
+      </div>
+    </div>
+
+    <!-- Full Ranking Table -->
+    <div class="table-card mt-10">
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            placeholder="Rechercher par nom ou email..."
+            class="search-input"
+            [(ngModel)]="searchTerm"
+          />
         </div>
       </div>
 
-      <div class="table-wrap">
+      <div class="overflow-x-auto">
         <table class="tickets-table">
           <thead>
             <tr>
-              <th style="color: #1f2937;">Rang</th>
-              <th style="color: #1f2937;">Technicien</th>
-              <th style="color: #1f2937;">Spécialité</th>
-              <th style="color: #1f2937;">Score Total</th>
-              <th style="color: #1f2937;">Note Moyenne</th>
-              <th style="color: #1f2937;">Badge</th>
+              <th>Rang</th>
+              <th>Technicien</th>
+              <th>Score Total</th>
+              <th>Évaluation</th>
+              <th>Badge Actuel</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let tech of filteredRanking" class="ticket-row">
               <td>
-                <div class="rank-cell">
-                  <span *ngIf="tech.rank === 1" class="rank-medal gold" style="font-size: 28px;">🥇</span>
-                  <span *ngIf="tech.rank === 2" class="rank-medal silver" style="font-size: 28px;">🥈</span>
-                  <span *ngIf="tech.rank === 3" class="rank-medal bronze" style="font-size: 28px;">🥉</span>
-                  <span *ngIf="tech.rank > 3" class="rank-number" style="font-size: 18px; font-weight: bold; color: #1f2937;">#{{ tech.rank }}</span>
-                </div>
+                <span class="rank-number" [class.text-indigo-600]="tech.rank <= 3">#{{ tech.rank }}</span>
               </td>
               <td>
-                <div class="technician-cell" style="display: flex; align-items: center; gap: 12px;">
-                  <div class="technician-avatar" style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: white; background: {{ getBadgeColor(tech.badge) }};">
+                <div class="flex items-center gap-4">
+                  <div class="technician-avatar" [style.background]="getBadgeColor(tech.badge)">
                     {{ getInitials(tech.nom, tech.prenom) }}
                   </div>
-                  <div class="technician-info">
-                    <div class="technician-name" style="font-weight: 600; font-size: 15px; color: #1f2937;">{{ tech.prenom }} {{ tech.nom }}</div>
-                    <div class="technician-email" style="font-size: 12px; color: #6b7280;">{{ tech.email }}</div>
+                  <div>
+                    <div class="technician-name">{{ tech.prenom }} {{ tech.nom }}</div>
+                    <div class="technician-email">{{ tech.email }}</div>
                   </div>
                 </div>
               </td>
-              
               <td>
-                <div class="score-cell" style="display: flex; align-items: baseline; gap: 4px;">
-                  <span class="score-value" style="font-weight: 800; font-size: 18px; color: #4f46e5;">{{ tech.totalPoints }}</span>
-                  <span class="score-label" style="font-size: 12px; color: #6b7280;">pts</span>
+                <div class="flex items-baseline gap-1">
+                  <span class="score-value">{{ tech.totalPoints }}</span>
+                  <span class="text-xs font-bold text-gray-400 uppercase">pts</span>
                 </div>
               </td>
               <td>
-                <div class="rating-cell" style="display: flex; align-items: center; gap: 8px;">
-                  <span class="rating-stars" style="color: #fbbf24; font-size: 14px; letter-spacing: 2px;">{{ getStarRating(tech.averageNote) }}</span>
-                  <span class="rating-value" style="font-weight: 600; font-size: 14px; color: #1f2937;">{{ tech.averageNote.toFixed(1) }}</span>
+                <div class="flex flex-col gap-1">
+                  <div class="rating-stars text-yellow-400">{{ getStarRating(tech.averageNote) }}</div>
+                  <div class="text-xs font-bold text-gray-500">{{ tech.averageNote.toFixed(1) }}/100</div>
                 </div>
               </td>
               <td>
-                <div class="badge-cell" style="display: flex; align-items: center; gap: 8px;">
-                  <span class="badge-icon" style="font-size: 20px;">{{ getBadgeIcon(tech.badge) }}</span>
-                  <span class="badge-name" style="font-size: 13px; color: #1f2937;">{{ tech.badge }}</span>
+                <div class="badge-pill">
+                  <span class="text-lg">{{ getBadgeIcon(tech.badge) }}</span>
+                  <span>{{ tech.badge }}</span>
                 </div>
               </td>
             </tr>
@@ -105,62 +139,71 @@
         </table>
       </div>
 
-      <div class="table-footer" *ngIf="filteredRanking.length === 0">
-        <p class="footer-count" style="color: #6b7280;">Aucun technicien trouvé</p>
+      <div class="py-10 text-center" *ngIf="filteredRanking.length === 0">
+        <p class="text-gray-500 font-bold">Aucun technicien ne correspond à votre recherche.</p>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!loading && userRole === 'TECHNICIEN' && currentTechnician">
-    <div class="my-ranking-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; padding: 30px; margin: 20px; color: white;">
-      <div class="my-ranking-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
-        <div class="my-ranking-title" style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px;">
-          <span>Mes Performances</span>
-        </div>
-        <div class="my-ranking-rank" style="background: rgba(255, 255, 255, 0.2); padding: 8px 20px; border-radius: 30px; font-weight: bold; font-size: 16px;">Score Total: {{ currentTechnician.totalPoints }} pts</div>
-      </div>
-      
-      <div class="my-ranking-info" style="display: flex; align-items: center; gap: 25px; flex-wrap: wrap;">
-        <div class="my-ranking-avatar" style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold;">
+  <!-- Technician View -->
+  <div *ngIf="!loading && (userRole === 'TECHNICIEN' || userRole === 'TECHNICIAN') && currentTechnician" class="animate-slide-up">
+    <div class="my-ranking-card">
+      <div class="my-ranking-info">
+        <div class="my-ranking-avatar">
           {{ getInitials(currentTechnician.nom, currentTechnician.prenom) }}
         </div>
-        <div class="my-ranking-details" style="flex: 1;">
-          <div class="my-ranking-name" style="font-size: 28px; font-weight: bold; margin-bottom: 8px;">{{ currentTechnician.prenom }} {{ currentTechnician.nom }}</div>
-          <div class="my-ranking-badge" style="font-size: 16px; opacity: 0.9; margin: 8px 0;">{{ getBadgeIcon(currentTechnician.currentBadge) }} {{ currentTechnician.currentBadge }}</div>
-          <div class="my-ranking-specialite" style="font-size: 14px; opacity: 0.8; margin-top: 5px;">Spécialité: {{ currentTechnician.specialite || 'Non définie' }}</div>
+        <div class="flex-1">
+          <div class="my-ranking-name">{{ currentTechnician.prenom }} {{ currentTechnician.nom }}</div>
+          <div class="badge-tag">
+            <span>{{ getBadgeIcon(currentTechnician.currentBadge) }}</span>
+            <span>{{ currentTechnician.currentBadge }}</span>
+          </div>
+          <div class="flex gap-6 mt-4">
+            <div>
+              <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Score Actuel</p>
+              <p class="text-2xl font-black text-indigo-600">{{ currentTechnician.totalPoints }} <span class="text-sm">pts</span></p>
+            </div>
+            <div>
+              <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Spécialité</p>
+              <p class="text-2xl font-black text-gray-800 dark:text-white">{{ currentTechnician.specialite || 'Non définie' }}</p>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div class="progress-section" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
-        <div class="progress-label" style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px; opacity: 0.9; flex-wrap: wrap; gap: 10px;">
-          <span>Progression vers {{ currentTechnician.nextBadge }}</span>
-          <span>{{ currentTechnician.pointsToNextBadge }} points restants</span>
+      <div class="progress-section">
+        <div class="progress-label">
+          <span class="text-gray-500 uppercase tracking-tighter">Progression vers <span class="text-indigo-600">{{ currentTechnician.nextBadge }}</span></span>
+          <span class="text-indigo-600">+{{ currentTechnician.pointsToNextBadge }} pts requis</span>
         </div>
-        <div class="progress-bar" style="height: 12px; background: rgba(255, 255, 255, 0.2); border-radius: 6px; overflow: hidden;">
-          <div class="progress-fill" [style.width]="getProgressWidth()" style="height: 100%; background: #fbbf24; border-radius: 6px; transition: width 0.5s ease;"></div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width]="getProgressWidth()"></div>
         </div>
       </div>
 
-      <div class="transactions-section" style="margin-top: 30px;">
-        <h3 style="font-size: 20px; margin-bottom: 20px; font-weight: 600;">Historique des points</h3>
-        <div *ngFor="let transaction of currentTechnician.transactions" class="transaction-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); flex-wrap: wrap; gap: 10px;">
-          <div class="transaction-reason" style="flex: 2; font-size: 14px;">{{ transaction.raison }}</div>
-          <div class="transaction-points" style="font-weight: bold; font-size: 16px; min-width: 80px; text-align: right;">+{{ transaction.quantite }} pts</div>
-          <div class="transaction-date" style="font-size: 12px; opacity: 0.7; min-width: 100px; text-align: right;">{{ transaction.dateAttribution | date:'dd/MM/yyyy' }}</div>
+      <div class="history-section">
+        <h3 class="history-title">Historique des points</h3>
+        <div *ngFor="let transaction of currentTechnician.transactions" class="transaction-row">
+          <div>
+            <div class="transaction-reason">{{ transaction.raison }}</div>
+            <div class="transaction-date">{{ transaction.dateAttribution | date:'dd MMMM yyyy' }}</div>
+          </div>
+          <div class="transaction-points">+{{ transaction.quantite }}</div>
         </div>
-        <div *ngIf="currentTechnician.transactions.length === 0" class="empty-transactions" style="text-align: center; padding: 30px; opacity: 0.7;">
-          Aucune transaction pour le moment
+        
+        <div *ngIf="currentTechnician.transactions.length === 0" class="py-10 text-center opacity-50">
+          <p class="font-bold">Aucune activité enregistrée pour le moment.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!loading && userRole === 'ADMIN' && ranking.length === 0" class="empty-message" style="text-align: center; padding: 60px; color: #6b7280;">
-    <p>Aucun technicien trouvé</p>
-  </div>
-  
-  <div *ngIf="errorMessage" class="error-message" style="text-align: center; padding: 60px; color: #ef4444;">
-    <p>{{ errorMessage }}</p>
-    <button (click)="retry()" class="btn-new" style="margin-top: 20px;">Réessayer</button>
+  <div *ngIf="errorMessage" class="py-20 text-center">
+    <div class="inline-block p-10 bg-red-50 dark:bg-red-900/10 rounded-3xl border border-red-100 dark:border-red-900/20">
+      <p class="text-red-600 font-bold mb-6">{{ errorMessage }}</p>
+      <button (click)="retry()" class="px-8 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all">
+        Réessayer
+      </button>
+    </div>
   </div>
 </div>
