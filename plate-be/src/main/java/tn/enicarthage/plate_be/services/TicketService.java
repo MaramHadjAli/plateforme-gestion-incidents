@@ -1,7 +1,6 @@
 package tn.enicarthage.plate_be.services;
 
-import tn.enicarthage.plate_be.dtos.TicketRequestDTO;
-import tn.enicarthage.plate_be.dtos.TicketResponseDTO;
+import tn.enicarthage.plate_be.dtos.*;
 import tn.enicarthage.plate_be.entities.STATUS_TICKET;
 
 import java.util.List;
@@ -15,4 +14,10 @@ public interface TicketService {
     TicketResponseDTO assignTicket(String ticketId, Long technicienId);
     TicketResponseDTO updateStatus(String ticketId, STATUS_TICKET newStatus);
     void deleteTicket(String id);
+    TicketResponseDTO closeTicket(String ticketId);
+
+    DemandePrixResponse sendDemandePrix(String ticketId, DemandePrixRequest request);
+    void technicianInterest(String ticketId, TechnicianInterestRequest request, String email);
+    List<InterestedTechnicianDTO> getInterestedTechnicians(String ticketId);
+    boolean hasTechnicianResponded(String ticketId, String email);
 }

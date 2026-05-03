@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { TechnicienDashboardService } from '../services/technicien-dashboard.service';
-import { TechnicienDashboardDTO } from '../models/technicien-dashboard.model';
+import { TechnicienDashboardService } from '../../../core/services/technicien-dashboard.service';
+import { TechnicienDashboardDTO } from '../../../core/models/technicien-dashboard.model';
 
 @Component({
   selector: 'app-technicien-dashboard',

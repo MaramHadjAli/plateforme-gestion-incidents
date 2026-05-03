@@ -14,12 +14,16 @@ import { SallesComponent } from './plate/admin/salles/salles.component';
 import { EquipementsComponent } from './plate/admin/equipements/equipements.component';
 import { TechnicienDashboardComponent } from './plate/technicien/dashboard/technicien-dashboard.component';
 import { MaintenanceComponent } from './plate/technicien/maintenance/maintenance.component';
+import { TechniciansListComponent } from './plate/admin/technicians-list/technicians-list.component';
+import { ResetPasswordComponent } from './shared/reset-password/reset-password.component';
+import { TicketResponseComponent } from './plate/technicien/ticket-response/ticket-response.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'ticket-list', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'create-ticket', component: CreateTicketComponent, canActivate: [AuthGuard, DemandeurGuard] },
@@ -35,5 +39,7 @@ export const routes: Routes = [
   { path: 'my-tickets', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'badges', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: TicketListComponent, canActivate: [AuthGuard] },
+  { path: 'technicians', component: TechniciansListComponent, canActivate: [AuthGuard] },
+  { path: 'tickets/:id/respond', component: TicketResponseComponent },
   { path: '**', redirectTo: '/home' }
 ];

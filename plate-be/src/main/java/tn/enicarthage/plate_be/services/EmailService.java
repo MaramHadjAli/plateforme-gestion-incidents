@@ -11,6 +11,8 @@ import tn.enicarthage.plate_be.entities.Notification;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+import java.util.Date;
+
 @Service
 @Slf4j
 public class EmailService {
@@ -105,7 +107,7 @@ public class EmailService {
                 ".container { max-width: 600px; margin: 0 auto; padding: 20px; }" +
                 ".header { background-color: #e74c3c; color: white; padding: 20px; text-align: center; }" +
                 ".content { padding: 20px; background-color: #f5f5f5; }" +
-                ".button { background-color: #3498db; color: white; padding: 12px 30px; text-decoration: none; display: inline-block; margin: 20px 0; }" +
+                ".button { background-color: #3498db; color: white; padding: 12px 30px; text-decoration: none; display: inline-block; margin: 20px 0; border-radius: 5px; }" +
                 ".footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }" +
                 "</style></head><body>" +
                 "<div class='container'>" +
@@ -141,7 +143,6 @@ public class EmailService {
                 "</div></body></html>";
     }
 
-    // 📧 NOTIFICATION EMAILS METHODS
 
     public void sendNotificationEmail(Notification notification) {
         try {
@@ -155,7 +156,7 @@ public class EmailService {
 
             helper.setFrom(fromEmail);
             helper.setTo(notification.getUtilisateur().getEmail());
-            helper.setSubject("🔔 " + notification.getTitle());
+            helper.setSubject(notification.getTitle());
 
             String htmlContent = buildNotificationEmailTemplate(notification);
             helper.setText(htmlContent, true);
@@ -199,7 +200,7 @@ public class EmailService {
 
             helper.setFrom(fromEmail);
             helper.setTo(notification.getUtilisateur().getEmail());
-            helper.setSubject("⚠️ ALERTE CRITIQUE: " + notification.getTitle());
+            helper.setSubject("ALERTE CRITIQUE: " + notification.getTitle());
 
             String htmlContent = buildCriticalAlertTemplate(notification);
             helper.setText(htmlContent, true);
@@ -254,7 +255,7 @@ public class EmailService {
                 ".footer { text-align: center; color: #999; font-size: 12px; margin-top: 20px; }" +
                 "</style></head><body>" +
                 "<div class='container'>" +
-                "<div class='header'><h1>📋 Résumé Quotidien</h1><p>" + count + " notifications</p></div>" +
+                "<div class='header'><h1>Résumé Quotidien</h1><p>" + count + " notifications</p></div>" +
                 "<div class='content'>" + digestContent + "</div>" +
                 "<div class='footer'><p>&copy; 2026 Plateforme de Gestion d'Incidents</p></div>" +
                 "</div></body></html>";
@@ -272,9 +273,9 @@ public class EmailService {
                 ".footer { text-align: center; color: #666; font-size: 12px; padding: 15px; }" +
                 "</style></head><body>" +
                 "<div class='container'>" +
-                "<div class='header'>⚠️ ALERTE CRITIQUE</div>" +
+                "<div class='header'>ALERTE CRITIQUE</div>" +
                 "<div class='alert'>" +
-                "<p class='action-needed'>⚡ Une intervention immédiate est requise!</p>" +
+                "<p class='action-needed'>Une intervention immédiate est requise!</p>" +
                 "</div>" +
                 "<div class='ticket'>" +
                 "<h2>" + notification.getTitle() + "</h2>" +
@@ -283,6 +284,153 @@ public class EmailService {
                 "<p>" + notification.getMessage() + "</p>" +
                 "</div>" +
                 "<div class='footer'><p>&copy; 2026 Plateforme de Gestion d'Incidents. Urgence!</p></div>" +
+                "</div></body></html>";
+    }
+
+
+    public void sendTemporaryPasswordEmail(String to, String nom, String prenom, String temporaryPassword) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Votre compte technicien a été créé - Plateforme de Gestion d'Incidents");
+
+            String htmlContent = buildTemporaryPasswordTemplate(nom, prenom, to, temporaryPassword);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            log.info("Temporary password email sent to {}", to);
+        } catch (MessagingException e) {
+            log.error("Error sending temporary password email to {}", to, e);
+            throw new RuntimeException("Erreur lors de l'envoi d'email: " + e.getMessage(), e);
+        }
+    }
+
+    private String buildTemporaryPasswordTemplate(String nom, String prenom, String email, String temporaryPassword) {
+        return "<!DOCTYPE html>" +
+                "<html><head><meta charset='UTF-8'><style>" +
+                "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }" +
+                ".container { max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5; }" +
+                ".header { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 30px; text-align: center; }" +
+                ".content { padding: 30px; background-color: white; margin: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }" +
+                ".password-box { background-color: #f0f9ff; border: 2px dashed #3498db; padding: 15px; margin: 20px 0; text-align: center; border-radius: 8px; }" +
+                ".password { font-size: 28px; font-weight: bold; color: #2c3e50; letter-spacing: 2px; font-family: monospace; }" +
+                ".warning { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; color: #856404; }" +
+                ".button { background-color: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0; }" +
+                ".footer { text-align: center; color: #999; font-size: 12px; padding: 20px; border-top: 1px solid #eee; }" +
+                "</style></head><body>" +
+                "<div class='container'>" +
+                "<div class='header'><h1>Compte Technicien Créé</h1></div>" +
+                "<div class='content'>" +
+                "<p>Bonjour <strong>" + prenom + " " + nom + "</strong>,</p>" +
+                "<p>Un compte technicien a été créé pour vous sur la plateforme de gestion d'incidents ENICarthage.</p>" +
+                "<div class='password-box'>" +
+                "<p><strong>Email de connexion :</strong></p>" +
+                "<p style='font-size: 16px;'>" + email + "</p>" +
+                "<p><strong>Mot de passe temporaire :</strong></p>" +
+                "<p class='password'>" + temporaryPassword + "</p>" +
+                "</div>" +
+                "<div class='warning'>" +
+                "<strong>Important :</strong><br>" +
+                "Ce mot de passe est temporaire et expire après 24 heures.<br>" +
+                "Vous serez invité à changer votre mot de passe lors de votre première connexion." +
+                "</div>" +
+                "<p style='text-align: center;'>" +
+                "<a href='http://localhost:4200/login' class='button'>Se connecter à la plateforme</a>" +
+                "</p>" +
+                "<p>Si vous n'avez pas demandé la création de ce compte, veuillez contacter l'administrateur immédiatement.</p>" +
+                "</div>" +
+                "<div class='footer'>" +
+                "<p>&copy; 2026 Plateforme de Gestion d'Incidents - ENICarthage</p>" +
+                "</div>" +
+                "</div></body></html>";
+    }
+
+    public void sendDemandePrixNotification(String toEmail, String ticketTitle, String ticketId, Date deadline, String message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("Demande de Prix - Intervention demandée");
+
+            String htmlContent = buildDemandePrixTemplate(ticketTitle, ticketId, deadline, message);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            log.info("Demande de prix email sent to {}", toEmail);
+        } catch (MessagingException e) {
+            log.error("Error sending demande de prix email to {}", toEmail, e);
+        }
+    }
+
+    public void sendInterestConfirmation(String toEmail, String ticketTitle, boolean interested) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(interested ? "Confirmation d'intérêt" : "Refus d'intervention");
+
+            String htmlContent = buildInterestConfirmationTemplate(ticketTitle, interested);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            log.info("Interest confirmation email sent to {}", toEmail);
+        } catch (MessagingException e) {
+            log.error("Error sending interest confirmation to {}", toEmail, e);
+        }
+    }
+
+    private String buildDemandePrixTemplate(String ticketTitle, String ticketId, Date deadline, String message) {
+        return "<!DOCTYPE html>" +
+                "<html><head><meta charset='UTF-8'><style>" +
+                "body { font-family: Arial, sans-serif; }" +
+                ".container { max-width: 600px; margin: 0 auto; padding: 20px; }" +
+                ".header { background-color: #f59e0b; color: white; padding: 20px; text-align: center; }" +
+                ".content { padding: 20px; background-color: #f5f5f5; }" +
+                ".button { background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; display: inline-block; margin: 10px; border-radius: 5px; }" +
+                ".button-decline { background-color: #ef4444; }" +
+                ".footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }" +
+                "</style></head><body>" +
+                "<div class='container'>" +
+                "<div class='header'><h1>Demande de Prix</h1></div>" +
+                "<div class='content'>" +
+                "<p>Une nouvelle demande d'intervention vous est proposée.</p>" +
+                "<h3>Ticket: " + ticketTitle + "</h3>" +
+                "<p><strong>Référence:</strong> " + ticketId + "</p>" +
+                "<p><strong>Date limite de réponse:</strong> " + deadline + "</p>" +
+                "<p><strong>Message:</strong> " + message + "</p>" +
+                "<p>Êtes-vous intéressé par cette intervention ?</p>" +
+                "<div style='text-align: center;'>" +
+                "<a href='http://localhost:4200/tickets/" + ticketId + "/respond?interest=true' class='button'>Accepter</a>" +
+                "<a href='http://localhost:4200/tickets/" + ticketId + "/respond?interest=false' class='button button-decline'>Refuser</a>" +
+                "</div>" +
+                "</div>" +
+                "<div class='footer'><p>&copy; 2026 Plateforme de Gestion d'Incidents</p></div>" +
+                "</div></body></html>";
+    }
+
+    private String buildInterestConfirmationTemplate(String ticketTitle, boolean interested) {
+        return "<!DOCTYPE html>" +
+                "<html><head><meta charset='UTF-8'><style>" +
+                "body { font-family: Arial, sans-serif; }" +
+                ".container { max-width: 600px; margin: 0 auto; padding: 20px; }" +
+                ".header { background-color: " + (interested ? "#4CAF50" : "#ef4444") + "; color: white; padding: 20px; text-align: center; }" +
+                ".content { padding: 20px; background-color: #f5f5f5; }" +
+                ".footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }" +
+                "</style></head><body>" +
+                "<div class='container'>" +
+                "<div class='header'><h1>" + (interested ? "Intérêt confirmé" : "Participation refusée") + "</h1></div>" +
+                "<div class='content'>" +
+                "<p>" + (interested ? "Merci pour votre intérêt concernant le ticket" : "Nous avons bien pris en compte votre refus concernant le ticket") + " <strong>" + ticketTitle + "</strong>.</p>" +
+                "<p>" + (interested ? "L'administrateur vous contactera prochainement." : "Merci de nous avoir informé.") + "</p>" +
+                "</div>" +
+                "<div class='footer'><p>&copy; 2026 Plateforme de Gestion d'Incidents</p></div>" +
                 "</div></body></html>";
     }
 }

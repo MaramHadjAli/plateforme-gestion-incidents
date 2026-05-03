@@ -1,4 +1,6 @@
 export interface TicketResponse {
+  demandePrixSent: boolean;
+  demandePrixDeadline: any;
   idTicket: string;
   titre: string;
   description: string;

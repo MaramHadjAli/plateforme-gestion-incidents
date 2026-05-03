@@ -14,6 +14,10 @@ public class RegisterRequestDTO {
     @Size(min = 2, max = 100, message = "Le nom doit contenir entre 2 et 100 caractères")
     private String nom;
 
+    @NotBlank(message = "Le prenom est obligatoire")
+    @Size(min = 2, max = 100, message = "Le prenom doit contenir entre 2 et 100 caractères")
+    private String prenom;
+
     @NotBlank(message = "L'email est obligatoire")
     @Email(message = "L'email doit être valide")
     private String email;

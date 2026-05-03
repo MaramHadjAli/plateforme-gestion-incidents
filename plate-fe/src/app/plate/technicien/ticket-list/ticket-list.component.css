@@ -91,6 +91,91 @@
   box-shadow: var(--shadow);
 }
 
+.star-rating {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.star {
+  font-size: 32px;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: color 0.2s;
+}
+
+.star.active {
+  color: #f59e0b;
+}
+
+.star:hover {
+  color: #fbbf24;
+}
+
+.interested-technician-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-surface);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.tech-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.tech-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.tech-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--c-text);
+}
+
+.tech-specialite {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-top: 4px;
+}
+
+.tech-email {
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.btn-assign {
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-dark) 100%);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-assign:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
 .live-dot {
   width: 7px;
   height: 7px;

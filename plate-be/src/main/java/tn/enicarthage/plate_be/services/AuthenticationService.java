@@ -13,6 +13,7 @@ import tn.enicarthage.plate_be.security.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -62,40 +63,47 @@ public class AuthenticationService {
             case TECHNICIEN:
                 Technicien tech = new Technicien();
                 tech.setNom(request.getNom());
+                tech.setPrenom(request.getPrenom());
                 tech.setEmail(request.getEmail());
-                tech.setPassword(encodedPassword);
+                tech.setMotPassee(encodedPassword);
                 tech.setRole(ROLE.TECHNICIEN);
                 tech.setEnabled(true);
+                tech.setActive(true);
+                tech.setDateInscription(new Date());
                 savedUser = technicienRepository.save(tech);
                 break;
             case ADMIN:
                 Adminstrateur admin = new Adminstrateur();
                 admin.setNom(request.getNom());
+                admin.setPrenom(request.getPrenom());
                 admin.setEmail(request.getEmail());
-                admin.setPassword(encodedPassword);
+                admin.setMotPassee(encodedPassword);
                 admin.setRole(ROLE.ADMIN);
                 admin.setEnabled(true);
+                admin.setActive(true);
+                admin.setDateInscription(new Date());
                 savedUser = userRepository.save(admin);
                 break;
             default:
                 Demandeur demandeur = new Demandeur();
                 demandeur.setNom(request.getNom());
+                demandeur.setPrenom(request.getPrenom());
                 demandeur.setEmail(request.getEmail());
-                demandeur.setPassword(encodedPassword);
+                demandeur.setMotPassee(encodedPassword);
                 demandeur.setRole(ROLE.DEMANDEUR);
                 demandeur.setEnabled(true);
+                demandeur.setActive(true);
+                demandeur.setDateInscription(new Date());
                 savedUser = demandeurRepository.save(demandeur);
                 break;
         }
 
-        // Log l'enregistrement
         logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit");
 
         String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
         try {
             emailService.sendConfirmationEmail(savedUser.getEmail(), savedUser.getNom(), confirmationLink);
         } catch (RuntimeException ex) {
-            // Ne pas bloquer l'inscription si le SMTP n'est pas configure.
             System.err.println("Echec envoi email confirmation: " + ex.getMessage());
         }
 
@@ -105,24 +113,19 @@ public class AuthenticationService {
     public AuthenticationResponse login(LoginRequest request) {
         String email = request.getEmail();
 
-        // Vérifie si l'utilisateur existe
         Utilisateur user = userRepository.findByEmail(email)
                 .orElse(null);
 
         if (user == null) {
-            // Log tentative avec email inexistant
             logAction(email, "LOGIN_FAILED", "FAILED", "Utilisateur non trouvé");
             throw new RuntimeException("User not found");
         }
 
-        // Vérifie le mot de passe
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            // Log tentative de mot de passe incorrect
             logAction(email, "LOGIN_FAILED", "FAILED", "Mot de passe incorrect");
             throw new RuntimeException("Invalid password");
         }
 
-        // Log la connexion réussie
         logAction(email, "LOGIN_SUCCESS", "SUCCESS", "Connexion réussie");
 
         String jwt = jwtUtil.generateToken(user);
@@ -138,9 +141,6 @@ public class AuthenticationService {
         return new AuthenticationResponse(jwt, refreshToken.getToken(), userInfo);
     }
 
-    /**
-     * Enregistre une action sensible dans la base de données
-     */
     private void logAction(String email, String action, String status, String details) {
         try {
             HttpServletRequest request = null;
@@ -148,7 +148,7 @@ public class AuthenticationService {
                 request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                         .getRequest();
             } catch (Exception e) {
-                // En cas d'erreur (ex: pas de contexte HTTP), on continue sans IP
+
             }
 
             TraceLogin log = TraceLogin.builder()
@@ -163,20 +163,15 @@ public class AuthenticationService {
 
             traceRepo.save(log);
         } catch (Exception e) {
-            // Log l'erreur mais ne pas arrêter le processus d'authentification
             System.err.println("Erreur lors du logging: " + e.getMessage());
         }
     }
 
-    /**
-     * Récupère l'adresse IP du client
-     */
     private String getClientIpAddress(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
 
-        // Essaie plusieurs headers possibles
         String[] headers = {
             "X-Forwarded-For",
             "Proxy-Client-IP",

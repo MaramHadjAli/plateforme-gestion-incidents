@@ -10,7 +10,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  // Ajouter le token au header Authorization si disponible
   if (token && !req.url.includes('login') && !req.url.includes('register') && !req.url.includes('forgot-password')) {
     req = req.clone({
       setHeaders: {
@@ -22,9 +21,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      // Gérer les erreurs d'authentification
       if (error.status === 401 || error.status === 403) {
-        // Token expiré ou non valide
         authService.logout();
         router.navigate(['/login'], { queryParams: { returnUrl: router.url } });
       }

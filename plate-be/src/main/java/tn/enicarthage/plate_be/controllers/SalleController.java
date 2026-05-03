@@ -17,6 +17,7 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class SalleController {
 
+
     private final SalleService salleService;
 
     @GetMapping

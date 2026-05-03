@@ -1,28 +1,24 @@
 package tn.enicarthage.plate_be.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.Getter;
+import lombok.Setter;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
 public class TechnicienDashboardDTO {
-
-    private String nomTechnicien;
+    private Long id;
+    private String nom;
     private String specialite;
-    private int totalPoints;
-    private float noteMoyenne;
-
-    private long ticketsAssignes;
-    private long ticketsEnCours;
-    private long ticketsResolus;
-    private long ticketsEnRetard;
-
-    private double tempsResolutionMoyenJours;
-
+    private Integer totalPoints;
+    private Double noteMoyenne;
+    private long totalTickets;
+    private long enCours;
+    private long resolus;
+    private long enRetard;
+    private double avgResolutionDays;
     private List<RecentTicketSummary> ticketsRecents;
-    private List<MaintenanceDTO> prochainesMaintenances;
+    private List<MaintenanceDTO> maintenancesProchaines;
 }

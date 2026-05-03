@@ -1,4 +1,5 @@
 export interface Ticket {
+demandePrixSent: any;
     id: string;
     titre: string;
     description: string;
