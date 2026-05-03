@@ -16,7 +16,7 @@ public class TechnicienDashboardDTO {
     private Long activeTickets;
     private Long resolvedThisMonth;
     private String averageResolutionTime;
-    
+
     private List<RecentTicketSummary> recentTickets;
     private List<MaintenanceDTO> upcomingMaintenances;
 }

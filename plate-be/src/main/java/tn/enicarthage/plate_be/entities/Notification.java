@@ -32,7 +32,8 @@ public class Notification {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateEnvoi;
 
-	private boolean isRead;
+	@Column(name = "is_read")
+	private boolean read;
 
 	private boolean emailSent;
 	private boolean smsSent;

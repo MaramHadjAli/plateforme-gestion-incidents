@@ -30,15 +30,11 @@ export class TicketsService {
   }
 
   assignTicket(ticketId: string, technicienId: number): Observable<TicketResponse> {
-    // Matches backend @RequestParam Long technicienId
-    const params = new HttpParams().set('technicienId', technicienId.toString());
-    return this.http.put<TicketResponse>(`${this.apiUrl}/${ticketId}/assign`, null, { params });
+    return this.http.put<TicketResponse>(`${this.apiUrl}/${ticketId}/assign`, { technicienId });
   }
 
   updateStatus(ticketId: string, status: string): Observable<TicketResponse> {
-    // Matches backend @RequestParam STATUS_TICKET status
-    const params = new HttpParams().set('status', status);
-    return this.http.put<TicketResponse>(`${this.apiUrl}/${ticketId}/status`, null, { params });
+    return this.http.put<TicketResponse>(`${this.apiUrl}/${ticketId}/status`, { status });
   }
 
   deleteTicket(id: string): Observable<void> {

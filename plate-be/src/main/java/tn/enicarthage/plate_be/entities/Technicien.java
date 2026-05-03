@@ -20,7 +20,7 @@ public class Technicien extends Utilisateur {
     private String specialite;
 
     @Column(name = "tickets_resolus")
-    private int ticketsResolus = 0;
+    private Integer ticketsResolus = 0;
 
     private Double noteMoyenne = 0.0;
 

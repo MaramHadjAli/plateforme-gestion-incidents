@@ -132,7 +132,7 @@ public class TicketServiceImpl implements TicketService {
 
         System.out.println("Found technician: " + tech.getNom() + " " + tech.getPrenom());
 
-        ticket.setAssignedTo((Technicien) tech);
+        ticket.setAssignedTo(tech);
         ticket.setStatus(STATUS_TICKET.ASSIGNE);
         Ticket saved = ticketRepository.save(ticket);
 

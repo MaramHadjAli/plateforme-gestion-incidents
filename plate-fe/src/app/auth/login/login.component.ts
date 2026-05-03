@@ -54,11 +54,11 @@ export class LoginComponent {
     this.isSubmitting = true;
 
     this.authService
-      .login({ email: this.emailControl.value, password: this.passwordControl.value })
+      .login({ email: this.emailControl.value || '', password: this.passwordControl.value || '' })
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (response) => {
-          const token = response.token;
+          const token = response.accessToken;
 
           if (!token) {
             this.errorMessage = 'La connexion a échoué : jeton invalide.';
@@ -71,8 +71,16 @@ export class LoginComponent {
             return;
           }
 
-          const redirectUrl = this.authService.getRedirectUrl(response.user.role);
-          this.router.navigate([redirectUrl]);
+          const role = this.authService.getUserRoleFromToken(token);
+          if (role === 'ADMIN') {
+            this.router.navigate(['/dashboard']);
+          } else if (role === 'TECHNICIEN') {
+            this.router.navigate(['/technicien/dashboard']);
+          } else if (role === 'DEMANDEUR') {
+            this.router.navigate(['/create-ticket']);
+          } else {
+            this.router.navigate(['/home']);
+          }
         },
         error: (error) => {
           const apiMessage = error?.error?.message || error?.error?.error;

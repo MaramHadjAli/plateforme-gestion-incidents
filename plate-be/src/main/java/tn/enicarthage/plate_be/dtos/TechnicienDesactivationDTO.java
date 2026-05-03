@@ -1,12 +1,12 @@
 package tn.enicarthage.plate_be.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 public class TechnicienDesactivationDTO {
-    private String reason;
+    @NotBlank(message = "Reason is required")
+    private String desactivationReason;
 }

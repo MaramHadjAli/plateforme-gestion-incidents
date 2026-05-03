@@ -157,31 +157,7 @@
             <div class="ct-section-icon emerald">
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
-            <span class="ct-section-title">Photo & récapitulatif</span>
-          </div>
-
-          <div class="ct-field-group">
-            <label class="ct-label">Photo du problème <span class="ct-optional">(optionnel)</span></label>
-            <div class="ct-dropzone" [class.drag-over]="isDragging" (dragover)="onDragOver($event)" (dragleave)="isDragging = false" (drop)="onDrop($event)" (click)="fileInput.click()">
-              <input #fileInput title="Photo" type="file" accept="image/jpeg,image/png,image/webp" class="ct-file-hidden" (change)="onFileChange($event)" />
-              <div *ngIf="!previewUrl" class="ct-fade ct-dropzone-idle">
-                <div class="ct-dropzone-icon">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <p class="ct-dropzone-text">Glissez une photo ou <span class="ct-link">cliquez pour parcourir</span></p>
-                <p class="ct-dropzone-hint">JPG, PNG, WEBP — max 5 Mo</p>
-              </div>
-              <div *ngIf="previewUrl" class="ct-fade ct-preview-wrap">
-                <img [src]="previewUrl" class="ct-preview-img" alt="preview" />
-                <button title="Supprimer" type="button" (click)="removePhoto($event)" class="ct-remove-btn">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </div>
-            </div>
-            <p *ngIf="fileError" class="ct-error mt-1">
-              <svg width="11" height="11" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-              {{ fileError }}
-            </p>
+            <span class="ct-section-title">Récapitulatif</span>
           </div>
 
           <div class="ct-summary">
@@ -234,6 +210,16 @@
           <div class="ct-ticket-ref">
             <span class="ct-ref-label">Référence :</span>
             <span class="ct-ref-id">#{{ generatedTicketId }}</span>
+          </div>
+          <div class="ct-success-actions">
+            <button type="button" class="ct-btn-primary" routerLink="/ticket-list">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Voir mes tickets
+            </button>
+            <button type="button" class="ct-btn-secondary" (click)="resetForm()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/></svg>
+              Créer un autre ticket
+            </button>
           </div>
         </div>
 

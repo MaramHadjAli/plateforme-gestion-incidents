@@ -22,8 +22,6 @@ public class NewTechnicienDTO {
 
     private String telephone;
 
-    private String specialite;
-
     @NotBlank(message = "Role is required")
     private String role;
 }

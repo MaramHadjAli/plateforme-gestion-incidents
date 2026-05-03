@@ -1,14 +1,14 @@
 package tn.enicarthage.plate_be.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
 public class InterestedTechnicianDTO {
     private Long id;
     private String nom;
@@ -16,4 +16,5 @@ public class InterestedTechnicianDTO {
     private String email;
     private String telephone;
     private String specialite;
+    private String comment;
 }

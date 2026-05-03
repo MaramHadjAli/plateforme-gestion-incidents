@@ -1,13 +1,15 @@
 package tn.enicarthage.plate_be.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import tn.enicarthage.plate_be.dtos.TicketRequestDTO;
-import tn.enicarthage.plate_be.dtos.TicketResponseDTO;
+import tn.enicarthage.plate_be.dtos.*;
 import tn.enicarthage.plate_be.entities.STATUS_TICKET;
 import tn.enicarthage.plate_be.services.TicketService;
 
@@ -39,7 +41,6 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.getTicketById(id));
     }
 
-    /** Get tickets for the current authenticated user (demandeur sees own, technician sees assigned) */
     @GetMapping("/my")
     public ResponseEntity<List<TicketResponseDTO>> getMyTickets(Authentication authentication) {
         String email = authentication.getName();
@@ -59,7 +60,6 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
-    /** Admin assigns a ticket to a technician */
     @PutMapping("/{id}/assign")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TicketResponseDTO> assignTicket(
@@ -69,7 +69,6 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.assignTicket(id, technicienId));
     }
 
-    /** Update ticket status (technician: ASSIGNE→EN_COURS→RESOLU, admin: any) */
     @PutMapping("/{id}/status")
     public ResponseEntity<TicketResponseDTO> updateStatus(
             @PathVariable String id,
@@ -83,5 +82,47 @@ public class TicketController {
     public ResponseEntity<Void> deleteTicket(@PathVariable String id) {
         ticketService.deleteTicket(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/close")
+    @PreAuthorize("hasRole('TECHNICIEN')")
+    public ResponseEntity<TicketResponseDTO> closeTicket(@PathVariable String id) {
+        return ResponseEntity.ok(ticketService.closeTicket(id));
+    }
+
+    @PostMapping("/{id}/send-demande-prix")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DemandePrixResponse> sendDemandePrix(
+            @PathVariable String id,
+            @Valid @RequestBody DemandePrixRequest request) {
+        DemandePrixResponse response = ticketService.sendDemandePrix(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/interest")
+    @PreAuthorize("hasRole('TECHNICIEN')")
+    public ResponseEntity<?> expressInterest(
+            @PathVariable String id,
+            @Valid @RequestBody TechnicianInterestRequest request) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userDetails.getUsername();
+        ticketService.technicianInterest(id, request, email);
+        return ResponseEntity.ok(Map.of("message", "Votre réponse a été enregistrée"));
+    }
+
+    @GetMapping("/{id}/interested-technicians")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<InterestedTechnicianDTO>> getInterestedTechnicians(@PathVariable String id) {
+        List<InterestedTechnicianDTO> technicians = ticketService.getInterestedTechnicians(id);
+        return ResponseEntity.ok(technicians);
+    }
+
+    @GetMapping("/{id}/has-responded")
+    @PreAuthorize("hasRole('TECHNICIEN')")
+    public ResponseEntity<?> hasResponded(@PathVariable String id) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userDetails.getUsername();
+        boolean hasResponded = ticketService.hasTechnicianResponded(id, email);
+        return ResponseEntity.ok(Map.of("hasResponded", hasResponded));
     }
 }

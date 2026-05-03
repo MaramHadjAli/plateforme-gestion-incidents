@@ -3,6 +3,7 @@ package tn.enicarthage.plate_be.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.security.core.userdetails.UserDetails;
 import tn.enicarthage.plate_be.entities.Utilisateur;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +26,9 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Génération du token avec tous les claims explicites (pas de setSubject)
     public String generateToken(Utilisateur user) {
         return Jwts.builder()
+                .setSubject(user.getEmail())  // CRITICAL: Add this!
                 .claim("username", user.getNom())
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
@@ -39,20 +40,32 @@ public class JwtUtil {
 
     public String generateTokenFromEmail(String email) {
         return Jwts.builder()
+                .setSubject(email)  // CRITICAL: Add this!
                 .claim("email", email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String extractEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("email", String.class);
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // Try to get from subject first (SPRING SECURITY EXPECTS THIS)
+            String email = claims.getSubject();
+            if (email == null || email.isEmpty()) {
+                // Fallback to email claim
+                email = claims.get("email", String.class);
+            }
+            return email;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean validateToken(String token) {
@@ -60,8 +73,27 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            // Vous pouvez logger l'erreur ici
+            System.out.println("Token validation error: " + e.getMessage());
         }
         return false;
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String email = extractEmail(token);
+        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    private boolean isTokenExpired(String token) {
+        try {
+            Date expiration = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+            return expiration.before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 }

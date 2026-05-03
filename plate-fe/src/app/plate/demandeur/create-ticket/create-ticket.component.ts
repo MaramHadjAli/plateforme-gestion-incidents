@@ -8,9 +8,10 @@ import { Equipement } from '../../../core/models/equipement.model';
 import { TicketResponse } from '../../../core/models/ticket-response.model';
 import { TicketsService } from '../../../core/services/tickets.service';
 import { TicketRequest } from '../../../core/models/ticket-request.model';
-
 import { SalleService } from '../../../core/services/salle.service';
 import { EquipementService } from '../../../core/services/equipement.service';
+import { RouterModule, RouterLink } from '@angular/router';
+
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Router } from '@angular/router';
@@ -18,7 +19,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-create-ticket',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, RouterLink],
   templateUrl: './create-ticket.component.html',
   styleUrl: './create-ticket.component.css'
 })
@@ -41,7 +42,7 @@ export class CreateTicketComponent implements OnInit {
   priorities: Priority[] = [
     { value: 'CRITIQUE', label: 'Critique', icon: '🔴' },
     { value: 'HAUTE', label: 'Haute', icon: '🟠' },
-    { value: 'NORMALE', label: 'Normale', icon: '🟡' },
+    { value: 'NORMALE', label: 'Normal', icon: '🟡' },
     { value: 'FAIBLE', label: 'Faible', icon: '🟢' },
   ];
 
@@ -83,6 +84,22 @@ export class CreateTicketComponent implements OnInit {
     });
 
     this.loadTickets();
+    this.loadSalles();
+    this.loadEquipements();
+  }
+
+  loadSalles(): void {
+    this.salleService.getAll().subscribe({
+      next: (data) => this.salles = data,
+      error: (err) => console.error('Error fetching salles', err)
+    });
+  }
+
+  loadEquipements(): void {
+    this.equipementService.getAll().subscribe({
+      next: (data) => this.equipements = data,
+      error: (err) => console.error('Error fetching equipements', err)
+    });
   }
 
   loadInitialData(): void {
@@ -168,7 +185,6 @@ export class CreateTicketComponent implements OnInit {
       description: this.f['description'].value,
       priorite: this.f['priorite'].value,
       dateLimite: this.f['dateLimiteReparation'].value,
-      demandeurId: currentUser?.email || '', 
       idSalle: this.f['idSalle'].value,
       idEquipement: this.f['idEquipement'].value
     };
@@ -238,6 +254,7 @@ export class CreateTicketComponent implements OnInit {
       CRITIQUE: 'text-red-400',
       HAUTE: 'text-orange-400',
       NORMALE: 'text-yellow-400',
+      NORMAL: 'text-yellow-400',
       FAIBLE: 'text-emerald-400',
     };
     return map[value] || 'text-gray-400';
@@ -259,9 +276,21 @@ export class CreateTicketComponent implements OnInit {
     const map: Record<string, string> = {
       CRITIQUE: '⏱ Résolution sous 2h',
       HAUTE: '⏱ Résolution sous 8h',
-      NORMAL: '⏱ Résolution sous 24h',
+      NORMALE: '⏱ Résolution sous 24h',
+      NORMAL: '⏱ Résolution sous 24h',   // keep both for safety
       FAIBLE: '⏱ Résolution sous 72h',
     };
     return map[priority] || '— Dépend de la priorité';
+  }
+
+  resetForm(): void {
+    this.submitted = false;
+    this.generatedTicketId = '';
+    this.currentStep = 1;
+    this.selectedPanneType = '';
+    this.previewUrl = null;
+    this.selectedFile = null;
+    this.fileError = '';
+    this.ticketForm.reset();
   }
 }

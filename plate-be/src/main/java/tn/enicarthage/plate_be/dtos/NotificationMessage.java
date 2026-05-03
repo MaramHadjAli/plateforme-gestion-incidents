@@ -1,34 +1,27 @@
 package tn.enicarthage.plate_be.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NotificationMessage {
 
-    @Getter
     private String ticketId;
-    @Setter
-    @Getter
     private String sender;
-
-
-    @Getter @Setter
     private String id;
-    @Getter @Setter
     private String type;
-    @Getter @Setter
     private String title;
-    @Getter @Setter
     private String message;
-    @Getter @Setter
     private LocalDateTime timestamp;
-    @Getter @Setter
     private String severity;
 
-
-    public NotificationMessage() {}
 
     public NotificationMessage(String type, String title, String message, String ticketId, String sender, String severity) {
         this.type = type;

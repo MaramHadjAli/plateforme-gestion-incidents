@@ -310,18 +310,22 @@
 }
 
 .ct-priority-btn:hover:not(:disabled) {
-  border-color: var(--border-2);
-  color: var(--text);
+  transform: translateY(-2px);
   background: #ffffff;
-  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
 }
+
+.ct-priority-btn.ct-p-CRITIQUE:hover:not(:disabled) { border-color: rgba(220,38,38,.4); box-shadow: 0 4px 12px rgba(220,38,38,.12); }
+.ct-priority-btn.ct-p-HAUTE:hover:not(:disabled) { border-color: rgba(234,88,12,.4); box-shadow: 0 4px 12px rgba(234,88,12,.12); }
+.ct-priority-btn.ct-p-NORMALE:hover:not(:disabled) { border-color: rgba(217,119,6,.4); box-shadow: 0 4px 12px rgba(217,119,6,.12); }
+.ct-priority-btn.ct-p-FAIBLE:hover:not(:disabled) { border-color: rgba(5,150,105,.4); box-shadow: 0 4px 12px rgba(5,150,105,.12); }
 
 .ct-p-icon { font-size: 18px; }
 .ct-p-label { font-size: 11.5px; }
 
 .ct-priority-btn.ct-p-CRITIQUE.selected { border-color: rgba(220,38,38,.4); background: rgba(220,38,38,.06); color: var(--red); box-shadow: 0 0 0 3px rgba(220,38,38,.04); }
 .ct-priority-btn.ct-p-HAUTE.selected { border-color: rgba(234,88,12,.4); background: rgba(234,88,12,.06); color: #ea580c; box-shadow: 0 0 0 3px rgba(234,88,12,.04); }
-.ct-priority-btn.ct-p-NORMAL.selected { border-color: rgba(217,119,6,.4); background: rgba(217,119,6,.06); color: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.04); }
+.ct-priority-btn.ct-p-NORMALE.selected { border-color: rgba(217,119,6,.4); background: rgba(217,119,6,.06); color: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.04); }
 .ct-priority-btn.ct-p-FAIBLE.selected { border-color: rgba(5,150,105,.4); background: rgba(5,150,105,.06); color: var(--emerald); box-shadow: 0 0 0 3px rgba(5,150,105,.04); }
 
 .ct-two-col {
@@ -603,6 +607,23 @@
 
 .ct-ref-label { font-size: 13px; color: var(--text-muted); }
 .ct-ref-id { font-size: 13px; font-weight: 700; color: var(--sky); }
+
+.ct-success-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.ct-success-actions .ct-btn-primary {
+  margin-left: 0;
+}
+
+.ct-success-actions .ct-btn-secondary {
+  margin-left: 0;
+}
 
 .ct-form-footer {
   display: flex;

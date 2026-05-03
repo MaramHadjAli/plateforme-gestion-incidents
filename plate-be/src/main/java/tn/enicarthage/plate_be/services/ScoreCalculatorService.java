@@ -2,11 +2,9 @@ package tn.enicarthage.plate_be.services;
 
 import org.springframework.stereotype.Service;
 import tn.enicarthage.plate_be.entities.*;
-import tn.enicarthage.plate_be.repositories.BadgeRepository;
 import tn.enicarthage.plate_be.repositories.FeedbackRepository;
 import tn.enicarthage.plate_be.repositories.PointTransactionRepository;
 import tn.enicarthage.plate_be.repositories.TechnicienRepository;
-import tn.enicarthage.plate_be.services.BadgeService;
 
 import java.util.Date;
 import java.util.List;
@@ -18,19 +16,13 @@ public class ScoreCalculatorService {
     private final PointTransactionRepository pointTransactionRepository;
     private final FeedbackRepository feedbackRepository;
     private final TechnicienRepository technicienRepository;
-    private final BadgeService badgeService;
-    private final BadgeRepository badgeRepository;
 
     public ScoreCalculatorService(PointTransactionRepository pointTransactionRepository,
                                   FeedbackRepository feedbackRepository,
-                                  TechnicienRepository technicienRepository,
-                                  BadgeService badgeService,
-                                  BadgeRepository badgeRepository) {
+                                  TechnicienRepository technicienRepository) {
         this.pointTransactionRepository = pointTransactionRepository;
         this.feedbackRepository = feedbackRepository;
         this.technicienRepository = technicienRepository;
-        this.badgeService = badgeService;
-        this.badgeRepository = badgeRepository;
     }
 
     public int calculateScore(Ticket ticket, Technicien technicien) {
@@ -86,7 +78,7 @@ public class ScoreCalculatorService {
     }
 
     private int getSatisfactionPoints(Ticket ticket) {
-        java.util.Optional<Feedback> feedbackOpt = feedbackRepository.findByTicketIdTicket(ticket.getIdTicket());
+        java.util.Optional<Feedback> feedbackOpt = feedbackRepository.findByTicketId(ticket.getIdTicket());
         if (!feedbackOpt.isPresent()) {
             return 0;
         }
@@ -127,6 +119,7 @@ public class ScoreCalculatorService {
         System.out.println("=== SAVING SCORE TRANSACTION ===");
         System.out.println("Technicien ID: " + technicien.getId());
         System.out.println("Total Score: " + totalScore);
+        System.out.println("Current Total Points: " + technicien.getTotalPoints());
 
         PointTransaction transaction = PointTransaction.builder()
                 .quantite(totalScore)
@@ -146,27 +139,31 @@ public class ScoreCalculatorService {
                 .build();
 
         pointTransactionRepository.save(transaction);
+        System.out.println("Transaction saved with ID: " + transaction.getIdPoint());
 
         Integer currentPoints = pointTransactionRepository.sumByTechnicienId(technicien.getId());
         Double averageNote = pointTransactionRepository.averageByTechnicienId(technicien.getId());
 
+        System.out.println("Sum from DB: " + currentPoints);
+        System.out.println("Average from DB: " + averageNote);
+
         technicien.setTotalPoints(currentPoints != null ? currentPoints : 0);
         technicien.setNoteMoyenne(averageNote != null ? averageNote : 0.0);
 
-        // Update badges
-        updateBadgeAssignment(technicien);
+        System.out.println("Updated Total Points: " + technicien.getTotalPoints());
+        System.out.println("Updated Average Note: " + technicien.getNoteMoyenne());
 
         technicienRepository.save(technicien);
+        System.out.println("Technicien saved");
     }
 
-    private void updateBadgeAssignment(Technicien technicien) {
-        String badgeName = badgeService.getBadgeByPoints(technicien.getTotalPoints());
-        Badge badge = badgeRepository.findByNomBadge(badgeName);
-        if (badge != null) {
-            // Pour l'instant on garde un seul badge (le plus haut)
-            technicien.getBadges().clear();
-            technicien.getBadges().add(badge);
-        }
+    private void updateAverageNote(Technicien technicien) {
+        List<PointTransaction> transactions = pointTransactionRepository.findByTechnicienId(technicien.getId());
+        double average = transactions.stream()
+                .mapToInt(PointTransaction::getQuantite)
+                .average()
+                .orElse(0.0);
+        technicien.setNoteMoyenne(average);
     }
 
     public void updateTechnicianScore(Long technicienId) {
@@ -179,9 +176,6 @@ public class ScoreCalculatorService {
 
         technicien.setTotalPoints(totalPoints);
         technicien.setNoteMoyenne(averageNote);
-        
-        updateBadgeAssignment(technicien);
-        
         technicienRepository.save(technicien);
     }
 }

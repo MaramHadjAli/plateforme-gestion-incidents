@@ -1,4 +1,4 @@
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,7 +23,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   registerForm = this.fb.group({
@@ -31,13 +32,15 @@ export class RegisterComponent {
     prenom: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    role: ['DEMANDEUR', Validators.required]
+    role: ['DEMANDEUR'],
+    telephone: ['']
   });
-
 
   onSubmit() {
     this.submitted = true;
     this.errorMessage = '';
+
+    console.log('Form values:', this.registerForm.value);
 
     if (this.registerForm.invalid || this.isSubmitting) {
       this.registerForm.markAllAsTouched();
@@ -46,26 +49,29 @@ export class RegisterComponent {
 
     this.isSubmitting = true;
 
-    this.authService
-      .register(this.registerForm.getRawValue())
+    const formValue = this.registerForm.value;
+    const registerData = {
+      nom: formValue.nom,
+      prenom: formValue.prenom,
+      email: formValue.email,
+      password: formValue.password,
+      role: formValue.role || 'DEMANDEUR',
+      telephone: formValue.telephone || null
+    };
+
+    console.log('Sending data:', registerData);
+
+    this.http
+      .post('http://localhost:8080/api/auth/register', registerData)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: (response) => {
-          const redirectUrl = this.authService.getRedirectUrl(response.user.role);
-          this.router.navigate([redirectUrl]);
+        next: (response: any) => {
+          console.log('Registration success:', response);
+          this.router.navigate(['/login']);
         },
-        error: (err) => {
-          console.error('Registration failed:', err);
-          
-          // Enhanced error parsing for production-grade debugging
-          const backendError = err.error?.message || err.error?.error || err.message;
-          this.errorMessage = typeof backendError === 'string' 
-            ? backendError 
-            : "Erreur de connexion au serveur. Veuillez vérifier votre connexion ou le statut du backend.";
-          
-          if (err.status === 0) {
-            this.errorMessage = "Impossible de contacter le serveur (Network Error). Vérifiez que le backend tourne sur le port 8080 et que CORS est bien configuré.";
-          }
+        error: (err: { error: { message: string; }; }) => {
+          console.error('Registration error:', err);
+          this.errorMessage = err.error?.message || "Erreur lors de l'inscription.";
         }
       });
   }

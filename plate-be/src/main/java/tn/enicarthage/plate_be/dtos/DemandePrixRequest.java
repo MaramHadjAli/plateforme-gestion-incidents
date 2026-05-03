@@ -1,13 +1,15 @@
 package tn.enicarthage.plate_be.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.util.Date;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class DemandePrixRequest {
     private Date deadline;
     private String message;

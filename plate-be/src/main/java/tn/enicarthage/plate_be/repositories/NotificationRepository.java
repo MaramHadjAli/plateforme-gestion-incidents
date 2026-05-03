@@ -16,14 +16,14 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     
     List<Notification> findByUtilisateur(Utilisateur utilisateur);
     
-    List<Notification> findByUtilisateurAndIsReadFalse(Utilisateur utilisateur);
+    List<Notification> findByUtilisateurAndReadFalse(Utilisateur utilisateur);
     
     List<Notification> findByUtilisateurOrderByDateEnvoiDesc(Utilisateur utilisateur);
     
-    @Query("SELECT n FROM Notification n WHERE n.utilisateur = :utilisateur AND n.isRead = false ORDER BY n.dateEnvoi DESC")
+    @Query("SELECT n FROM Notification n WHERE n.utilisateur = :utilisateur AND n.read = false ORDER BY n.dateEnvoi DESC")
     List<Notification> findUnreadNotifications(@Param("utilisateur") Utilisateur utilisateur);
     
-    @Query("SELECT COUNT(n) FROM Notification n WHERE n.utilisateur = :utilisateur AND n.isRead = false")
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.utilisateur = :utilisateur AND n.read = false")
     long countUnreadNotifications(@Param("utilisateur") Utilisateur utilisateur);
     
     @Query("SELECT n FROM Notification n WHERE n.utilisateur = :utilisateur AND n.dateEnvoi >= :since ORDER BY n.dateEnvoi DESC")

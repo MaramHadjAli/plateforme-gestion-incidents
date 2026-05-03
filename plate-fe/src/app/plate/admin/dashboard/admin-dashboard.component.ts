@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AdminDashboardStats } from '../models/admin-dashboard.model';
-import { AdminDashboardService } from '../services/admin-dashboard.service';
 import { CinematicHybridChartComponent } from '../../../shared/components/cinematic-hybrid-chart.component';
+import { AdminDashboardService, AdminDashboardStats } from '../../../core/services/admin-dashboard.service';
 
 
 type SeriesItem = {
@@ -18,7 +17,7 @@ type SeriesItem = {
   standalone: true,
   imports: [CommonModule, RouterModule, CinematicHybridChartComponent],
   templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.css']
+  styleUrls: ['./admin-dashboard.component.css', '../../technicien/ticket-list/ticket-list.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   stats: AdminDashboardStats | null = null;

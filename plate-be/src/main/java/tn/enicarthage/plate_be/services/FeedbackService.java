@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import tn.enicarthage.plate_be.dtos.FeedbackDTO;
 import tn.enicarthage.plate_be.entities.Demandeur;
 import tn.enicarthage.plate_be.entities.Feedback;
+import tn.enicarthage.plate_be.entities.STATUS_TICKET;
 import tn.enicarthage.plate_be.entities.Ticket;
 import tn.enicarthage.plate_be.repositories.DemandeurRepository;
 import tn.enicarthage.plate_be.repositories.FeedbackRepository;
@@ -57,7 +58,7 @@ public class FeedbackService {
     }
 
     public List<Map<String, Object>> getTechnicianFeedback(Long technicianId) {
-        List<Feedback> feedbacks = feedbackRepository.findByTicketAssignedToId(technicianId);
+        List<Feedback> feedbacks = feedbackRepository.findByTechnicienId(technicianId);
 
         return feedbacks.stream().map(feedback -> {
             Map<String, Object> item = new java.util.HashMap<>();
@@ -79,6 +80,6 @@ public class FeedbackService {
     }
 
     public boolean hasFeedback(String ticketId) {
-        return feedbackRepository.existsByTicketIdTicket(ticketId);
+        return feedbackRepository.existsByTicketId(ticketId);
     }
 }

@@ -14,9 +14,8 @@ public interface TicketService {
     TicketResponseDTO assignTicket(String ticketId, Long technicienId);
     TicketResponseDTO updateStatus(String ticketId, STATUS_TICKET newStatus);
     void deleteTicket(String id);
-    
-    // Nouvelles méthodes de gamification et gestion avancée
     TicketResponseDTO closeTicket(String ticketId);
+
     DemandePrixResponse sendDemandePrix(String ticketId, DemandePrixRequest request);
     void technicianInterest(String ticketId, TechnicianInterestRequest request, String email);
     List<InterestedTechnicianDTO> getInterestedTechnicians(String ticketId);

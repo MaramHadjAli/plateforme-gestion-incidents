@@ -1,11 +1,12 @@
 package tn.enicarthage.plate_be.services;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import tn.enicarthage.plate_be.dtos.auth.RegisterRequest;
+import tn.enicarthage.plate_be.auth.RegisterRequest;
 import tn.enicarthage.plate_be.dtos.auth.*;
 import tn.enicarthage.plate_be.entities.*;
 import tn.enicarthage.plate_be.repositories.*;
@@ -48,7 +49,7 @@ public class AuthenticationService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponse register(@Valid RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
         }

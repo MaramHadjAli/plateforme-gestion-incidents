@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavLink } from '../../core/models/nav-link.model';
@@ -6,9 +6,8 @@ import { ProfileMenuItem } from '../../core/models/profile-menu-item.model';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
 import { AppNotificationService, AppNotification } from '../../core/services/app-notification.service';
 
 @Component({
@@ -29,24 +28,16 @@ export class AppBarComponent implements OnInit, OnDestroy {
   isDarkMode = false;
   private destroy$ = new Subject<void>();
 
-  // Observable for reactive user data binding
   user$: Observable<UserInfo | null>;
-  unreadCount$!: Observable<number>;
+  unreadCount$: Observable<number>;
 
-  // Fallback values
   userName = 'Utilisateur';
   userInitials = 'U';
   userEmail = 'user@example.com';
   avatarUrl: string | undefined = undefined;
   userRole: 'Administrateur' | 'Technicien' | 'Utilisateur' = 'Utilisateur';
 
-  navLinks: NavLink[] = [
-    { label: 'Dashboard', route: '/dashboard', icon: '' },
-    { label: 'Tickets', route: '/ticket-list', icon: '' },
-    { label: 'Équipements', route: '/equipements', icon: '' },
-    { label: 'Maintenance', route: '/maintenance', icon: '' },
-    { label: 'Classement', route: '/classement', icon: '' }
-  ];
+  navLinks: NavLink[] = [];
 
   notifications: AppNotification[] = [];
 
@@ -75,19 +66,57 @@ export class AppBarComponent implements OnInit, OnDestroy {
     'MAINTENANCE_REMINDER': '🛠️'
   };
 
+  private searchTerms = ['Ticket #042', 'Salle B12', 'Projecteur Sony', 'Technicien Ounelli', 'Rapport mensuel'];
+
   constructor(
-    private elRef: ElementRef,
-    private router: Router,
+    private elRef: ElementRef, 
+    private router: Router, 
     private authService: AuthService,
-    private themeService: ThemeService,
-    private appNotifService: AppNotificationService
+    private appNotifService: AppNotificationService,
+    private themeService: ThemeService
   ) {
-    this.user$ = this.authService.user$;
+    // getCurrentUser() returns UserInfo | null, wrap in Observable
+    this.user$ = of(this.authService.getCurrentUser());
     this.unreadCount$ = this.appNotifService.unreadCount$;
   }
 
   ngOnInit(): void {
-    this.user$.subscribe((user: UserInfo | null) => {
+    const token = this.authService.getToken();
+    const role = token ? this.authService.getUserRoleFromToken(token) : null;
+    if (role === 'ADMIN') {
+      this.userRole = 'Administrateur';
+      this.navLinks = [
+        { label: 'Dashboard', route: '/dashboard', icon: '' },
+        { label: 'Tickets', route: '/ticket-list', icon: '' },
+        { label: 'Salles', route: '/admin/salles', icon: '' },
+        { label: 'Équipements', route: '/admin/equipements', icon: '' },
+        { label: 'Techniciens', route: '/technicians', icon: '' }
+      ];
+    } else if (role === 'TECHNICIEN') {
+      this.userRole = 'Technicien';
+      this.navLinks = [
+        { label: 'Mon Dashboard', route: '/technicien/dashboard', icon: '' },
+        { label: 'Mes Tickets', route: '/ticket-list', icon: '' },
+        { label: 'Maintenance', route: '/maintenance', icon: '' },
+        { label: 'Classement', route: '/classement', icon: '' }
+      ];
+    } else {
+      this.userRole = 'Utilisateur';
+      this.navLinks = [
+        { label: 'Nouveau Ticket', route: '/create-ticket', icon: '' },
+        { label: 'Mes Tickets', route: '/ticket-list', icon: '' }
+      ];
+    }
+    
+    const user = this.authService.getUserData();
+    if (user && Object.keys(user).length > 0) {
+      this.userName = user.nom ? `${user.prenom || ''} ${user.nom}`.trim() : (user.email || 'Utilisateur');
+      this.userEmail = user.email || '';
+      const initials = ((user.prenom?.[0] || user.nom?.[0] || '') + (user.nom?.[1] || '')).toUpperCase();
+      this.userInitials = initials || 'U';
+    }
+
+    this.user$.pipe(takeUntil(this.destroy$)).subscribe((user: UserInfo | null) => {
       if (user) {
         this.userName = user.name || 'Utilisateur';
         this.userEmail = user.email || 'user@example.com';
@@ -95,10 +124,9 @@ export class AppBarComponent implements OnInit, OnDestroy {
         this.avatarUrl = user.avatarUrl;
         this.userRole = this.mapRole(user.role || 'UTILISATEUR');
         
-        // Update Dashboard route based on role
-        const dashboardLink = this.navLinks.find(l => l.label === 'Dashboard');
+        const dashboardLink = this.navLinks.find(l => l.label === 'Dashboard' || l.label === 'Mon Dashboard');
         if (dashboardLink) {
-          dashboardLink.route = this.userRole === 'Administrateur' ? '/admin/dashboard' : '/technicien/dashboard';
+          dashboardLink.route = this.userRole === 'Administrateur' ? '/dashboard' : '/technicien/dashboard';
         }
 
         this.appNotifService.refreshUnreadCount();
@@ -124,6 +152,10 @@ export class AppBarComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.appNotifService.stopPolling();
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter((n) => !n.isRead).length;
   }
 
   private getInitials(name: string): string {
@@ -181,6 +213,7 @@ export class AppBarComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   toggleTheme(): void {

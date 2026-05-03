@@ -12,7 +12,7 @@ import tn.enicarthage.plate_be.entities.ROLE;
 import tn.enicarthage.plate_be.entities.Technicien;
 import tn.enicarthage.plate_be.entities.Utilisateur;
 import tn.enicarthage.plate_be.dtos.TechnicianScoreDTO;
-import tn.enicarthage.plate_be.dtos.TechnicienRankingDTO;
+import tn.enicarthage.plate_be.dtos.TechnicianRankDTO;
 import tn.enicarthage.plate_be.dtos.PointTransactionDTO;
 
 public interface TechnicienService {
@@ -41,7 +41,7 @@ public interface TechnicienService {
 
     TechnicianScoreDTO getTechnicianScoreWithDetails(Long id);
 
-    List<TechnicienRankingDTO> getRanking();
+    List<TechnicianRankDTO> getRanking();
 
     List<PointTransactionDTO> getTechnicianTransactions(Long id);
 }
