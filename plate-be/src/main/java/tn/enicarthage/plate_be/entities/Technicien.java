@@ -11,12 +11,14 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @Entity
+@DiscriminatorValue("Technicien")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+
 public class Technicien extends Utilisateur {
 
     private String specialite;

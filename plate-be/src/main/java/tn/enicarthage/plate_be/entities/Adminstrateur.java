@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import lombok.*;
 
 @Entity
+@DiscriminatorValue("Adminstrateur")
 @Getter
 @Setter
 @ToString(callSuper = true)
