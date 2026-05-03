@@ -29,12 +29,10 @@ export class AuthService {
           const token = response?.accessToken ?? response?.token;
           if (token) {
             localStorage.setItem(this.tokenKey, token);
-            // Store user info from response
             if (response.user) {
               localStorage.setItem(this.userKey, JSON.stringify(response.user));
               this.currentUserSubject.next(response.user);
             } else {
-              // Fallback: build user info from JWT
               const role = this.getUserRoleFromToken(token);
               const userData = { email, role };
               localStorage.setItem(this.userKey, JSON.stringify(userData));
