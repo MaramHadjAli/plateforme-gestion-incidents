@@ -4,18 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import tn.enicarthage.plate_be.dtos.user.ChangePasswordDTO;
 import tn.enicarthage.plate_be.dtos.user.UpdateProfileDTO;
 import tn.enicarthage.plate_be.dtos.user.UserResponseDTO;
 import tn.enicarthage.plate_be.services.UserService;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,8 +16,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private static final String UPLOAD_DIR = "uploads/avatars/";
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     /**
      * Récupérer les infos de l'utilisateur actuel
@@ -55,71 +46,6 @@ public class UserController {
     }
 
     /**
-     * Upload l'avatar de l'utilisateur
-     */
-    @PostMapping("/avatar/upload")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
-        try {
-            // Vérifier la taille du fichier
-            if (file.getSize() > MAX_FILE_SIZE) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Fichier trop volumineux (max 5MB)"));
-            }
-
-            // Vérifier le type de fichier
-            if (!file.getContentType().startsWith("image/")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Le fichier doit être une image"));
-            }
-
-            // Créer le répertoire s'il n'existe pas
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // Générer un nom de fichier unique
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
-
-            // Sauvegarder le fichier
-            Files.write(filePath, file.getBytes());
-
-            // Construire l'URL de l'avatar
-            String avatarUrl = "/uploads/avatars/" + fileName;
-
-            // Mettre à jour l'avatar dans la base de données
-            UserResponseDTO updatedUser = userService.updateAvatar(avatarUrl);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Avatar uploadé avec succès");
-            response.put("avatarUrl", avatarUrl);
-            response.put("user", updatedUser);
-
-            return ResponseEntity.ok(response);
-
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Erreur lors de l'upload du fichier"));
-        }
-    }
-
-    /**
-     * Supprimer l'avatar de l'utilisateur
-     */
-    @DeleteMapping("/avatar")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> deleteAvatar() {
-        try {
-            UserResponseDTO updatedUser = userService.deleteAvatarUrl();
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Avatar supprimé avec succès");
-            response.put("user", updatedUser);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Erreur lors de la suppression de l'avatar"));
-        }
-    }
-
-    /**
      * Récupérer les infos d'un utilisateur par email
      */
     @GetMapping("/by-email/{email}")
@@ -137,7 +63,34 @@ public class UserController {
         userService.deleteAccount();
         return ResponseEntity.ok("Compte supprimé avec succès");
     }
+
+    @PostMapping("/avatar/upload")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponseDTO> uploadAvatar(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        return ResponseEntity.ok(userService.uploadAvatar(file));
+    }
+
+    @DeleteMapping("/avatar")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponseDTO> deleteAvatar() {
+        return ResponseEntity.ok(userService.deleteAvatar());
+    }
+
+    @GetMapping("/avatar/view/{fileName}")
+    public ResponseEntity<org.springframework.core.io.Resource> viewAvatar(@PathVariable String fileName) {
+        try {
+            java.nio.file.Path rootPath = java.nio.file.Paths.get("").toAbsolutePath();
+            java.nio.file.Path filePath = rootPath.resolve("uploads/avatars").resolve(fileName);
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .contentType(org.springframework.http.MediaType.IMAGE_PNG)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (java.net.MalformedURLException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
-
-
-

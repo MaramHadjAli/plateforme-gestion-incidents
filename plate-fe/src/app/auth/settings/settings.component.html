@@ -1,198 +1,179 @@
-<div class="settings-container">
-  <div class="settings-header">
-    <h1>Paramètres</h1>
-    <p>Gérez votre compte et vos préférences</p>
-  </div>
-
-  <div class="settings-grid">
-    <!-- User Profile Section -->
-    <div class="settings-card">
-      <div class="card-header">
-        <h2>Profil Utilisateur</h2>
-      </div>
-      <div class="card-content">
-        <div class="user-info">
-          <div class="user-avatar">
-            {{ (user?.firstName?.charAt(0) || 'U') + (user?.lastName?.charAt(0) || '') }}
-          </div>
-          <div class="user-details">
-            <p class="user-name">{{ user?.firstName }} {{ user?.lastName }}</p>
-            <p class="user-email">{{ user?.email }}</p>
-            <p class="user-role">{{ getRoleLabel() }}</p>
-          </div>
+<div class="settings-container animate-fade-in">
+  <div class="settings-card animate-slide-up">
+    
+    <!-- Sidebar -->
+    <aside class="settings-sidebar">
+      <div class="sidebar-title">Menu Paramètres</div>
+      
+      <nav class="flex-1">
+        <div class="settings-nav-item" [class.is-active]="activeSection === 'account'" (click)="activeSection = 'account'">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Compte & Profil
         </div>
-        <button class="btn btn-secondary" (click)="updateProfile()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          Modifier le profil
+        <div class="settings-nav-item" [class.is-active]="activeSection === 'security'" (click)="activeSection = 'security'">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          Sécurité
+        </div>
+        <div class="settings-nav-item" [class.is-active]="activeSection === 'notifications'" (click)="activeSection = 'notifications'">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          Notifications
+        </div>
+        <div class="settings-nav-item" [class.is-active]="activeSection === 'appearance'" (click)="activeSection = 'appearance'">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.172-1.172a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path></svg>
+          Apparence
+        </div>
+      </nav>
+
+      <div class="pt-6 border-t border-gray-100 dark:border-gray-800">
+        <button (click)="logout()" class="settings-nav-item text-red-500 hover:bg-red-50 w-full">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          Déconnexion
         </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- Security Section -->
-    <div class="settings-card">
-      <div class="card-header">
-        <h2>Sécurité</h2>
+    <!-- Main Content -->
+    <main class="settings-content flex-1">
+      
+      <!-- Profile Quick View -->
+      <div *ngIf="activeSection === 'account'" class="profile-quick-view">
+        <div class="quick-avatar">
+          {{ user?.nom?.charAt(0) || 'U' }}
+        </div>
+        <div class="quick-info">
+          <h3>{{ user?.nom }} {{ user?.prenom }}</h3>
+          <p class="text-sm text-gray-500 font-medium">{{ user?.email }}</p>
+          <button (click)="updateProfile()" class="btn-profile-link">
+            <span>Accéder au profil complet</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
       </div>
-      <div class="card-content">
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Mot de passe</p>
-            <p class="setting-description">Changez votre mot de passe régulièrement</p>
+
+      <!-- Security Section -->
+      <section *ngIf="activeSection === 'account' || activeSection === 'security'" class="settings-group">
+        <h2 class="settings-section-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+          Sécurité & Authentification
+        </h2>
+
+        <div class="settings-item">
+          <div class="settings-info">
+            <p class="settings-label">Authentification à deux facteurs (2FA)</p>
+            <p class="settings-description">Ajoutez une couche de sécurité supplémentaire à votre compte.</p>
           </div>
-          <button class="btn btn-secondary" (click)="togglePasswordForm()">
-            {{ showPasswordForm ? 'Annuler' : 'Changer' }}
+          <label class="switch">
+            <input type="checkbox" (change)="toggle2FA()" [checked]="user?.twoFactorEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-info">
+            <p class="settings-label">Changer le mot de passe</p>
+            <p class="settings-description">Mettez à jour votre mot de passe régulièrement pour plus de sécurité.</p>
+          </div>
+          <button (click)="togglePasswordForm()" class="btn-secondary">
+            {{ showPasswordForm ? 'Annuler' : 'Modifier' }}
           </button>
         </div>
 
-        <!-- Password Change Form -->
-        <div *ngIf="showPasswordForm" class="password-form">
-          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-            <div class="form-group">
-              <label for="oldPassword">Ancien mot de passe</label>
-              <input
-                id="oldPassword"
-                type="password"
-                formControlName="oldPassword"
-                class="form-input"
-                placeholder="Entrez votre ancien mot de passe"
-                [attr.disabled]="isLoading ? true : null">
-              <div *ngIf="passwordForm.get('oldPassword')?.invalid && passwordForm.get('oldPassword')?.touched" class="error-text">
-                Le mot de passe doit contenir au moins 6 caractères
+        <!-- Password Form -->
+        <div *ngIf="showPasswordForm" class="mt-6 p-6 bg-gray-50 dark:bg-gray-800/30 rounded-2xl animate-fade-in border border-gray-100 dark:border-gray-800">
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Ancien mot de passe</label>
+                <input type="password" formControlName="oldPassword" class="input-field" placeholder="••••••••">
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nouveau mot de passe</label>
+                  <input type="password" formControlName="newPassword" class="input-field" placeholder="••••••••">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Confirmer</label>
+                  <input type="password" formControlName="confirmPassword" class="input-field" placeholder="••••••••">
+                </div>
               </div>
             </div>
-
-            <div class="form-group">
-              <label for="newPassword">Nouveau mot de passe</label>
-              <input
-                id="newPassword"
-                type="password"
-                formControlName="newPassword"
-                class="form-input"
-                placeholder="Entrez votre nouveau mot de passe (min 8 caractères)"
-                [attr.disabled]="isLoading ? true : null">
-              <div *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched" class="error-text">
-                Le mot de passe doit contenir au moins 8 caractères
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="confirmPassword">Confirmer le mot de passe</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                formControlName="confirmPassword"
-                class="form-input"
-                placeholder="Confirmez votre nouveau mot de passe"
-                [attr.disabled]="isLoading ? true : null">
-              <div *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched" class="error-text">
-                Veuillez confirmer votre mot de passe
-              </div>
-              <div *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched" class="error-text">
-                Les mots de passe ne correspondent pas
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="!passwordForm.valid || isLoading">
-                <span *ngIf="!isLoading">Enregistrer</span>
-                <span *ngIf="isLoading" class="loading-spinner"></span>
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="togglePasswordForm()" [disabled]="isLoading">
-                Annuler
+            <div class="flex justify-end">
+              <button type="submit" [disabled]="passwordForm.invalid || isLoading" class="btn-primary">
+                {{ isLoading ? 'Mise à jour...' : 'Enregistrer le mot de passe' }}
               </button>
             </div>
           </form>
         </div>
+      </section>
 
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Authentification à deux facteurs</p>
-            <p class="setting-description">Renforcez la sécurité de votre compte</p>
-          </div>
-          <button class="btn btn-secondary" disabled>
-            Bientôt
-          </button>
-        </div>
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Sessions actives</p>
-            <p class="setting-description">Gérez vos sessions de connexion</p>
-          </div>
-          <button class="btn btn-secondary" disabled>
-            Gérer
-          </button>
-        </div>
-      </div>
-    </div>
+      <!-- Sessions Management -->
+      <section *ngIf="activeSection === 'security'" class="settings-group">
+        <h2 class="settings-section-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          Sessions Actives
+        </h2>
 
-    <!-- Preferences Section -->
-    <div class="settings-card">
-      <div class="card-header">
-        <h2>Préférences</h2>
-      </div>
-      <div class="card-content">
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Notifications par email</p>
-            <p class="setting-description">Recevez les mises à jour importants</p>
+        <div class="session-list">
+          <div class="session-item">
+            <div class="session-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            </div>
+            <div class="session-info">
+              <p class="session-device">Session Actuelle <span class="badge-current">Actif</span></p>
+              <p class="session-meta">Tunis, Tunisie • Navigateur Web</p>
+            </div>
           </div>
-          <label class="toggle">
+        </div>
+
+        <button (click)="manageSessions()" class="mt-4 text-indigo-600 dark:text-indigo-400 text-sm font-bold hover:underline">
+          Se déconnecter de tous les autres appareils
+        </button>
+      </section>
+
+      <!-- Preferences Section -->
+      <section *ngIf="activeSection === 'appearance' || activeSection === 'notifications'" class="settings-group">
+        <h2 class="settings-section-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Préférences Interface
+        </h2>
+
+        <div *ngIf="activeSection === 'notifications'" class="settings-item">
+          <div class="settings-info">
+            <p class="settings-label">Notifications par email</p>
+            <p class="settings-description">Recevoir des mises à jour sur vos incidents par email.</p>
+          </div>
+          <label class="switch">
             <input type="checkbox" checked>
-            <span class="toggle-slider"></span>
+            <span class="slider"></span>
           </label>
         </div>
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Thème sombre</p>
-            <p class="setting-description">Utiliser le mode sombre</p>
-          </div>
-          <label class="toggle">
-            <input type="checkbox">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Langue</p>
-            <p class="setting-description">Français</p>
-          </div>
-          <button class="btn btn-secondary" disabled>
-            Changer
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Danger Zone -->
-    <div class="settings-card danger">
-      <div class="card-header">
-        <h2>Zone Dangereuse</h2>
-      </div>
-      <div class="card-content">
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Déconnexion</p>
-            <p class="setting-description">Vous déconnecter de votre compte</p>
+        <div *ngIf="activeSection === 'appearance'" class="settings-item">
+          <div class="settings-info">
+            <p class="settings-label">Mode Sombre</p>
+            <p class="settings-description">Activer l'interface sombre pour plus de confort visuel.</p>
           </div>
-          <button class="btn btn-danger" (click)="logout()" [disabled]="isLoading">
-            <span *ngIf="!isLoading">Déconnexion</span>
-            <span *ngIf="isLoading" class="loading-spinner"></span>
+          <label class="switch">
+            <input type="checkbox" (change)="toggleDarkMode($event)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Danger Zone -->
+      <section class="pt-8 border-t border-gray-100 dark:border-gray-800">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 p-6 bg-red-50/30 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20">
+          <div>
+            <h3 class="text-lg font-extrabold text-red-600 mb-1">Zone de Danger</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Une fois votre compte supprimé, toutes vos données seront définitivement effacées.</p>
+          </div>
+          <button (click)="deleteAccount()" class="btn-danger">
+            Supprimer le compte
           </button>
         </div>
-        <div class="setting-item">
-          <div>
-            <p class="setting-title">Supprimer le compte</p>
-            <p class="setting-description">Supprimer définitivement votre compte et toutes les données</p>
-          </div>
-          <button class="btn btn-danger" (click)="deleteAccount()">
-            Supprimer
-          </button>
-        </div>
-      </div>
-    </div>
+      </section>
+
+    </main>
+
   </div>
 </div>
-

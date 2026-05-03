@@ -48,9 +48,4 @@ public class TraceLogin {
     @Builder.Default
     private String status = "SUCCESS";
 
-    public static TraceLoginBuilder builder() {
-        return new TraceLoginBuilder();
-    }
-
 }
-

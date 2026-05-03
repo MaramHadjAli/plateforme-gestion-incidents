@@ -6,4 +6,6 @@ export interface TicketRequest {
   priorite: PrioriteTicket | string;
   dateLimite: Date | string;
   demandeurId: string;
+  idSalle?: string;
+  idEquipement?: string;
 }

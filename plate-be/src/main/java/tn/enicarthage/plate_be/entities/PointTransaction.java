@@ -1,15 +1,7 @@
 package tn.enicarthage.plate_be.entities;
 
 import java.util.Date;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,21 +20,29 @@ import lombok.Builder;
 @EqualsAndHashCode
 @Builder
 public class PointTransaction {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String idPoint;
-    
+
     @Column(nullable = false)
     private int quantite;
-    
+
     @Column(length = 500)
-    private String raison; // cause du transaction
-    
+    private String raison;
+
     @Column(name = "date_attribution")
     private Date dateAttribution;
-    
+
     @ManyToOne
-    @JoinColumn(name = "demandeur_id", nullable = false)
+    @JoinColumn(name = "technicien_id")
+    private Technicien technicien;
+
+    @ManyToOne
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
+
+    @ManyToOne
+    @JoinColumn(name = "demandeur_id")
     private Demandeur demandeur;
 }

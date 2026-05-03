@@ -9,6 +9,12 @@ import { TicketResponse } from '../../../core/models/ticket-response.model';
 import { TicketsService } from '../../../core/services/tickets.service';
 import { TicketRequest } from '../../../core/models/ticket-request.model';
 
+import { SalleService } from '../../../core/services/salle.service';
+import { EquipementService } from '../../../core/services/equipement.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-create-ticket',
   standalone: true,
@@ -35,7 +41,7 @@ export class CreateTicketComponent implements OnInit {
   priorities: Priority[] = [
     { value: 'CRITIQUE', label: 'Critique', icon: '🔴' },
     { value: 'HAUTE', label: 'Haute', icon: '🟠' },
-    { value: 'NORMAL', label: 'Normal', icon: '🟡' },
+    { value: 'NORMALE', label: 'Normale', icon: '🟡' },
     { value: 'FAIBLE', label: 'Faible', icon: '🟢' },
   ];
 
@@ -53,18 +59,22 @@ export class CreateTicketComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private ticketsService: TicketsService
+    private ticketsService: TicketsService,
+    private salleService: SalleService,
+    private equipementService: EquipementService,
+    private authService: AuthService,
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadInitialData();
     this.ticketForm = this.fb.group({
       titre: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(120)]],
       description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]],
       priorite: ['', Validators.required],
-      //idSalle: ['', Validators.required],
-      //idEquipement: ['', Validators.required],
-      idSalle: [''],
-      idEquipement: [''],
+      idSalle: ['', Validators.required],
+      idEquipement: ['', Validators.required],
       dateLimiteReparation: [''],
     });
 
@@ -75,11 +85,28 @@ export class CreateTicketComponent implements OnInit {
     this.loadTickets();
   }
 
+  loadInitialData(): void {
+    this.salleService.getAll().subscribe({
+      next: (data) => {
+        this.salles = data;
+        console.log('Salles chargées:', this.salles);
+      },
+      error: (err) => console.error('Erreur chargement salles:', err)
+    });
+
+    this.equipementService.getAll().subscribe({
+      next: (data) => {
+        this.equipements = data;
+        console.log('Equipements chargés:', this.equipements);
+      },
+      error: (err) => console.error('Erreur chargement équipements:', err)
+    });
+  }
+
   loadTickets(): void {
     this.ticketsService.getAllTickets().subscribe({
       next: (data) => {
         this.ticketsList = data;
-        console.log('Tickets loaded:', this.ticketsList);
       },
       error: (err) => {
         console.error('Error fetching tickets', err);
@@ -90,8 +117,8 @@ export class CreateTicketComponent implements OnInit {
   get f() { return this.ticketForm.controls; }
 
   get filteredEquipements(): Equipement[] {
-    const idSalle = this.f['idSalle'].value;
-    return idSalle ? this.equipements.filter(e => e.idSalle === idSalle) : [];
+    // On retourne maintenant tous les équipements sans filtrage par salle
+    return this.equipements;
   }
 
   get selectedEquipement(): Equipement | undefined {
@@ -129,31 +156,35 @@ export class CreateTicketComponent implements OnInit {
   onSubmit(): void {
     if (this.ticketForm.invalid) {
       this.ticketForm.markAllAsTouched();
+      this.toastService.showError('Veuillez remplir tous les champs obligatoires.');
       return;
     }
     
     this.isLoading = true;
+    const currentUser = this.authService.getCurrentUser();
 
     const payload: TicketRequest = {
       titre: this.f['titre'].value,
       description: this.f['description'].value,
       priorite: this.f['priorite'].value,
       dateLimite: this.f['dateLimiteReparation'].value,
-      demandeurId: 'INSERT_ACTUAL_USER_ID_HERE' 
+      demandeurId: currentUser?.email || '', 
+      idSalle: this.f['idSalle'].value,
+      idEquipement: this.f['idEquipement'].value
     };
 
     this.ticketsService.createTicket(payload).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.submitted = true;
-        
         this.generatedTicketId = response.idTicket; 
-
+        this.toastService.showSuccess('Ticket créé avec succès !');
         this.loadTickets(); 
       },
       error: (err) => {
         this.isLoading = false;
         console.error('Error creating ticket:', err);
+        this.toastService.showError('Erreur lors de la création du ticket. Veuillez réessayer.');
       }
     });
   }
@@ -206,7 +237,7 @@ export class CreateTicketComponent implements OnInit {
     const map: Record<string, string> = {
       CRITIQUE: 'text-red-400',
       HAUTE: 'text-orange-400',
-      NORMAL: 'text-yellow-400',
+      NORMALE: 'text-yellow-400',
       FAIBLE: 'text-emerald-400',
     };
     return map[value] || 'text-gray-400';

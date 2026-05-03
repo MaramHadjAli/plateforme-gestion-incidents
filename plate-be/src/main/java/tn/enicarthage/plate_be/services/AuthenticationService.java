@@ -5,20 +5,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import tn.enicarthage.plate_be.dtos.auth.RegisterRequest;
 import tn.enicarthage.plate_be.dtos.auth.*;
 import tn.enicarthage.plate_be.entities.*;
-import tn.enicarthage.plate_be.entities.ROLE;
 import tn.enicarthage.plate_be.repositories.*;
 import tn.enicarthage.plate_be.security.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final DemandeurRepository demandeurRepository;
+    private final TechnicienRepository technicienRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TraceLoginRepository traceRepo;
@@ -27,6 +30,8 @@ public class AuthenticationService {
 
     public AuthenticationService(
             UserRepository userRepository,
+            DemandeurRepository demandeurRepository,
+            TechnicienRepository technicienRepository,
             PasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
             TraceLoginRepository traceRepo,
@@ -34,6 +39,8 @@ public class AuthenticationService {
             RefreshTokenService refreshTokenService
     ) {
         this.userRepository = userRepository;
+        this.demandeurRepository = demandeurRepository;
+        this.technicienRepository = technicienRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.traceRepo = traceRepo;
@@ -42,82 +49,108 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse register(RegisterRequest request) {
-
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
         }
 
-        Utilisateur user;
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        ROLE role = request.getRole() != null ? request.getRole() : ROLE.DEMANDEUR;
 
-        switch (request.getRole()) {
-            case DEMANDEUR:
-                user = new Demandeur();
-                break;
+        Utilisateur savedUser;
+
+        switch (role) {
             case TECHNICIEN:
-                user = new Technicien();
+                Technicien tech = new Technicien();
+                tech.setNom(request.getNom());
+                tech.setPrenom(request.getPrenom());
+                tech.setEmail(request.getEmail());
+                tech.setMotPassee(encodedPassword);
+                tech.setRole(ROLE.TECHNICIEN);
+                tech.setEnabled(true);
+                tech.setActive(true);
+                tech.setDateInscription(new Date());
+                savedUser = technicienRepository.save(tech);
                 break;
             case ADMIN:
-                user = new Adminstrateur();
+                Adminstrateur admin = new Adminstrateur();
+                admin.setNom(request.getNom());
+                admin.setPrenom(request.getPrenom());
+                admin.setEmail(request.getEmail());
+                admin.setMotPassee(encodedPassword);
+                admin.setRole(ROLE.ADMIN);
+                admin.setEnabled(true);
+                admin.setActive(true);
+                admin.setDateInscription(new Date());
+                savedUser = userRepository.save(admin);
                 break;
             default:
-                user = new Utilisateur();
+                Demandeur demandeur = new Demandeur();
+                demandeur.setNom(request.getNom());
+                demandeur.setPrenom(request.getPrenom());
+                demandeur.setEmail(request.getEmail());
+                demandeur.setMotPassee(encodedPassword);
+                demandeur.setRole(ROLE.DEMANDEUR);
+                demandeur.setEnabled(true);
+                demandeur.setActive(true);
+                demandeur.setDateInscription(new Date());
+                savedUser = demandeurRepository.save(demandeur);
+                break;
         }
 
-        user.setNom(request.getNom());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user.setEnabled(true);
-
-        Utilisateur savedUser = userRepository.save(user);
-
-        // Log l'enregistrement
         logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit");
 
-        // Envoi email (optionnel, ne bloque pas)
+        String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
         try {
-            String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
-            emailService.sendConfirmationEmail(user.getEmail(), user.getNom(), confirmationLink);
-        } catch (Exception ex) {
+            emailService.sendConfirmationEmail(savedUser.getEmail(), savedUser.getNom(), confirmationLink);
+        } catch (RuntimeException ex) {
             System.err.println("Echec envoi email confirmation: " + ex.getMessage());
         }
 
-        // Auto-login après inscription
+        // Generate tokens for automatic login
         String jwt = jwtUtil.generateToken(savedUser);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser.getId());
 
-        return new AuthenticationResponse(jwt, refreshToken.getToken(), savedUser.getRole().name(), savedUser.getEmail());
+        AuthenticationResponse.UserInfo userInfo = new AuthenticationResponse.UserInfo(
+                savedUser.getId(),
+                savedUser.getNom(),
+                savedUser.getEmail(),
+                savedUser.getRole().name()
+        );
+
+        return new AuthenticationResponse(jwt, refreshToken.getToken(), userInfo);
     }
 
     public AuthenticationResponse login(LoginRequest request) {
         String email = request.getEmail();
 
-        // Vérifie si l'utilisateur existe
         Utilisateur user = userRepository.findByEmail(email)
                 .orElse(null);
 
         if (user == null) {
-            // Log tentative avec email inexistant
             logAction(email, "LOGIN_FAILED", "FAILED", "Utilisateur non trouvé");
             throw new RuntimeException("User not found");
         }
 
-        // Vérifie le mot de passe
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            // Log tentative de mot de passe incorrect
             logAction(email, "LOGIN_FAILED", "FAILED", "Mot de passe incorrect");
             throw new RuntimeException("Invalid password");
         }
 
+        logAction(email, "LOGIN_SUCCESS", "SUCCESS", "Connexion réussie");
+
         String jwt = jwtUtil.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return new AuthenticationResponse(jwt, refreshToken.getToken(), user.getRole().name(), user.getEmail());
+        AuthenticationResponse.UserInfo userInfo = new AuthenticationResponse.UserInfo(
+                user.getId(),
+                user.getNom(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return new AuthenticationResponse(jwt, refreshToken.getToken(), userInfo);
     }
 
-    /**
-     * Enregistre une action sensible dans la base de données
-     */
     private void logAction(String email, String action, String status, String details) {
         try {
             HttpServletRequest request = null;
@@ -125,7 +158,7 @@ public class AuthenticationService {
                 request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                         .getRequest();
             } catch (Exception e) {
-                // En cas d'erreur (ex: pas de contexte HTTP), on continue sans IP
+
             }
 
             TraceLogin log = TraceLogin.builder()
@@ -140,20 +173,15 @@ public class AuthenticationService {
 
             traceRepo.save(log);
         } catch (Exception e) {
-            // Log l'erreur mais ne pas arrêter le processus d'authentification
             System.err.println("Erreur lors du logging: " + e.getMessage());
         }
     }
 
-    /**
-     * Récupère l'adresse IP du client
-     */
     private String getClientIpAddress(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
 
-        // Essaie plusieurs headers possibles
         String[] headers = {
             "X-Forwarded-For",
             "Proxy-Client-IP",

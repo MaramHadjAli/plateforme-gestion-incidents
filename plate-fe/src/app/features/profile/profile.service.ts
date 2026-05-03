@@ -5,10 +5,14 @@ import { Observable } from 'rxjs';
 export interface UserProfile {
   id: number;
   nom: string;
+  prenom: string;
   email: string;
   telephone: string;
   role: string;
   avatarUrl?: string;
+  ticketsResolus?: number;
+  noteMoyenne?: number;
+  totalPoints?: number;
 }
 
 export interface UpdateProfile {

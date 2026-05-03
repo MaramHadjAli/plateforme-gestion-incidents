@@ -40,10 +40,11 @@ export class AppComponent implements OnInit {
   isAuthRoute(): boolean {
     const currentUrl = this.router.url;
     return (
+      currentUrl === '/' ||
+      currentUrl.includes('/home') ||
       currentUrl.includes('/login') ||
       currentUrl.includes('/register') ||
-      currentUrl.includes('/forgot-password') ||
-      currentUrl.includes('/dashboard')
+      currentUrl.includes('/forgot-password')
     );
   }
 }

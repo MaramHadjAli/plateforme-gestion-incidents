@@ -28,6 +28,7 @@ export class RegisterComponent {
 
   registerForm = this.fb.group({
     nom: ['', [Validators.required, Validators.minLength(2)]],
+    prenom: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     role: ['DEMANDEUR', Validators.required]
@@ -50,7 +51,7 @@ export class RegisterComponent {
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (response) => {
-          const redirectUrl = this.authService.getRedirectUrl(response.role);
+          const redirectUrl = this.authService.getRedirectUrl(response.user.role);
           this.router.navigate([redirectUrl]);
         },
         error: (err) => {

@@ -12,24 +12,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
-import lombok.Builder;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-@Builder
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,8 +32,6 @@ public class Ticket {
     private Date dateCreation;
     private Date dateCloture;
 
-
-
     @Enumerated(EnumType.STRING)
     private PRIORITE_TICKET priorite;
     
@@ -48,16 +39,6 @@ public class Ticket {
     private STATUS_TICKET status;
     
     private Date dateLimiteReparation;
-    private String typePanne;
-    private String photoUrl;
-    
-    @ManyToOne
-    @JoinColumn(name = "salle_id")
-    private Salle salle;
-    
-    @ManyToOne
-    @JoinColumn(name = "equipement_id")
-    private Equipement equipement;
     
     @ManyToOne
     @JoinColumn(name = "demandeur_id")
@@ -72,4 +53,21 @@ public class Ticket {
     
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<HistoriqueMaintenance> historiqueMaintenances;
+
+    @ManyToOne
+    @JoinColumn(name = "salle_id")
+    private Salle salle;
+
+    @ManyToOne
+    @JoinColumn(name = "equipement_id")
+    private Equipement equipement;
+
+    private boolean demandePrixSent = false;
+    private Date demandePrixDeadline;
+
+    @ManyToMany
+    private List<Utilisateur> interestedTechnicians = new java.util.ArrayList<>();
+
+    @ManyToMany
+    private List<Utilisateur> declinedTechnicians = new java.util.ArrayList<>();
 }

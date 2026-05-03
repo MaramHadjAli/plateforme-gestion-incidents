@@ -1,22 +1,24 @@
 package tn.enicarthage.plate_be.dtos.auth;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthenticationResponse {
-
     private String token;
     private String refreshToken;
-    private String role;
-    private String email;
+    private UserInfo user;
 
-    public AuthenticationResponse(String token, String refreshToken, String role, String email) {
-        this.token = token;
-        this.refreshToken = refreshToken;
-        this.role = role;
-        this.email = email;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UserInfo {
+        private Long id;
+        private String nom;
+        private String email;
+        private String role;
     }
-
 }

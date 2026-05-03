@@ -10,6 +10,7 @@ import tn.enicarthage.plate_be.entities.Notification;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Date;
 
 @Service
 @Slf4j
@@ -126,7 +127,7 @@ public class EmailService {
                 "<html><head><meta charset='UTF-8'><style>" +
                 "body { font-family: Arial, sans-serif; }" +
                 ".container { max-width: 600px; margin: 0 auto; padding: 20px; }" +
-                ".header { background-color: #c0392b; color: white; padding: 20px; text-align: center; }" +
+                ".header { background-color: #c0392b; color: white; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; }" +
                 ".content { padding: 20px; background-color: #f5f5f5; }" +
                 ".footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }" +
                 "</style></head><body>" +
@@ -140,8 +141,6 @@ public class EmailService {
                 "<div class='footer'><p>&copy; 2026 Plateforme de Gestion d'Incidents. Tous droits réservés.</p></div>" +
                 "</div></body></html>";
     }
-
-    // 📧 NOTIFICATION EMAILS METHODS
 
     public void sendNotificationEmail(Notification notification) {
         try {
@@ -284,5 +283,59 @@ public class EmailService {
                 "</div>" +
                 "<div class='footer'><p>&copy; 2026 Plateforme de Gestion d'Incidents. Urgence!</p></div>" +
                 "</div></body></html>";
+    }
+
+    public void sendDemandePrixNotification(String to, String ticketTitle, String ticketId, Date deadline, String messageText) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("🔔 Nouvelle Demande d'Intervention : " + ticketTitle);
+
+            String htmlContent = "<div style='font-family: Arial; padding: 20px;'>" +
+                    "<h2>Nouveau ticket disponible</h2>" +
+                    "<p>Un nouveau ticket nécessite votre attention : <strong>" + ticketTitle + "</strong></p>" +
+                    "<p><strong>ID Ticket :</strong> " + ticketId + "</p>" +
+                    "<p><strong>Date limite de réponse :</strong> " + deadline + "</p>" +
+                    "<div style='background: #f5f5f5; padding: 15px; border-left: 4px solid #3498db;'>" +
+                    "<p>" + messageText + "</p>" +
+                    "</div>" +
+                    "<p>Veuillez vous connecter à la plateforme pour répondre.</p>" +
+                    "</div>";
+            
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            log.error("Error sending demande prix email to {}", to, e);
+        }
+    }
+
+    public void sendInterestConfirmation(String to, String ticketTitle, boolean interested) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject("Confirmation de votre réponse : " + ticketTitle);
+
+            String status = interested ? "INTERESSÉ" : "PAS INTERESSÉ";
+            String color = interested ? "#27ae60" : "#e74c3c";
+
+            String htmlContent = "<div style='font-family: Arial; padding: 20px; text-align: center;'>" +
+                    "<h2>Réponse enregistrée</h2>" +
+                    "<p>Votre réponse pour le ticket <strong>" + ticketTitle + "</strong> a été prise en compte.</p>" +
+                    "<div style='display: inline-block; padding: 10px 20px; background: " + color + "; color: white; border-radius: 5px; font-weight: bold;'>" +
+                    status +
+                    "</div>" +
+                    "</div>";
+
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            log.error("Error sending interest confirmation to {}", to, e);
+        }
     }
 }

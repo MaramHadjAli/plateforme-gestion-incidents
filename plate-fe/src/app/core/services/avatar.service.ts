@@ -10,10 +10,10 @@ export class AvatarService {
 
   constructor(private http: HttpClient) {}
 
-  uploadAvatar(file: File): Observable<{ avatarUrl: string }> {
+  uploadAvatar(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ avatarUrl: string }>(`${this.apiUrl}/avatar/upload`, formData);
+    return this.http.post<any>(`${this.apiUrl}/avatar/upload`, formData);
   }
 
   deleteAvatar(): Observable<any> {

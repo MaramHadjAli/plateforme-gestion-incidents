@@ -105,7 +105,7 @@
             <div class="ct-field-group">
               <label class="ct-label">Équipement <span class="ct-required">*</span></label>
               <div class="ct-select-wrap">
-                <select formControlName="idEquipement" class="ct-input ct-select" title="Équipement" [attr.disabled]="!f['idSalle'].value ? true : null">
+                <select formControlName="idEquipement" class="ct-input ct-select" title="Équipement">
                   <option value="">Sélectionner un équipement</option>
                   <option *ngFor="let e of filteredEquipements" [value]="e.idEquipement">{{ e.nomEquipement }} ({{ e.type }})</option>
                 </select>

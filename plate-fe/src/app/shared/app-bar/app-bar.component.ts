@@ -9,15 +9,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-interface Notification {
-  id: number;
-  type: 'critical' | 'assign' | 'sla' | 'badge' | 'status' | 'maintenance';
-  title: string;
-  message: string;
-  time: string;
-  unread: boolean;
-  ticketId?: string;
-}
+import { AppNotificationService, AppNotification } from '../../core/services/app-notification.service';
 
 @Component({
   selector: 'app-bar',
@@ -33,13 +25,15 @@ export class AppBarComponent implements OnInit, OnDestroy {
   searchOpen = false;
   mobileOpen = false;
   searchQuery = '';
+  searchSuggestions: string[] = [];
   isDarkMode = false;
   private destroy$ = new Subject<void>();
 
   // Observable for reactive user data binding
   user$: Observable<UserInfo | null>;
+  unreadCount$!: Observable<number>;
 
-  // Fallback values (will be overridden by user$ observable)
+  // Fallback values
   userName = 'Utilisateur';
   userInitials = 'U';
   userEmail = 'user@example.com';
@@ -54,13 +48,7 @@ export class AppBarComponent implements OnInit, OnDestroy {
     { label: 'Classement', route: '/classement', icon: '' }
   ];
 
-  notifications: Notification[] = [
-    { id: 1, type: 'critical', title: 'Incident critique', message: 'Ticket #042 — Panne critique en Salle B12', time: '2 min', unread: true, ticketId: '042' },
-    { id: 2, type: 'assign', title: 'Ticket assigné', message: 'Ticket #039 vous a été assigné', time: '15 min', unread: true, ticketId: '039' },
-    { id: 3, type: 'sla', title: 'SLA dépassé', message: 'SLA dépassé pour Ticket #037', time: '1h', unread: true, ticketId: '037' },
-    { id: 4, type: 'badge', title: 'Nouveau badge', message: 'Badge « Rapide » obtenu !', time: '3h', unread: false },
-    { id: 5, type: 'status', title: 'Statut mis à jour', message: 'Ticket #031 — Statut changé : Résolu', time: '5h', unread: false, ticketId: '031' }
-  ];
+  notifications: AppNotification[] = [];
 
   profileMenuItems: ProfileMenuItem[] = [
     { label: 'Mon Profil', route: '/profile', icon: '' },
@@ -69,58 +57,62 @@ export class AppBarComponent implements OnInit, OnDestroy {
     { label: 'Paramètres', route: '/settings', icon: '' }
   ];
 
-  typeColors: Record<Notification['type'], string> = {
-    critical: 'bg-red-500',
-    assign: 'bg-blue-500',
-    sla: 'bg-amber-500',
-    badge: 'bg-purple-500',
-    status: 'bg-emerald-500',
-    maintenance: 'bg-cyan-500'
+  typeColors: Record<string, string> = {
+    'CRITICAL': 'bg-red-500',
+    'TICKET_ASSIGNED': 'bg-blue-500',
+    'SLA_EXCEEDED': 'bg-amber-500',
+    'BADGE_AWARDED': 'bg-purple-500',
+    'STATUS_CHANGED': 'bg-emerald-500',
+    'MAINTENANCE_REMINDER': 'bg-cyan-500'
   };
 
-  typeIcons: Record<Notification['type'], string> = {
-    critical: '⚠️',
-    assign: '📌',
-    sla: '⏱️',
-    badge: '🏅',
-    status: '✅',
-    maintenance: '🛠️'
+  typeIcons: Record<string, string> = {
+    'CRITICAL': '⚠️',
+    'TICKET_ASSIGNED': '📌',
+    'SLA_EXCEEDED': '⏱️',
+    'BADGE_AWARDED': '🏅',
+    'STATUS_CHANGED': '✅',
+    'MAINTENANCE_REMINDER': '🛠️'
   };
-
-  private searchTerms = ['Ticket #042', 'Salle B12', 'Projecteur Sony', 'Technicien Ounelli', 'Rapport mensuel'];
 
   constructor(
     private elRef: ElementRef,
     private router: Router,
     private authService: AuthService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private appNotifService: AppNotificationService
   ) {
-    // Subscribe to user$ observable to get reactive updates
     this.user$ = this.authService.user$;
+    this.unreadCount$ = this.appNotifService.unreadCount$;
   }
 
   ngOnInit(): void {
-    // Subscribe to user$ to update local display values
     this.user$.subscribe((user: UserInfo | null) => {
       if (user) {
-        // ✅ Use username for display, email for secondary display
         this.userName = user.name || 'Utilisateur';
         this.userEmail = user.email || 'user@example.com';
         this.userInitials = this.getInitials(this.userName);
         this.avatarUrl = user.avatarUrl;
-        // Extract role from user data if available
         this.userRole = this.mapRole(user.role || 'UTILISATEUR');
+        
+        // Update Dashboard route based on role
+        const dashboardLink = this.navLinks.find(l => l.label === 'Dashboard');
+        if (dashboardLink) {
+          dashboardLink.route = this.userRole === 'Administrateur' ? '/admin/dashboard' : '/technicien/dashboard';
+        }
+
+        this.appNotifService.refreshUnreadCount();
+        this.appNotifService.startPolling();
       } else {
-        // Reset to defaults when user logs out
         this.userName = 'Utilisateur';
         this.userInitials = 'U';
         this.userEmail = 'user@example.com';
         this.userRole = 'Utilisateur';
         this.avatarUrl = undefined;
+        this.appNotifService.stopPolling();
       }
     });
 
-    // Subscribe to dark mode changes
     this.themeService.darkMode$
       .pipe(takeUntil(this.destroy$))
       .subscribe((isDark: boolean) => {
@@ -131,11 +123,9 @@ export class AppBarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.appNotifService.stopPolling();
   }
 
-  /**
-   * Extract initials from user name
-   */
   private getInitials(name: string): string {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -145,9 +135,6 @@ export class AppBarComponent implements OnInit, OnDestroy {
     return name.substring(0, 2).toUpperCase();
   }
 
-  /**
-   * Map backend roles to display roles
-   */
   private mapRole(role: string): 'Administrateur' | 'Technicien' | 'Utilisateur' {
     const normalized = role.toUpperCase();
     if (normalized.includes('ADMIN')) return 'Administrateur';
@@ -155,14 +142,19 @@ export class AppBarComponent implements OnInit, OnDestroy {
     return 'Utilisateur';
   }
 
-  get unreadCount(): number {
-    return this.notifications.filter((n) => n.unread).length;
-  }
-
-
   toggleNotif(): void {
     this.notifOpen = !this.notifOpen;
-    if (this.profileOpen) this.profileOpen = false;
+    if (this.notifOpen) {
+      this.loadNotifications();
+      if (this.profileOpen) this.profileOpen = false;
+    }
+  }
+
+  loadNotifications(): void {
+    this.appNotifService.getNotifications().subscribe({
+      next: (data) => this.notifications = data,
+      error: (err) => console.error('Error loading notifications', err)
+    });
   }
 
   toggleProfile(): void {
@@ -176,50 +168,41 @@ export class AppBarComponent implements OnInit, OnDestroy {
   }
 
   markAllRead(): void {
-    this.notifications = this.notifications.map((n) => ({ ...n, unread: false }));
+    this.appNotifService.markAllAsRead().subscribe(() => {
+      this.notifications = this.notifications.map((n) => ({ ...n, isRead: true }));
+    });
   }
 
   markRead(id: number): void {
-    this.notifications = this.notifications.map((n) => (n.id === id ? { ...n, unread: false } : n));
+    this.appNotifService.markAsRead(id).subscribe(() => {
+      this.notifications = this.notifications.map((n) => (n.idNotification === id ? { ...n, isRead: true } : n));
+    });
   }
 
-  /**
-   * Logout: call auth service logout which will clear auth data and redirect to login
-   */
   logout(): void {
     this.authService.logout();
   }
 
-  /**
-   * Toggle dark mode theme
-   */
   toggleTheme(): void {
     this.themeService.toggleDarkMode();
   }
 
-  openNotification(notification: Notification): void {
-    this.markRead(notification.id);
-
+  openNotification(notification: AppNotification): void {
+    this.markRead(notification.idNotification);
     if (notification.ticketId) {
       this.router.navigate(['/ticket-list'], { queryParams: { ticket: notification.ticketId } });
     }
-
     this.notifOpen = false;
   }
 
-  trackNotification(index: number, notification: Notification): number {
-    return notification.id;
+  trackNotification(index: number, notification: AppNotification): number {
+    return notification.idNotification;
   }
 
   onSearchInput(event: any): void {
     const query = event.target.value;
     if (query.length > 2) {
-      this.searchSuggestions = [
-        `Ticket: ${query}`,
-        `Salle: ${query}`,
-        `Équipement: ${query}`,
-        `Utilisateur: ${query}`
-      ];
+      this.searchSuggestions = [`Ticket: ${query}`, `Salle: ${query}`, `Équipement: ${query}`, `Utilisateur: ${query}`];
     } else {
       this.searchSuggestions = [];
     }
@@ -228,31 +211,20 @@ export class AppBarComponent implements OnInit, OnDestroy {
   selectSuggestion(suggestion: string): void {
     this.searchQuery = suggestion;
     this.closeSearch();
-    console.log('Searching for:', suggestion);
   }
-
-
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-
     const profileContainer = this.elRef.nativeElement.querySelector('[data-profile]');
     const notifContainer = this.elRef.nativeElement.querySelector('[data-notif]');
     const searchContainer = this.elRef.nativeElement.querySelector('[data-search]');
 
-    if (profileContainer && !profileContainer.contains(target)) {
-      this.profileOpen = false;
-    }
-
-    if (notifContainer && !notifContainer.contains(target)) {
-      this.notifOpen = false;
-    }
-
+    if (profileContainer && !profileContainer.contains(target)) this.profileOpen = false;
+    if (notifContainer && !notifContainer.contains(target)) this.notifOpen = false;
     if (searchContainer && !searchContainer.contains(target)) {
       this.searchOpen = false;
       this.searchQuery = '';
     }
   }
 }
-

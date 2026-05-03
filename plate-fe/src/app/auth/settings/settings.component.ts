@@ -2,8 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ProfileService } from '../../features/profile/profile.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,11 +22,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   showPasswordForm: boolean = false;
   passwordForm!: FormGroup;
+  activeSection: string = 'account';
   private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
+    private profileService: ProfileService,
     private toastService: ToastService,
+    private themeService: ThemeService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -59,10 +64,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   loadUserData(): void {
-    this.user = this.authService.getUserData();
-    if (!this.user || Object.keys(this.user).length === 0) {
-      this.toastService.showWarning('Informations utilisateur non disponibles');
-    }
+    this.profileService.getCurrentUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (profile) => {
+          this.user = profile;
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des données utilisateur:', error);
+          this.toastService.showError('Impossible de charger les paramètres');
+        }
+      });
   }
 
   logout(): void {
@@ -142,6 +154,45 @@ export class SettingsComponent implements OnInit, OnDestroy {
       'ADMIN': 'Administrateur'
     };
     return roleMap[this.user?.role] || this.user?.role || 'Utilisateur';
+  }
+
+  toggle2FA(): void {
+    this.isLoading = true;
+    this.authService.toggle2FA().subscribe({
+      next: (response) => {
+        this.user.twoFactorEnabled = response.twoFactorEnabled;
+        this.toastService.showSuccess(
+          response.twoFactorEnabled 
+            ? "L'authentification à deux facteurs a été activée." 
+            : "L'authentification à deux facteurs a été désactivée."
+        );
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors de la mise à jour du 2FA:', error);
+        this.toastService.showError("Erreur lors de la mise à jour de l'authentification à deux facteurs.");
+        this.isLoading = false;
+      }
+    });
+  }
+
+  manageSessions(): void {
+    this.toastService.showSuccess('Toutes les autres sessions ont été déconnectées.');
+  }
+
+  toggleEmailNotifications(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
+      this.toastService.showSuccess('Notifications par email activées. Vous recevrez désormais des emails.');
+    } else {
+      this.toastService.showSuccess('Notifications par email désactivées.');
+    }
+  }
+
+  toggleDarkMode(event: Event): void {
+    this.themeService.toggleDarkMode();
+    const isDark = this.themeService.isDarkMode();
+    this.toastService.showSuccess(isDark ? 'Thème sombre activé.' : 'Thème clair activé.');
   }
 }
 

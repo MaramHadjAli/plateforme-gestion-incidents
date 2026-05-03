@@ -30,20 +30,37 @@
     </div>
 
     <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-      <label class="auth-field">
-        <span class="auth-field__label">Nom complet</span>
-        <span class="auth-field__control">
-          <span class="auth-field__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" [attr.stroke]="'currentColor'" [attr.stroke-width]="'1.8'" [attr.stroke-linecap]="'round'" [attr.stroke-linejoin]="'round'">
-              <path d="M20 21a8 8 0 0 0-16 0" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+      <div class="auth-form__row">
+        <label class="auth-field">
+          <span class="auth-field__label">Nom</span>
+          <span class="auth-field__control">
+            <span class="auth-field__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" [attr.stroke]="'currentColor'" [attr.stroke-width]="'1.8'" [attr.stroke-linecap]="'round'" [attr.stroke-linejoin]="'round'">
+                <path d="M20 21a8 8 0 0 0-16 0" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </span>
+            <input type="text" formControlName="nom" placeholder="Votre nom" autocomplete="family-name" />
           </span>
-          <input type="text" formControlName="nom" placeholder="Votre nom complet" autocomplete="name" />
-        </span>
-        <span *ngIf="(submitted || registerForm.controls.nom.touched) && registerForm.controls.nom.errors?.['required']" class="auth-field__error">Le nom est requis.</span>
-        <span *ngIf="(submitted || registerForm.controls.nom.touched) && registerForm.controls.nom.errors?.['minlength']" class="auth-field__error">Le nom doit contenir au moins 2 caractères.</span>
-      </label>
+          <span *ngIf="(submitted || registerForm.controls.nom.touched) && registerForm.controls.nom.errors?.['required']" class="auth-field__error">Le nom est requis.</span>
+          <span *ngIf="(submitted || registerForm.controls.nom.touched) && registerForm.controls.nom.errors?.['minlength']" class="auth-field__error">Le nom doit contenir au moins 2 caractères.</span>
+        </label>
+
+        <label class="auth-field">
+          <span class="auth-field__label">Prénom</span>
+          <span class="auth-field__control">
+            <span class="auth-field__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" [attr.stroke]="'currentColor'" [attr.stroke-width]="'1.8'" [attr.stroke-linecap]="'round'" [attr.stroke-linejoin]="'round'">
+                <path d="M20 21a8 8 0 0 0-16 0" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </span>
+            <input type="text" formControlName="prenom" placeholder="Votre prénom" autocomplete="given-name" />
+          </span>
+          <span *ngIf="(submitted || registerForm.controls.prenom.touched) && registerForm.controls.prenom.errors?.['required']" class="auth-field__error">Le prénom est requis.</span>
+          <span *ngIf="(submitted || registerForm.controls.prenom.touched) && registerForm.controls.prenom.errors?.['minlength']" class="auth-field__error">Le prénom doit contenir au moins 2 caractères.</span>
+        </label>
+      </div>
 
       <label class="auth-field">
         <span class="auth-field__label">Adresse Email</span>
@@ -100,7 +117,6 @@
           <select formControlName="role">
             <option value="DEMANDEUR">Demandeur</option>
             <option value="TECHNICIEN">Technicien</option>
-            <option value="ADMIN">Admin</option>
           </select>
         </span>
         <span *ngIf="(submitted || registerForm.controls.role.touched) && registerForm.controls.role.errors?.['required']" class="auth-field__error">Le rôle est requis.</span>

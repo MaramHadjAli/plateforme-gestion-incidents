@@ -47,6 +47,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   initForm(): void {
     this.editForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
+      prenom: ['', [Validators.required, Validators.minLength(2)]],
       telephone: ['', [Validators.pattern(/^[0-9+\-\s()]*$/)]]
     });
   }
@@ -60,12 +61,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.userProfile = profile;
           this.editForm.patchValue({
             nom: profile.nom,
+            prenom: profile.prenom,
             telephone: profile.telephone || ''
           });
           if (profile.avatarUrl) {
-            this.avatarPreview = profile.avatarUrl;
-            this.authService.updateAvatarUrl(profile.avatarUrl);
+            this.avatarPreview = profile.avatarUrl.startsWith('http') ? profile.avatarUrl : `http://localhost:8080${profile.avatarUrl}`;
+            this.authService.updateAvatarUrl(this.avatarPreview);
           } else {
+            this.avatarPreview = null;
             this.authService.updateAvatarUrl(undefined);
           }
           this.authService.updateUserDetails(profile.nom, profile.telephone);
@@ -85,6 +88,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (!this.isEditing && this.userProfile) {
       this.editForm.patchValue({
         nom: this.userProfile.nom,
+        prenom: this.userProfile.prenom,
         telephone: this.userProfile.telephone || ''
       });
     }
@@ -146,7 +150,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
           next: (response) => {
             this.toastService.showSuccess('Avatar mis à jour avec succès', 'Succès');
             if (response && response.avatarUrl) {
-              this.authService.updateAvatarUrl(response.avatarUrl); // Update globally instantly
+              const fullUrl = response.avatarUrl.startsWith('http') ? response.avatarUrl : `http://localhost:8080${response.avatarUrl}`;
+              this.avatarPreview = fullUrl;
+              this.authService.updateAvatarUrl(fullUrl);
             }
             this.loadUserProfile();
             this.isLoading = false;

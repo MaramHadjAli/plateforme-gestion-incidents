@@ -38,6 +38,7 @@
             ],
             "styles": [
               "src/styles.css",
+              "src/app/core/styles/dark-mode.css",
               "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": []

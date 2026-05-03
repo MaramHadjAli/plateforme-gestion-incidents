@@ -4,17 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tn.enicarthage.plate_be.entities.ROLE;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserResponseDTO {
     private Long id;
     private String nom;
+    private String prenom;
     private String email;
+    private ROLE role;
     private String telephone;
-    private String role;
     private String avatarUrl;
+    private Integer ticketsResolus;
+    private Double noteMoyenne;
+    private Integer totalPoints;
 }
-

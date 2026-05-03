@@ -71,7 +71,7 @@ export class LoginComponent {
             return;
           }
 
-          const redirectUrl = this.authService.getRedirectUrl(response.role);
+          const redirectUrl = this.authService.getRedirectUrl(response.user.role);
           this.router.navigate([redirectUrl]);
         },
         error: (error) => {

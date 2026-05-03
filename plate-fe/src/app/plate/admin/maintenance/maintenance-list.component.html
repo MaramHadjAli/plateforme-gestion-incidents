@@ -1,0 +1,74 @@
+<div class="tickets-page">
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>Maintenance</span>
+      </div>
+      <h1 class="page-title">Planification <span class="title-accent">Préventive</span></h1>
+      <p class="page-subtitle">Suivez et validez les interventions de maintenance sur le parc.</p>
+    </div>
+  </div>
+
+  <section *ngIf="loading" class="admin-loading card-panel">
+    Chargement des maintenances...
+  </section>
+
+  <section *ngIf="errorMessage" class="admin-error card-panel">
+    {{ errorMessage }}
+    <button type="button" class="admin-retry" (click)="loadMaintenances()">Réessayer</button>
+  </section>
+
+  <div *ngIf="!loading && !errorMessage" class="table-card card-panel">
+    <div class="table-wrap">
+      <table class="tickets-table">
+        <thead>
+          <tr>
+            <th>Équipement</th>
+            <th>Description</th>
+            <th>Fréquence</th>
+            <th>Date Prévue</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of maintenances" class="ticket-row">
+            <td>
+              <div class="technician-cell">
+                <div class="technician-info">
+                  <div class="technician-name">{{ m.nomEquipement }}</div>
+                  <div class="technician-email">{{ m.salleNom }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ m.description }}</td>
+            <td>
+              <span class="badge badge--neutral">{{ m.frequence }}</span>
+            </td>
+            <td>
+              <div [class.text-danger]="m.enRetard">
+                {{ m.dateProgramme | date:'dd/MM/yyyy' }}
+                <span *ngIf="m.enRetard" class="badge badge--critical ml-2">RETARD</span>
+              </div>
+            </td>
+            <td>
+              <span [class]="getStatusClass(m.status)">{{ m.status }}</span>
+            </td>
+            <td>
+              <div class="salle-actions" *ngIf="m.status !== 'TERMINEE'">
+                <button class="btn-new btn-sm" (click)="updateStatus(m, 'TERMINEE')">
+                  Valider
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="maintenances.length === 0" class="empty-state">
+      <p>Aucune maintenance planifiée.</p>
+    </div>
+  </div>
+</div>

@@ -23,9 +23,6 @@ public class Salle {
 	@OneToMany(mappedBy = "salle", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Equipement> equipements;
 
-	@OneToMany(mappedBy = "salle", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Ticket> tickets;
-
 	public Salle() {
 	}
 
@@ -68,13 +65,5 @@ public class Salle {
 
 	public void setEquipements(List<Equipement> equipements) {
 		this.equipements = equipements;
-	}
-
-	public List<Ticket> getTickets() {
-		return tickets;
-	}
-
-	public void setTickets(List<Ticket> tickets) {
-		this.tickets = tickets;
 	}
 }

@@ -22,7 +22,7 @@ public class Technicien extends Utilisateur {
     @Column(name = "tickets_resolus")
     private int ticketsResolus = 0;
 
-    private float noteMoyenne = 0f;
+    private Double noteMoyenne = 0.0;
 
     @Column(name = "total_points")
     private int totalPoints = 0;

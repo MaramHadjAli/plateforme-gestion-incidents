@@ -7,8 +7,12 @@ import { Router } from '@angular/router';
 export interface AuthenticationResponse {
   token: string;
   refreshToken: string;
-  role: string;
-  email: string;
+  user: {
+    id: number;
+    nom: string;
+    email: string;
+    role: string;
+  };
 }
 
 export interface UserInfo {
@@ -158,6 +162,15 @@ export class AuthService {
     return this.getUserRole() === 'ADMIN';
   }
 
+  isDemandeur(): boolean {
+    return this.getUserRole() === 'DEMANDEUR';
+  }
+
+  isTechnicien(): boolean {
+    const role = this.getUserRole();
+    return role === 'TECHNICIEN' || role === 'TECHNICIAN';
+  }
+
   /**
    * Get current user info synchronously (useful for templates with async pipe)
    */
@@ -221,5 +234,11 @@ export class AuthService {
   deleteAccount(): Observable<any> {
     return this.http.delete(`http://localhost:8080/api/users/delete-account`);
   }
+    /**
+     * Basculer le 2FA
+     */
+    toggle2FA(): Observable<any> {
+        return this.http.post(`http://localhost:8080/api/users/toggle-2fa`, {});
+    }
 }
 

@@ -34,14 +34,29 @@ public class UserService {
      */
     public UserResponseDTO getCurrentUserInfo() {
         Utilisateur user = getCurrentUser();
-        return UserResponseDTO.builder()
+        return mapToResponse(user);
+    }
+
+    private UserResponseDTO mapToResponse(Utilisateur user) {
+        UserResponseDTO.UserResponseDTOBuilder builder = UserResponseDTO.builder()
                 .id(user.getId())
                 .nom(user.getNom())
+                .prenom(user.getPrenom())
                 .email(user.getEmail())
                 .telephone(user.getTelephone())
-                .role(user.getRole().name())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+                .role(user.getRole())
+                .avatarUrl(user.getAvatarUrl());
+
+        if (user instanceof tn.enicarthage.plate_be.entities.Technicien tech) {
+            builder.ticketsResolus(tech.getTicketsResolus());
+            builder.noteMoyenne(tech.getNoteMoyenne());
+            builder.totalPoints(tech.getTotalPoints());
+        } else if (user instanceof tn.enicarthage.plate_be.entities.Demandeur dem) {
+            builder.noteMoyenne((double) dem.getNoteMoyenne());
+            builder.totalPoints(dem.getTotalPoint());
+        }
+
+        return builder.build();
     }
 
     /**
@@ -53,21 +68,17 @@ public class UserService {
         if (updateDTO.getNom() != null && !updateDTO.getNom().isBlank()) {
             user.setNom(updateDTO.getNom());
         }
+
+        if (updateDTO.getPrenom() != null && !updateDTO.getPrenom().isBlank()) {
+            user.setPrenom(updateDTO.getPrenom());
+        }
         
         if (updateDTO.getTelephone() != null && !updateDTO.getTelephone().isBlank()) {
             user.setTelephone(updateDTO.getTelephone());
         }
         
         Utilisateur updated = userRepository.save(user);
-        
-        return UserResponseDTO.builder()
-                .id(updated.getId())
-                .nom(updated.getNom())
-                .email(updated.getEmail())
-                .telephone(updated.getTelephone())
-                .role(updated.getRole().name())
-                .avatarUrl(updated.getAvatarUrl())
-                .build();
+        return mapToResponse(updated);
     }
 
     /**
@@ -87,7 +98,7 @@ public class UserService {
         }
         
         // Mettre à jour le mot de passe
-        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        user.setMotPassee(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         userRepository.save(user);
     }
 
@@ -98,14 +109,7 @@ public class UserService {
         Utilisateur user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .nom(user.getNom())
-                .email(user.getEmail())
-                .telephone(user.getTelephone())
-                .role(user.getRole().name())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+        return mapToResponse(user);
     }
 
     /**
@@ -116,39 +120,32 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    /**
-     * Mettre à jour l'URL de l'avatar
-     */
-    public UserResponseDTO updateAvatar(String avatarUrl) {
+    public UserResponseDTO uploadAvatar(org.springframework.web.multipart.MultipartFile file) {
         Utilisateur user = getCurrentUser();
-        user.setAvatarUrl(avatarUrl);
-        Utilisateur updated = userRepository.save(user);
-        
-        return UserResponseDTO.builder()
-                .id(updated.getId())
-                .nom(updated.getNom())
-                .email(updated.getEmail())
-                .telephone(updated.getTelephone())
-                .role(updated.getRole().name())
-                .avatarUrl(updated.getAvatarUrl())
-                .build();
+        try {
+            String fileName = "avatar_" + user.getId() + "_" + System.currentTimeMillis() + ".png";
+            java.nio.file.Path rootPath = java.nio.file.Paths.get("").toAbsolutePath();
+            java.nio.file.Path uploadPath = rootPath.resolve("uploads/avatars");
+            
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+            
+            java.nio.file.Path filePath = uploadPath.resolve(fileName);
+            java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            
+            user.setAvatarUrl("/api/users/avatar/view/" + fileName);
+            Utilisateur updated = userRepository.save(user);
+            return mapToResponse(updated);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Erreur lors de l'enregistrement de l'avatar : " + e.getMessage(), e);
+        }
     }
 
-    /**
-     * Supprimer l'avatar
-     */
-    public UserResponseDTO deleteAvatarUrl() {
+    public UserResponseDTO deleteAvatar() {
         Utilisateur user = getCurrentUser();
         user.setAvatarUrl(null);
         Utilisateur updated = userRepository.save(user);
-        
-        return UserResponseDTO.builder()
-                .id(updated.getId())
-                .nom(updated.getNom())
-                .email(updated.getEmail())
-                .telephone(updated.getTelephone())
-                .role(updated.getRole().name())
-                .avatarUrl(updated.getAvatarUrl())
-                .build();
+        return mapToResponse(updated);
     }
 }
