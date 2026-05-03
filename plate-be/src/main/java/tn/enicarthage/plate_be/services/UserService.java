@@ -45,7 +45,8 @@ public class UserService {
                 .email(user.getEmail())
                 .telephone(user.getTelephone())
                 .role(user.getRole())
-                .avatarUrl(user.getAvatarUrl());
+                .avatarUrl(user.getAvatarUrl())
+                .twoFactorEnabled(user.isTwoFactorEnabled());
 
         if (user instanceof tn.enicarthage.plate_be.entities.Technicien tech) {
             builder.ticketsResolus(tech.getTicketsResolus());
@@ -145,6 +146,13 @@ public class UserService {
     public UserResponseDTO deleteAvatar() {
         Utilisateur user = getCurrentUser();
         user.setAvatarUrl(null);
+        Utilisateur updated = userRepository.save(user);
+        return mapToResponse(updated);
+    }
+
+    public UserResponseDTO toggle2FA() {
+        Utilisateur user = getCurrentUser();
+        user.setTwoFactorEnabled(!user.isTwoFactorEnabled());
         Utilisateur updated = userRepository.save(user);
         return mapToResponse(updated);
     }

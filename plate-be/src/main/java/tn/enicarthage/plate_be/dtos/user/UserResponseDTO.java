@@ -18,6 +18,7 @@ public class UserResponseDTO {
     private ROLE role;
     private String telephone;
     private String avatarUrl;
+    private boolean twoFactorEnabled;
     private Integer ticketsResolus;
     private Double noteMoyenne;
     private Integer totalPoints;

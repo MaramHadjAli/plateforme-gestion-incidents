@@ -76,6 +76,12 @@ public class UserController {
         return ResponseEntity.ok(userService.deleteAvatar());
     }
 
+    @PostMapping("/toggle-2fa")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponseDTO> toggle2FA() {
+        return ResponseEntity.ok(userService.toggle2FA());
+    }
+
     @GetMapping("/avatar/view/{fileName}")
     public ResponseEntity<org.springframework.core.io.Resource> viewAvatar(@PathVariable String fileName) {
         try {

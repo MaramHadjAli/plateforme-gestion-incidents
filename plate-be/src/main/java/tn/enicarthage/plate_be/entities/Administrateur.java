@@ -5,10 +5,10 @@ import jakarta.persistence.Entity;
 import lombok.*;
 
 @Entity
-@DiscriminatorValue("Adminstrateur")
+@DiscriminatorValue("Administrateur")
 @Getter
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Adminstrateur extends Utilisateur {
+public class Administrateur extends Utilisateur {
 }
