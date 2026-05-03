@@ -15,15 +15,14 @@ public class TicketConverter {
         ticket.setTitre(dto.getTitre());
         ticket.setDescription(dto.getDescription());
         ticket.setDateLimiteReparation(dto.getDateLimite());
-        
-        // Parse priority safely — normalize NORMAL → NORMALE
+
         if (dto.getPriorite() != null) {
             String p = dto.getPriorite().trim().toUpperCase();
-            if (p.equals("NORMAL")) p = "NORMALE"; // fix frontend mismatch
+            if (p.equals("NORMAL")) p = "NORMALE";
             try {
                 ticket.setPriorite(tn.enicarthage.plate_be.entities.PRIORITE_TICKET.valueOf(p));
             } catch (IllegalArgumentException e) {
-                ticket.setPriorite(tn.enicarthage.plate_be.entities.PRIORITE_TICKET.NORMALE); // safe default
+                ticket.setPriorite(tn.enicarthage.plate_be.entities.PRIORITE_TICKET.NORMALE);
             }
         }
         

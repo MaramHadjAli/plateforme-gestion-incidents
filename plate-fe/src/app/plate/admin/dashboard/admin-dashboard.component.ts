@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AdminDashboardStats } from '../models/admin-dashboard.model';
-import { AdminDashboardService } from '../services/admin-dashboard.service';
+import { AdminDashboardStats } from '../../../core/models/admin-dashboard.model';
 import { AdvancedDonutChartComponent } from '../../../shared/components/advanced-donut-chart.component';
 import { CinematicHybridChartComponent } from '../../../shared/components/cinematic-hybrid-chart.component';
+import { AdminDashboardService } from '../../../core/services/admin-dashboard.service';
 
 type SeriesItem = {
   label: string;
@@ -89,7 +89,7 @@ export class AdminDashboardComponent implements OnInit {
     this.errorMessage = '';
 
     this.dashboardService.getStats().subscribe({
-      next: (stats) => {
+      next: (stats: AdminDashboardStats | null) => {
         this.stats = stats;
         this.updateCinematicChartData();
         this.loading = false;

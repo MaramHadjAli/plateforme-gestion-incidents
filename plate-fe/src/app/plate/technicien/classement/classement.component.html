@@ -5,75 +5,163 @@
         <span class="eyebrow-dot"></span>
         <span>Performances</span>
       </div>
-      <h1 class="page-title">Classement des <span class="title-accent">Techniciens</span></h1>
-      <p class="page-subtitle">Découvrez les techniciens les plus performants du mois</p>
+      <h1 class="page-title">
+        <span *ngIf="userRole === 'ADMIN'">Classement des <span class="title-accent">Techniciens</span></span>
+        <span *ngIf="userRole === 'TECHNICIEN'">Mes <span class="title-accent">Performances</span></span>
+      </h1>
+      <p class="page-subtitle" *ngIf="userRole === 'ADMIN'">
+        Découvrez les techniciens les plus performants
+      </p>
+      <p class="page-subtitle" *ngIf="userRole === 'TECHNICIEN'">
+        Suivez vos scores, votre progression et vos badges
+      </p>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        Temps réel
+      </div>
     </div>
   </div>
 
-  <section class="card-panel" style="padding: 30px;">
-    <div style="display: flex; gap: 20px; align-items: flex-end; justify-content: center; margin-bottom: 50px; margin-top: 20px;">
-      
-      <!-- Second Place -->
-      <div style="text-align: center; width: 140px;">
-        <div style="margin-bottom: 10px; font-weight: bold; color: var(--c-text-muted);">2ème</div>
-        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--c-surface); border: 4px solid #cbd5e1; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--c-text); box-shadow: var(--shadow);">SK</div>
-        <div style="height: 100px; background: linear-gradient(to top, #e2e8f0, #f1f5f9); border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: center;">
-          <span style="font-weight: 800; font-size: 18px; color: var(--c-text);">850</span>
-          <span style="font-size: 12px; color: var(--c-text-muted);">pts</span>
+  <div *ngIf="loading" class="loading-message">
+    <p>Chargement...</p>
+  </div>
+
+  <div *ngIf="!loading && userRole === 'ADMIN' && ranking.length > 0">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="toolbar-left">
+          <div class="search-wrap">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              placeholder="Rechercher un technicien..."
+              class="search-input"
+              style="color: #1f2937;"
+              [value]="searchTermControl?.value"
+              (input)="onSearchInput($event)"
+            />
+          </div>
         </div>
-        <div style="margin-top: 10px; font-weight: 600;">Sami K.</div>
       </div>
 
-      <!-- First Place -->
-      <div style="text-align: center; width: 160px; z-index: 10;">
-        <div style="margin-bottom: 10px; font-weight: bold; color: #fbbf24; display: flex; align-items: center; justify-content: center; gap: 5px;">
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-          1er
-        </div>
-        <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--c-surface); border: 4px solid #fbbf24; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--c-text); box-shadow: var(--shadow-lg);">MA</div>
-        <div style="height: 140px; background: linear-gradient(to top, #fef3c7, #fffbeb); border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: center; border: 1px solid #fde68a; border-bottom: none;">
-          <span style="font-weight: 800; font-size: 24px; color: #d97706;">1,240</span>
-          <span style="font-size: 12px; color: #b45309;">pts</span>
-        </div>
-        <div style="margin-top: 10px; font-weight: 800;">Mohamed A.</div>
+      <div class="table-wrap">
+        <table class="tickets-table">
+          <thead>
+            <tr>
+              <th style="color: #1f2937;">Rang</th>
+              <th style="color: #1f2937;">Technicien</th>
+              <th style="color: #1f2937;">Spécialité</th>
+              <th style="color: #1f2937;">Score Total</th>
+              <th style="color: #1f2937;">Note Moyenne</th>
+              <th style="color: #1f2937;">Badge</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tech of filteredRanking" class="ticket-row">
+              <td>
+                <div class="rank-cell">
+                  <span *ngIf="tech.rank === 1" class="rank-medal gold" style="font-size: 28px;">🥇</span>
+                  <span *ngIf="tech.rank === 2" class="rank-medal silver" style="font-size: 28px;">🥈</span>
+                  <span *ngIf="tech.rank === 3" class="rank-medal bronze" style="font-size: 28px;">🥉</span>
+                  <span *ngIf="tech.rank > 3" class="rank-number" style="font-size: 18px; font-weight: bold; color: #1f2937;">#{{ tech.rank }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="technician-cell" style="display: flex; align-items: center; gap: 12px;">
+                  <div class="technician-avatar" style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: white; background: {{ getBadgeColor(tech.badge) }};">
+                    {{ getInitials(tech.nom, tech.prenom) }}
+                  </div>
+                  <div class="technician-info">
+                    <div class="technician-name" style="font-weight: 600; font-size: 15px; color: #1f2937;">{{ tech.prenom }} {{ tech.nom }}</div>
+                    <div class="technician-email" style="font-size: 12px; color: #6b7280;">{{ tech.email }}</div>
+                  </div>
+                </div>
+              </td>
+              
+              <td>
+                <div class="score-cell" style="display: flex; align-items: baseline; gap: 4px;">
+                  <span class="score-value" style="font-weight: 800; font-size: 18px; color: #4f46e5;">{{ tech.totalPoints }}</span>
+                  <span class="score-label" style="font-size: 12px; color: #6b7280;">pts</span>
+                </div>
+              </td>
+              <td>
+                <div class="rating-cell" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="rating-stars" style="color: #fbbf24; font-size: 14px; letter-spacing: 2px;">{{ getStarRating(tech.averageNote) }}</span>
+                  <span class="rating-value" style="font-weight: 600; font-size: 14px; color: #1f2937;">{{ tech.averageNote.toFixed(1) }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="badge-cell" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge-icon" style="font-size: 20px;">{{ getBadgeIcon(tech.badge) }}</span>
+                  <span class="badge-name" style="font-size: 13px; color: #1f2937;">{{ tech.badge }}</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Third Place -->
-      <div style="text-align: center; width: 140px;">
-        <div style="margin-bottom: 10px; font-weight: bold; color: #b45309;">3ème</div>
-        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--c-surface); border: 4px solid #d6d3d1; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--c-text); box-shadow: var(--shadow);">NB</div>
-        <div style="height: 80px; background: linear-gradient(to top, #f5f5f4, #fafaf9); border-radius: 8px 8px 0 0; display: flex; flex-direction: column; justify-content: center;">
-          <span style="font-weight: 800; font-size: 18px; color: var(--c-text);">720</span>
-          <span style="font-size: 12px; color: var(--c-text-muted);">pts</span>
-        </div>
-        <div style="margin-top: 10px; font-weight: 600;">Nour B.</div>
+      <div class="table-footer" *ngIf="filteredRanking.length === 0">
+        <p class="footer-count" style="color: #6b7280;">Aucun technicien trouvé</p>
       </div>
-
     </div>
+  </div>
 
-    <!-- Rest of leaderboard -->
-    <div style="max-width: 600px; margin: 0 auto;">
-      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--c-text); padding-bottom: 10px; border-bottom: 1px solid var(--c-border);">Suite du classement</h3>
-      
-      <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--c-border); background: var(--c-surface);">
-        <span style="width: 30px; font-weight: bold; color: var(--c-text-muted);">4</span>
-        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--c-blue-soft); color: var(--c-blue); display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px;">AH</div>
-        <div style="flex: 1;">
-          <div style="font-weight: 600;">Ali H.</div>
-          <div style="font-size: 12px; color: var(--c-text-muted);">Technicien Réseau</div>
+  <div *ngIf="!loading && userRole === 'TECHNICIEN' && currentTechnician">
+    <div class="my-ranking-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; padding: 30px; margin: 20px; color: white;">
+      <div class="my-ranking-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+        <div class="my-ranking-title" style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px;">
+          <span>Mes Performances</span>
         </div>
-        <div style="font-weight: 800; color: var(--c-text);">680 pts</div>
+        <div class="my-ranking-rank" style="background: rgba(255, 255, 255, 0.2); padding: 8px 20px; border-radius: 30px; font-weight: bold; font-size: 16px;">Score Total: {{ currentTechnician.totalPoints }} pts</div>
+      </div>
+      
+      <div class="my-ranking-info" style="display: flex; align-items: center; gap: 25px; flex-wrap: wrap;">
+        <div class="my-ranking-avatar" style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold;">
+          {{ getInitials(currentTechnician.nom, currentTechnician.prenom) }}
+        </div>
+        <div class="my-ranking-details" style="flex: 1;">
+          <div class="my-ranking-name" style="font-size: 28px; font-weight: bold; margin-bottom: 8px;">{{ currentTechnician.prenom }} {{ currentTechnician.nom }}</div>
+          <div class="my-ranking-badge" style="font-size: 16px; opacity: 0.9; margin: 8px 0;">{{ getBadgeIcon(currentTechnician.currentBadge) }} {{ currentTechnician.currentBadge }}</div>
+          <div class="my-ranking-specialite" style="font-size: 14px; opacity: 0.8; margin-top: 5px;">Spécialité: {{ currentTechnician.specialite || 'Non définie' }}</div>
+        </div>
+      </div>
+      
+      <div class="progress-section" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="progress-label" style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px; opacity: 0.9; flex-wrap: wrap; gap: 10px;">
+          <span>Progression vers {{ currentTechnician.nextBadge }}</span>
+          <span>{{ currentTechnician.pointsToNextBadge }} points restants</span>
+        </div>
+        <div class="progress-bar" style="height: 12px; background: rgba(255, 255, 255, 0.2); border-radius: 6px; overflow: hidden;">
+          <div class="progress-fill" [style.width]="getProgressWidth()" style="height: 100%; background: #fbbf24; border-radius: 6px; transition: width 0.5s ease;"></div>
+        </div>
       </div>
 
-      <div style="display: flex; align-items: center; padding: 15px; background: var(--c-surface);">
-        <span style="width: 30px; font-weight: bold; color: var(--c-text-muted);">5</span>
-        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--c-purple-soft); color: var(--c-purple); display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px;">LM</div>
-        <div style="flex: 1;">
-          <div style="font-weight: 600;">Lina M.</div>
-          <div style="font-size: 12px; color: var(--c-text-muted);">Spécialiste Logiciel</div>
+      <div class="transactions-section" style="margin-top: 30px;">
+        <h3 style="font-size: 20px; margin-bottom: 20px; font-weight: 600;">Historique des points</h3>
+        <div *ngFor="let transaction of currentTechnician.transactions" class="transaction-row" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); flex-wrap: wrap; gap: 10px;">
+          <div class="transaction-reason" style="flex: 2; font-size: 14px;">{{ transaction.raison }}</div>
+          <div class="transaction-points" style="font-weight: bold; font-size: 16px; min-width: 80px; text-align: right;">+{{ transaction.quantite }} pts</div>
+          <div class="transaction-date" style="font-size: 12px; opacity: 0.7; min-width: 100px; text-align: right;">{{ transaction.dateAttribution | date:'dd/MM/yyyy' }}</div>
         </div>
-        <div style="font-weight: 800; color: var(--c-text);">540 pts</div>
+        <div *ngIf="currentTechnician.transactions.length === 0" class="empty-transactions" style="text-align: center; padding: 30px; opacity: 0.7;">
+          Aucune transaction pour le moment
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+
+  <div *ngIf="!loading && userRole === 'ADMIN' && ranking.length === 0" class="empty-message" style="text-align: center; padding: 60px; color: #6b7280;">
+    <p>Aucun technicien trouvé</p>
+  </div>
+  
+  <div *ngIf="errorMessage" class="error-message" style="text-align: center; padding: 60px; color: #ef4444;">
+    <p>{{ errorMessage }}</p>
+    <button (click)="retry()" class="btn-new" style="margin-top: 20px;">Réessayer</button>
+  </div>
 </div>

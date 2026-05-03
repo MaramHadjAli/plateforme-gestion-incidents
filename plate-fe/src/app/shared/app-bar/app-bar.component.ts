@@ -88,7 +88,7 @@ export class AppBarComponent implements OnInit {
         { label: 'Tickets', route: '/ticket-list', icon: '' },
         { label: 'Salles', route: '/admin/salles', icon: '' },
         { label: 'Équipements', route: '/admin/equipements', icon: '' },
-        { label: 'Classement', route: '/classement', icon: '' }
+        { label: 'Techniciens', route: '/technicians', icon: '' }
       ];
     } else if (role === 'TECHNICIEN') {
       this.userRole = 'Technicien';

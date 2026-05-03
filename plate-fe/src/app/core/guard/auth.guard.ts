@@ -2,7 +2,6 @@ import { CanActivateFn, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
-// Function-based guard
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
@@ -15,8 +14,6 @@ export const authGuard: CanActivateFn = (route, state) => {
   router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
   return false;
 };
-
-// Class-based guard for compatibility
 @Injectable({
   providedIn: 'root'
 })

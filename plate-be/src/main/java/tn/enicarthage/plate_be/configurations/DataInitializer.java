@@ -24,12 +24,12 @@ public class DataInitializer {
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
-            // Seed Admin
             if (userRepository.findByEmail("admin@enicarthage.tn").isEmpty()) {
                 Adminstrateur admin = new Adminstrateur();
                 admin.setNom("Admin ENICarthage");
+                admin.setPrenom("Admin");
                 admin.setEmail("admin@enicarthage.tn");
-                admin.setPassword(passwordEncoder.encode("Admin@123"));
+                admin.setMotPassee(passwordEncoder.encode("Admin@123"));
                 admin.setRole(ROLE.ADMIN);
                 admin.setEnabled(true);
                 userRepository.save(admin);
@@ -40,8 +40,9 @@ public class DataInitializer {
             if (userRepository.findByEmail("tech@enicarthage.tn").isEmpty()) {
                 Technicien tech = new Technicien();
                 tech.setNom("Technicien Pro");
+                tech.setPrenom("Admin");
                 tech.setEmail("tech@enicarthage.tn");
-                tech.setPassword(passwordEncoder.encode("Tech@123"));
+                tech.setMotPassee(passwordEncoder.encode("Tech@123"));
                 tech.setRole(ROLE.TECHNICIEN);
                 tech.setEnabled(true);
                 tech.setSpecialite("Informatique");
@@ -53,8 +54,9 @@ public class DataInitializer {
             if (userRepository.findByEmail("user@enicarthage.tn").isEmpty()) {
                 Demandeur user = new Demandeur();
                 user.setNom("Jean Dupont");
+                user.setPrenom("Dupont");
                 user.setEmail("user@enicarthage.tn");
-                user.setPassword(passwordEncoder.encode("User@123"));
+                user.setMotPassee(passwordEncoder.encode("User@123"));
                 user.setRole(ROLE.DEMANDEUR);
                 user.setEnabled(true);
                 demandeurRepository.save(user);

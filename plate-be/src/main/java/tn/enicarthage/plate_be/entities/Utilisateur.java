@@ -1,19 +1,20 @@
 package tn.enicarthage.plate_be.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Builder
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
 @Table(name = "utilisateurs")
 public class Utilisateur implements UserDetails {
@@ -22,35 +23,60 @@ public class Utilisateur implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nom;
+
+    @Column(nullable = false)
+    private String prenom;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String password;
+    @Column(name = "mot_passee", nullable = false)
+    private String motPassee;
 
-    @Builder.Default
-    private boolean enabled = true;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateInscription;
 
-    @Enumerated(EnumType.STRING)
-    private ROLE role;
+    private boolean isActive;
+
+    @Temporal(TemporalType.DATE)
+    private Date desactivationDate;
+
+    @Column(length = 500)
+    private String desactivationReason;
 
     @Column(length = 20)
     private String telephone;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public void setPassword(String password) { this.password = password; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public ROLE getRole() { return role; }
-    public void setRole(ROLE role) { this.role = role; }
-    public String getTelephone() { return telephone; }
-    public void setTelephone(String telephone) { this.telephone = telephone; }
+    @Enumerated(EnumType.STRING)
+    private ROLE role;
+
+    @Builder.Default
+    private boolean enabled = true;
+
+    public Utilisateur() {}
+
+    public Utilisateur(String nom, String prenom, String email, String motPassee,
+                       Date dateInscription, boolean isActive, ROLE role) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.email = email;
+        this.motPassee = motPassee;
+        this.dateInscription = dateInscription;
+        this.isActive = isActive;
+        this.role = role;
+        this.enabled = true;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+        this.enabled = active;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -66,7 +92,7 @@ public class Utilisateur implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return motPassee;
     }
 
     @Override

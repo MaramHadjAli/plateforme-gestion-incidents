@@ -1,4 +1,4 @@
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -27,15 +27,18 @@ export class RegisterComponent {
 
   registerForm = this.fb.group({
     nom: ['', [Validators.required, Validators.minLength(2)]],
+    prenom: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    role: ['DEMANDEUR', Validators.required]
+    role: ['DEMANDEUR'],
+    telephone: ['']
   });
-
 
   onSubmit() {
     this.submitted = true;
     this.errorMessage = '';
+
+    console.log('Form values:', this.registerForm.value);
 
     if (this.registerForm.invalid || this.isSubmitting) {
       this.registerForm.markAllAsTouched();
@@ -44,14 +47,28 @@ export class RegisterComponent {
 
     this.isSubmitting = true;
 
+    const formValue = this.registerForm.value;
+    const registerData = {
+      nom: formValue.nom,
+      prenom: formValue.prenom,
+      email: formValue.email,
+      password: formValue.password,
+      role: formValue.role || 'DEMANDEUR',
+      telephone: formValue.telephone || null
+    };
+
+    console.log('Sending data:', registerData);
+
     this.http
-      .post('http://localhost:8080/api/auth/register', this.registerForm.getRawValue())
+      .post('http://localhost:8080/api/auth/register', registerData)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('Registration success:', response);
           this.router.navigate(['/login']);
         },
         error: (err) => {
+          console.error('Registration error:', err);
           this.errorMessage = err.error?.message || "Erreur lors de l'inscription.";
         }
       });

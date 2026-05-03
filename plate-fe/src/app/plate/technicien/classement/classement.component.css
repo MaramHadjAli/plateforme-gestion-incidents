@@ -1,0 +1,480 @@
+.podium-rank {
+  margin-bottom: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.podium-1 .podium-rank {
+  color: #fbbf24;
+}
+
+.podium-2 .podium-rank {
+  color: var(--c-text-muted);
+}
+
+.podium-3 .podium-rank {
+  color: #b45309;
+}
+
+.podium-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--c-surface);
+  border: 4px solid;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+
+.podium-1 .podium-avatar {
+  width: 100px;
+  height: 100px;
+}
+
+.avatar-initials {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--c-text);
+}
+
+.podium-1 .avatar-initials {
+  font-size: 28px;
+}
+
+.podium-podium {
+  background: linear-gradient(to top, var(--c-border-light), var(--c-surface-secondary));
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.podium-score {
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--c-text);
+}
+
+.podium-1 .podium-score {
+  font-size: 24px;
+}
+
+.podium-label {
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+.podium-name {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.podium-1 .podium-name {
+  font-weight: 800;
+}
+
+.podium-badge {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-top: 5px;
+}
+
+.my-ranking-card {
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-dark) 100%);
+  border-radius: 24px;
+  padding: 30px;
+  margin: 20px;
+  transition: transform 0.3s ease;
+  color: white;
+  width: auto;
+  max-width: none;
+}
+
+.my-ranking-card:hover {
+  transform: translateY(-2px);
+}
+
+.my-ranking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.my-ranking-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.my-ranking-icon {
+  font-size: 28px;
+}
+
+.my-ranking-rank {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.my-ranking-content {
+  transition: all 0.3s ease;
+}
+
+.my-ranking-info {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.my-ranking-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.my-ranking-details {
+  flex: 1;
+}
+
+.my-ranking-name {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.my-ranking-badge {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 8px 0;
+}
+
+.my-ranking-points {
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.progress-section {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 12px;
+  opacity: 0.9;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.progress-bar {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #fbbf24;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-surface);
+  border-radius: 16px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.ranking-row:hover {
+  transform: translateX(8px);
+  background: var(--c-surface-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.ranking-rank {
+  width: 60px;
+  font-weight: bold;
+  color: var(--c-text-muted);
+  font-size: 18px;
+}
+
+.ranking-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.ranking-info {
+  flex: 1;
+}
+
+.ranking-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--c-text);
+}
+
+.ranking-badge-tag {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-top: 5px;
+}
+
+.ranking-points {
+  font-weight: 800;
+  color: var(--c-primary);
+  font-size: 20px;
+  margin-right: 30px;
+  min-width: 100px;
+  text-align: right;
+}
+
+.ranking-average {
+  color: var(--c-text-muted);
+  font-size: 14px;
+  min-width: 100px;
+  text-align: right;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 80px;
+  color: var(--c-text-muted);
+  font-size: 16px;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 80px;
+  color: var(--c-text-muted);
+  font-size: 16px;
+}
+
+.error-message {
+  text-align: center;
+  padding: 60px;
+  color: #ef4444;
+}
+
+.error-message button {
+  margin-top: 20px;
+}
+
+.transactions-section {
+  margin-top: 30px;
+}
+
+.transactions-section h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.transaction-reason {
+  flex: 2;
+  font-size: 14px;
+}
+
+.transaction-points {
+  font-weight: bold;
+  font-size: 16px;
+  min-width: 80px;
+  text-align: right;
+}
+
+.transaction-date {
+  font-size: 12px;
+  opacity: 0.7;
+  min-width: 100px;
+  text-align: right;
+}
+
+.card-panel {
+  background: var(--c-surface);
+  border-radius: 24px;
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  margin: 20px;
+  padding: 30px;
+}
+
+@media (max-width: 1024px) {
+  .ranking-rank {
+    width: 50px;
+    font-size: 16px;
+  }
+  
+  .ranking-avatar {
+    width: 45px;
+    height: 45px;
+    font-size: 16px;
+    margin-right: 15px;
+  }
+  
+  .ranking-points {
+    font-size: 16px;
+    min-width: 80px;
+    margin-right: 15px;
+  }
+  
+  .ranking-average {
+    min-width: 80px;
+    font-size: 12px;
+  }
+  
+  .my-ranking-name {
+    font-size: 22px;
+  }
+  
+  .my-ranking-points {
+    font-size: 24px;
+  }
+  
+  .my-ranking-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 28px;
+  }
+  
+  .card-panel {
+    margin: 15px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .podium-item {
+    width: 100px;
+  }
+  
+  .podium-1 {
+    width: 120px;
+  }
+  
+  .podium-avatar {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .podium-1 .podium-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .avatar-initials {
+    font-size: 18px;
+  }
+  
+  .ranking-row {
+    flex-wrap: wrap;
+    padding: 15px;
+  }
+  
+  .ranking-rank {
+    width: 40px;
+  }
+  
+  .ranking-points, .ranking-average {
+    margin-top: 10px;
+    margin-left: 60px;
+    text-align: left;
+    width: calc(100% - 60px);
+  }
+  
+  .my-ranking-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .my-ranking-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .my-ranking-rank {
+    align-self: center;
+  }
+  
+  .transaction-row {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .transaction-points, .transaction-date {
+    text-align: center;
+  }
+  
+  .card-panel {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .my-ranking-card {
+    margin: 15px;
+    padding: 20px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .card-panel {
+    max-width: 1400px;
+    margin: 30px auto;
+  }
+  
+  .my-ranking-card {
+    max-width: 1200px;
+    margin: 30px auto;
+  }
+}
