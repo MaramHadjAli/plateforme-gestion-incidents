@@ -34,7 +34,7 @@ export class AppComponent implements OnInit {
   }
 
   get showShell(): boolean {
-    return this.authService.isAuthenticated() && !this.isAuthRoute();
+    return this.authService.isAuthenticated() && !this.isAuthRoute() && !this.isAdminRoute();
   }
 
   isAuthRoute(): boolean {
@@ -47,5 +47,10 @@ export class AppComponent implements OnInit {
       currentUrl.includes('/forgot-password') ||
       currentUrl.includes('/reset-password')
     );
+  }
+
+  isAdminRoute(): boolean {
+    const currentUrl = this.router.url;
+    return currentUrl.includes('/admin') || currentUrl.includes('/dashboard');
   }
 }

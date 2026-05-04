@@ -119,7 +119,7 @@ public class AdminTechnicienController {
         Technicien technicien = technicienOpt.get();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("totalPoints", technicien.getTotalPoints() != null ? technicien.getTotalPoints() : 0);
+        response.put("totalPoints", technicien.getTotalPoints());
         response.put("averageNote", technicien.getNoteMoyenne() != null ? technicien.getNoteMoyenne() : 0.0);
         response.put("technicienId", id);
         response.put("technicienNom", technicien.getNom());
@@ -143,9 +143,9 @@ public class AdminTechnicienController {
                     entry.put("prenom", tech.getPrenom());
                     entry.put("email", tech.getEmail());
                     entry.put("specialite", tech.getSpecialite());
-                    entry.put("totalPoints", tech.getTotalPoints() != null ? tech.getTotalPoints() : 0);
+                    entry.put("totalPoints",tech.getTotalPoints());
                     entry.put("averageNote", tech.getNoteMoyenne() != null ? tech.getNoteMoyenne() : 0.0);
-                    int points = tech.getTotalPoints() != null ? tech.getTotalPoints() : 0;
+                    int points = tech.getTotalPoints();
                     entry.put("badge", badgeService.getBadgeByPoints(points));
                     return entry;
                 })

@@ -41,6 +41,16 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.register(request));
     }
 
+    @GetMapping("/confirm-email")
+    public ResponseEntity<?> confirmEmail(@RequestParam String token) {
+        try {
+            service.confirmAccount(token);
+            return ResponseEntity.ok("Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @Valid @RequestBody LoginRequest request
@@ -120,5 +130,3 @@ public class AuthenticationController {
         }
     }
 }
-
-

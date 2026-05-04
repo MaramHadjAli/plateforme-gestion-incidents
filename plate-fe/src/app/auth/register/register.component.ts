@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -21,8 +22,9 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   registerForm = this.fb.group({
@@ -63,11 +65,11 @@ export class RegisterComponent {
       .post('http://localhost:8080/api/auth/register', registerData)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           console.log('Registration success:', response);
           this.router.navigate(['/login']);
         },
-        error: (err) => {
+        error: (err: { error: { message: string; }; }) => {
           console.error('Registration error:', err);
           this.errorMessage = err.error?.message || "Erreur lors de l'inscription.";
         }

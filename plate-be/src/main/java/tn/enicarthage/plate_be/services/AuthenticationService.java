@@ -1,5 +1,6 @@
 package tn.enicarthage.plate_be.services;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -48,8 +49,7 @@ public class AuthenticationService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public Utilisateur register(RegisterRequest request) {
-
+    public AuthenticationResponse register(@Valid RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
         }
@@ -59,6 +59,8 @@ public class AuthenticationService {
 
         Utilisateur savedUser;
 
+        String token = UUID.randomUUID().toString();
+
         switch (role) {
             case TECHNICIEN:
                 Technicien tech = new Technicien();
@@ -67,20 +69,22 @@ public class AuthenticationService {
                 tech.setEmail(request.getEmail());
                 tech.setMotPassee(encodedPassword);
                 tech.setRole(ROLE.TECHNICIEN);
-                tech.setEnabled(true);
-                tech.setActive(true);
+                tech.setEnabled(false);
+                tech.setActive(false);
+                tech.setConfirmationToken(token);
                 tech.setDateInscription(new Date());
                 savedUser = technicienRepository.save(tech);
                 break;
             case ADMIN:
-                Adminstrateur admin = new Adminstrateur();
+                Administrateur admin = new Administrateur();
                 admin.setNom(request.getNom());
                 admin.setPrenom(request.getPrenom());
                 admin.setEmail(request.getEmail());
                 admin.setMotPassee(encodedPassword);
                 admin.setRole(ROLE.ADMIN);
-                admin.setEnabled(true);
-                admin.setActive(true);
+                admin.setEnabled(false);
+                admin.setActive(false);
+                admin.setConfirmationToken(token);
                 admin.setDateInscription(new Date());
                 savedUser = userRepository.save(admin);
                 break;
@@ -91,23 +95,26 @@ public class AuthenticationService {
                 demandeur.setEmail(request.getEmail());
                 demandeur.setMotPassee(encodedPassword);
                 demandeur.setRole(ROLE.DEMANDEUR);
-                demandeur.setEnabled(true);
-                demandeur.setActive(true);
+                demandeur.setEnabled(false);
+                demandeur.setActive(false);
+                demandeur.setConfirmationToken(token);
                 demandeur.setDateInscription(new Date());
+                demandeur.setNoteMoyenne(0.0);
+                demandeur.setTotalPoint(0);
                 savedUser = demandeurRepository.save(demandeur);
                 break;
         }
 
-        logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit");
+        logAction(request.getEmail(), "REGISTER", "SUCCESS", "Nouvel utilisateur inscrit (en attente de confirmation)");
 
-        String confirmationLink = "http://localhost:4200/confirm-email?token=" + UUID.randomUUID().toString();
+        String confirmationLink = "http://localhost:8080/api/auth/confirm-email?token=" + token;
         try {
             emailService.sendConfirmationEmail(savedUser.getEmail(), savedUser.getNom(), confirmationLink);
         } catch (RuntimeException ex) {
             System.err.println("Echec envoi email confirmation: " + ex.getMessage());
         }
 
-        return savedUser;
+        return new AuthenticationResponse(null, null, null, "Veuillez vérifier votre email pour confirmer votre compte.");
     }
 
     public AuthenticationResponse login(LoginRequest request) {
@@ -126,6 +133,10 @@ public class AuthenticationService {
             throw new RuntimeException("Invalid password");
         }
 
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Compte non activé. Veuillez vérifier votre email.");
+        }
+
         logAction(email, "LOGIN_SUCCESS", "SUCCESS", "Connexion réussie");
 
         String jwt = jwtUtil.generateToken(user);
@@ -133,12 +144,24 @@ public class AuthenticationService {
 
         AuthenticationResponse.UserInfo userInfo = new AuthenticationResponse.UserInfo(
                 user.getId(),
-                user.getNom(),
+                user.getNom() + " " + user.getPrenom(),
                 user.getEmail(),
                 user.getRole().name()
         );
 
         return new AuthenticationResponse(jwt, refreshToken.getToken(), userInfo);
+    }
+
+    public void confirmAccount(String token) {
+        Utilisateur user = userRepository.findByConfirmationToken(token)
+                .orElseThrow(() -> new RuntimeException("Lien de confirmation invalide"));
+
+        user.setEnabled(true);
+        user.setActive(true);
+        user.setConfirmationToken(null); // Clean up the token
+        userRepository.save(user);
+        
+        logAction(user.getEmail(), "ACCOUNT_CONFIRMED", "SUCCESS", "Compte activé via email");
     }
 
     private void logAction(String email, String action, String status, String details) {

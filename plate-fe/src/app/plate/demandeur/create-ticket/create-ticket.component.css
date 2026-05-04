@@ -24,7 +24,7 @@
 .brand-font { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
 .ct-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 5.5rem);
   background: #f8fafc;
   background-image:
     radial-gradient(ellipse 60% 40% at 20% 10%, rgba(2,132,199,.04) 0%, transparent 60%),
@@ -437,7 +437,6 @@
 
 .ct-file-hidden { display: none; }
 
-.ct-dropzone-idle {}
 
 .ct-dropzone-icon {
   width: 44px;
@@ -499,7 +498,6 @@
 
 .ct-summary-header svg { color: var(--text-muted); }
 
-.ct-summary-body { }
 
 .ct-summary-row {
   display: flex;

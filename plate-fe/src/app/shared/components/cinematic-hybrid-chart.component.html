@@ -12,10 +12,6 @@
       <h2 class="chart-title">{{ title }}</h2>
       <p class="chart-subtitle">{{ subtitle }}</p>
     </div>
-    <button class="mode-toggle" (click)="toggleMode()" [attr.data-mode]="state.mode">
-      <span class="toggle-icon"></span>
-      {{ state.mode === 'pie' ? 'Switch to Donut' : 'Switch to Pie' }}
-    </button>
   </div>
 
   <!-- Main Chart Container -->
@@ -57,6 +53,9 @@
         <div class="segment-percentage">
           {{ ((state.selectedSegment.value / totalValue) * 100).toFixed(1) }}%
         </div>
+        <button class="center-reset-btn" (click)="selectSegment(null); $event.stopPropagation()" title="Réinitialiser le filtre">
+          ✕
+        </button>
       </div>
       <div class="info-placeholder" *ngIf="!state.selectedSegment">
         <div class="pulse-dot"></div>

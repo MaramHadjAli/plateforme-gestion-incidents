@@ -2,21 +2,22 @@ package tn.enicarthage.plate_be.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
+import lombok.Getter;
+import lombok.Setter;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 public class MaintenanceRequestDTO {
 
-    @NotNull
+    @NotNull(message = "Date programmée est obligatoire")
     private Date dateProgramme;
 
-    @NotBlank
+    @NotBlank(message = "Fréquence est obligatoire")
     private String frequence;
 
     private String description;
 
-    @NotBlank
+    @NotBlank(message = "ID Equipement est obligatoire")
     private String idEquipement;
 }

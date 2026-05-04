@@ -8,23 +8,20 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { HomeComponent } from './home/home.component';
 
 @NgModule({
-  declarations: [
-    LoginComponent,
-    RegisterComponent,
-    ForgotPasswordComponent,
-    HomeComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    LoginComponent,
+    RegisterComponent,
+    ForgotPasswordComponent
   ],
   exports: [
     LoginComponent,
     RegisterComponent,
-    ForgotPasswordComponent,
-    HomeComponent
+    ForgotPasswordComponent
   ]
 })
 export class AuthModule { }

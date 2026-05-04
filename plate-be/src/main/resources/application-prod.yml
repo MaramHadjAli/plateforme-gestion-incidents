@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:incidents_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+  
+  # Mail configuration (for future email notifications)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER:demo@gmail.com}
+    password: ${MAIL_PASS:secret}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    root: INFO
+    tn.enicarthage: INFO
+    org.springframework.web: WARN
+    org.hibernate: WARN
+  file:
+    name: logs/application.log

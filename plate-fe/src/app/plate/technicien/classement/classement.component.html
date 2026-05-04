@@ -42,8 +42,7 @@
               placeholder="Rechercher un technicien..."
               class="search-input"
               style="color: #1f2937;"
-              [value]="searchTermControl?.value"
-              (input)="onSearchInput($event)"
+              [(ngModel)]="searchTerm"
             />
           </div>
         </div>

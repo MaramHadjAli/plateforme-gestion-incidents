@@ -54,17 +54,16 @@ export class LoginComponent {
     this.isSubmitting = true;
 
     this.authService
-      .login(this.emailControl.value ?? '', this.passwordControl.value ?? '')
+      .login({ email: this.emailControl.value || '', password: this.passwordControl.value || '' })
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (response) => {
-          const token = (response?.accessToken ?? response?.token ?? this.authService.getToken() ?? '').toString().trim();
+          const token = response.accessToken;
 
           if (!token) {
             this.errorMessage = 'La connexion a échoué : jeton invalide.';
             return;
           }
-
 
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
           if (returnUrl) {

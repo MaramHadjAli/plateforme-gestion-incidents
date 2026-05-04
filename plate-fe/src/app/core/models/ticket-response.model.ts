@@ -5,12 +5,16 @@ export interface TicketResponse {
   titre: string;
   description: string;
   dateCreation: Date | string;
-  dateCloture: Date | string | null;
+  dateCloture?: Date | string | null;
   dateLimite: Date | string;
   priorite: string;
   status: string;
   demandeurNom: string;
-  demandeurEmail: string;
-  technicienNom: string | null;
-  technicienId: number | null;
+  demandeurEmail?: string;
+  technicienNom?: string;
+  technicienId?: number;
+  idSalle?: string;
+  nomSalle?: string;
+  idEquipement?: string;
+  nomEquipement?: string;
 }

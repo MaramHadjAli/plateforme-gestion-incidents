@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AdminDashboardStats } from '../../../core/models/admin-dashboard.model';
-import { AdvancedDonutChartComponent } from '../../../shared/components/advanced-donut-chart.component';
 import { CinematicHybridChartComponent } from '../../../shared/components/cinematic-hybrid-chart.component';
-import { AdminDashboardService } from '../../../core/services/admin-dashboard.service';
+import { AdminDashboardService, AdminDashboardStats } from '../../../core/services/admin-dashboard.service';
+import { AuthService } from '../../../core/services/auth.service';
+
 
 type SeriesItem = {
   label: string;
@@ -16,7 +16,7 @@ type SeriesItem = {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdvancedDonutChartComponent, CinematicHybridChartComponent],
+  imports: [CommonModule, RouterModule, CinematicHybridChartComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css', '../../technicien/ticket-list/ticket-list.component.css']
 })
@@ -24,27 +24,11 @@ export class AdminDashboardComponent implements OnInit {
   stats: AdminDashboardStats | null = null;
   loading = true;
   errorMessage = '';
+  cinematicChartSegments: any[] = [];
+  selectedPriority: string | null = null;
+  filteredTickets: any[] = [];
+  darkMode = true;
 
-  activePriorityLabel: string | null = null;
-  activeStatusLabel: string | null = null;
-
-  // Cinematic Hybrid Chart Properties
-  cinematicChartSegments: { label: string; value: number; color: string; glowColor?: string }[] = [
-    { label: 'Critique', value: 0, color: '#ff0088', glowColor: '#ff4db3' },
-    { label: 'Élevée', value: 0, color: '#00ff88', glowColor: '#00ffaa' },
-    { label: 'Moyenne', value: 0, color: '#0088ff', glowColor: '#00aaff' },
-    { label: 'Faible', value: 0, color: '#ffaa00', glowColor: '#ffcc00' }
-  ];
-
-  // Donut Chart Segments Property (pour éviter les assignments dans le template)
-  get donutSegments(): { label: string; value: number; color: string; glowColor: string }[] {
-    return this.prioritySeries.map(s => ({
-      label: s.label,
-      value: s.value,
-      color: s.color,
-      glowColor: s.color  // Toujours une string, jamais undefined
-    }));
-  }
 
   readonly sidebarItems = [
     {
@@ -61,6 +45,26 @@ export class AdminDashboardComponent implements OnInit {
       label: 'Nouveau Ticket',
       route: '/create-ticket',
       icon: 'M12 4v16m8-8H4'
+    },
+    {
+      label: 'Mon Profil',
+      route: '/profile',
+      icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+    },
+    {
+      label: 'Salles',
+      route: '/admin/salles',
+      icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'
+    },
+    {
+      label: 'Equipements',
+      route: '/equipements',
+      icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+    },
+    {
+      label: 'Paramètres',
+      route: '/settings',
+      icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
     }
   ];
 
@@ -78,20 +82,25 @@ export class AdminDashboardComponent implements OnInit {
     { key: 'RESOLU', label: 'Résolu', color: '#22c55e', cssClass: 'is-resolved' }
   ];
 
-  constructor(private dashboardService: AdminDashboardService) {}
+  constructor(
+    private dashboardService: AdminDashboardService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadStats();
   }
+
 
   loadStats(): void {
     this.loading = true;
     this.errorMessage = '';
 
     this.dashboardService.getStats().subscribe({
-      next: (stats: AdminDashboardStats | null) => {
+      next: (stats) => {
         this.stats = stats;
         this.updateCinematicChartData();
+        this.filteredTickets = this.stats.recentTickets ?? [];
         this.loading = false;
       },
       error: () => {
@@ -135,21 +144,10 @@ export class AdminDashboardComponent implements OnInit {
     }));
   }
 
-  get priorityGradient(): string {
-    const total = this.prioritySeries.reduce((sum, item) => sum + item.value, 0) || 1;
-    let cursor = 0;
 
-    return this.prioritySeries
-      .map((item) => {
-        const start = cursor;
-        cursor += (item.value / total) * 100;
-        return `${item.color} ${start.toFixed(2)}% ${cursor.toFixed(2)}%`;
-      })
-      .join(', ');
-  }
 
   get recentTickets() {
-    return this.stats?.recentTickets ?? [];
+    return this.filteredTickets;
   }
 
   getKpis() {
@@ -185,48 +183,7 @@ export class AdminDashboardComponent implements OnInit {
     ];
   }
 
-  get priorityBreakdown() {
-    const total = this.totalTickets || 1;
-    return this.prioritySeries.map((item) => ({
-      ...item,
-      percent: Math.round((item.value / total) * 100)
-    }));
-  }
 
-  get statusBars() {
-    const max = Math.max(...this.statusSeries.map((item) => item.value), 1);
-    return this.statusSeries.map((item) => ({
-      ...item,
-      percent: Math.round((item.value / max) * 100)
-    }));
-  }
-
-  get priorityLabelPositions() {
-    const total = this.prioritySeries.reduce((sum, item) => sum + item.value, 0) || 1;
-    let cursor = 0;
-
-    return this.prioritySeries.map((item) => {
-      const start = cursor;
-      const sweep = (item.value / total) * 100;
-      cursor += sweep;
-      const mid = (start + sweep / 2) * 3.6;
-      const radius = 8.6;
-      const radians = (mid - 90) * (Math.PI / 180);
-
-      return {
-        label: item.label,
-        percent: Math.round((item.value / total) * 100),
-        color: item.color,
-        x: `${Math.cos(radians) * radius}rem`,
-        y: `${Math.sin(radians) * radius}rem`
-      };
-    });
-  }
-
-  get statusAxisTicks() {
-    const max = Math.max(...this.statusSeries.map((item) => item.value), 1);
-    return Array.from({ length: 5 }, (_, index) => Math.round((max / 4) * index));
-  }
 
   getPriorityClass(priority: string | null | undefined): string {
     switch (priority) {
@@ -278,66 +235,46 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  setActivePriority(label: string | null): void {
-    this.activePriorityLabel = label;
-  }
-
-  setActiveStatus(label: string | null): void {
-    this.activeStatusLabel = label;
-  }
-
-  getPriorityPercent(label: string | null): number {
-    if (!label) {
-      return 0;
-    }
-    return this.priorityBreakdown.find((item) => item.label === label)?.percent ?? 0;
-  }
-
-  getStatusValue(label: string | null): number {
-    if (!label) {
-      return 0;
-    }
-    return this.statusSeries.find((item) => item.label === label)?.value ?? 0;
-  }
-
-  // Cinematic Chart Methods
   onCinematicSegmentSelected(segment: any): void {
-    console.log('Cinematic segment selected:', segment);
+    if (!this.stats) return;
+
+    if (!segment || this.selectedPriority === segment.label) {
+      this.selectedPriority = null;
+      this.filteredTickets = this.stats.recentTickets ?? [];
+    } else {
+      this.selectedPriority = segment.label;
+      this.filteredTickets = (this.stats.recentTickets ?? []).filter(t => 
+        this.formatPriorityLabel(t.priorite) === segment.label
+      );
+    }
   }
 
   onCinematicSegmentHovered(segment: any): void {
-    console.log('Cinematic segment hovered:', segment);
+    // Optionnel: Logique au survol
   }
 
   private updateCinematicChartData(): void {
     if (!this.stats) return;
 
-    // Mettre à jour les données du graphique cinématique basé sur les stats
-    this.cinematicChartSegments = [
-      {
-        label: 'Critique',
-        value: this.stats.ticketsByPriority?.['CRITIQUE'] || 0,
-        color: '#ff0088',
-        glowColor: '#ff4db3'
-      },
-      {
-        label: 'Élevée',
-        value: this.stats.ticketsByPriority?.['HAUTE'] || 0,
-        color: '#00ff88',
-        glowColor: '#00ffaa'
-      },
-      {
-        label: 'Moyenne',
-        value: this.stats.ticketsByPriority?.['NORMALE'] || 0,
-        color: '#0088ff',
-        glowColor: '#00aaff'
-      },
-      {
-        label: 'Faible',
-        value: this.stats.ticketsByPriority?.['FAIBLE'] || 0,
-        color: '#ffaa00',
-        glowColor: '#ffcc00'
-      }
-    ];
+    this.cinematicChartSegments = this.prioritySeries.map(item => ({
+      label: item.label,
+      value: item.value,
+      color: item.color,
+      glowColor: this.adjustBrightness(item.color, 150)
+    }));
+  }
+
+  private adjustBrightness(hexColor: string, percent: number): string {
+    const num = parseInt(hexColor.slice(1), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+
+    return '#' + (
+      0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+      (B < 255 ? B < 1 ? 0 : B : 255)
+    ).toString(16).slice(1);
   }
 }

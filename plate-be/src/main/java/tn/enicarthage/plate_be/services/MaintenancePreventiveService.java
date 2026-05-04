@@ -7,6 +7,9 @@ import tn.enicarthage.plate_be.dtos.MaintenanceRequestDTO;
 import tn.enicarthage.plate_be.entities.*;
 import tn.enicarthage.plate_be.repositories.EquipementRepository;
 import tn.enicarthage.plate_be.repositories.MaintenancePreventiveRepository;
+import tn.enicarthage.plate_be.repositories.TechnicienRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,6 +20,8 @@ public class MaintenancePreventiveService {
 
     private final MaintenancePreventiveRepository maintenanceRepository;
     private final EquipementRepository equipementRepository;
+    private final HistoriqueMaintenanceService historiqueService;
+    private final TechnicienRepository technicienRepository;
 
 
     public List<MaintenanceDTO> getAll() {
@@ -89,10 +94,30 @@ public class MaintenancePreventiveService {
         m.setStatus(status);
 
         if (STATUS_MAINTENANCE.TERMINEE.equals(status)) {
+            addToHistory(m);
             scheduleNext(m);
         }
 
         return toDTO(maintenanceRepository.save(m));
+    }
+
+    private void addToHistory(MaintenancePreventive m) {
+        HistoriqueMaintenance h = new HistoriqueMaintenance();
+        h.setDateExecution(new Date());
+        h.setType("PREVENTIVE");
+        h.setDescription(m.getDescription());
+        h.setEquipement(m.getEquipement());
+        
+        // Try to associate current technician
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            technicienRepository.findByEmail(auth.getName()).ifPresent(tech -> {
+                h.setTechnicien(tech);
+                h.setNomTechnicienResponsable(tech.getNom() + " " + tech.getPrenom());
+            });
+        }
+        
+        historiqueService.save(h);
     }
 
     public void delete(Long id) {

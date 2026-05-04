@@ -16,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
-@Table(name = "utilisateurs")
+@Table(name = "utilisateur")
 public class Utilisateur implements UserDetails {
 
     @Id
@@ -52,8 +52,17 @@ public class Utilisateur implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ROLE role;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Builder.Default
-    private boolean enabled = true;
+    private boolean enabled = false;
+
+    @Column(name = "two_factor_enabled")
+    private boolean twoFactorEnabled = false;
+
+    @Column(name = "confirmation_token")
+    private String confirmationToken;
 
     public Utilisateur() {}
 

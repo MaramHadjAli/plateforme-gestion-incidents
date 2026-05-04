@@ -16,3 +16,5 @@ export class AdminDashboardService {
   }
 }
 
+
+export { AdminDashboardStats };

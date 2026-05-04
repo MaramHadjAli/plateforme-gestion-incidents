@@ -1,0 +1,230 @@
+/* Dark Mode Theme - Standardized to .dark */
+
+:root {
+  /* Light Mode (default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --button-hover: rgba(0, 0, 0, 0.05);
+}
+
+html.dark {
+  /* Dark Mode - Premium Slate Theme */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  --card-shadow: rgba(0, 0, 0, 0.4);
+  --button-hover: rgba(255, 255, 255, 0.05);
+  
+  color-scheme: dark;
+}
+
+/* Force variable overrides on all elements in dark mode to penetrate component scopes */
+html.dark, html.dark * {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  
+  /* Component-specific variable overrides */
+  --c-bg: #0f172a;
+  --c-surface: #1e293b;
+  --c-border: #334155;
+  --c-text: #f8fafc;
+  --c-text-muted: #94a3b8;
+  --c-blue-soft: rgba(59, 130, 246, 0.1);
+  --c-amber-soft: rgba(217, 119, 6, 0.1);
+  --c-red-soft: rgba(220, 38, 38, 0.1);
+  --c-green-soft: rgba(5, 150, 105, 0.1);
+}
+
+/* Apply dark mode styles to base elements */
+html.dark body {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+html.dark .profile-container,
+html.dark .settings-container,
+html.dark .admin-dashboard,
+html.dark .tickets-page,
+html.dark .ct-page,
+html.dark .admin-main,
+html.dark main {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Target cards and white panels - Using background shorthand for higher override power */
+html.dark .glass-card,
+html.dark .card-panel,
+html.dark .table-card,
+html.dark .ct-card,
+html.dark .info-item,
+html.dark .summary-card,
+html.dark .chart-panel,
+html.dark .modal-box,
+html.dark .stat-card,
+html.dark .premium-chart-wrapper {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Form elements */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--input-border) !important;
+}
+
+html.dark input::placeholder {
+  color: #64748b !important;
+}
+
+/* Text visibility adjustments - Very aggressive to ensure visibility */
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h1 *, html.dark h2 *, html.dark h3 *, html.dark h4 * {
+  color: var(--text-primary) !important;
+}
+
+html.dark .page-title, html.dark .page-title * {
+  color: #f8fafc !important;
+}
+
+html.dark p, html.dark label, html.dark small, html.dark .page-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* Specific component fixes */
+html.dark .admin-topbar, html.dark .admin-sidebar, html.dark .admin-nav__item {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .admin-nav__item.is-active,
+html.dark .admin-nav__item:hover {
+  color: #ffffff !important;
+}
+
+html.dark .admin-sidebar {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-right-color: var(--border-color) !important;
+}
+
+html.dark .table-toolbar, html.dark .table-footer, html.dark .modal-header, html.dark .modal-footer {
+  background: rgba(30, 41, 59, 0.5) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.dark .tickets-table thead tr {
+  background: rgba(30, 41, 59, 0.8) !important;
+}
+
+html.dark .ticket-row:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Dropdowns and menus */
+html.dark .app-dropdown,
+html.dark .app-search__suggestions {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.dark .app-dropdown__item:hover {
+  background: var(--button-hover) !important;
+}
+
+/* Home Page Dark Mode */
+html.dark .home-page {
+  background: 
+    radial-gradient(circle at top left, rgba(30, 64, 175, 0.15), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(88, 28, 135, 0.15), transparent 30%),
+    #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .home-navbar__inner {
+  background: rgba(30, 41, 59, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .home-hero__metrics div,
+html.dark .home-hero__metrics div *,
+html.dark .home-card,
+html.dark .home-card *,
+html.dark .home-logo-band__card,
+html.dark .home-logo-band__card *,
+html.dark .home-panel,
+html.dark .home-panel *,
+html.dark .home-panel__list,
+html.dark .home-panel__list div,
+html.dark .home-panel__list div *,
+html.dark .home-panel__card {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+html.dark .home-hero__metrics strong,
+html.dark .home-panel__card strong {
+  color: #ffffff !important;
+}
+
+html.dark .home-hero__metrics span,
+html.dark .home-panel__card p,
+html.dark .home-panel__card span,
+html.dark .home-panel__list div,
+html.dark .home-panel__list div * {
+  color: #cbd5e1 !important;
+}
+
+/* App Dropdown Dark Mode - Global Override */
+html.dark .app-dropdown {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .app-dropdown__header,
+html.dark .app-dropdown__header strong,
+html.dark .app-dropdown__item,
+html.dark .app-dropdown__item span {
+  color: #cbd5e1 !important;
+}
+
+html.dark .app-dropdown__header strong {
+  color: #f8fafc !important;
+}
+
+html.dark .app-dropdown__header small {
+  color: #94a3b8 !important;
+}
+
+html.dark .app-dropdown__item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .app-dropdown__divider {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Smooth transition for theme change */
+* {
+  transition: background 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
