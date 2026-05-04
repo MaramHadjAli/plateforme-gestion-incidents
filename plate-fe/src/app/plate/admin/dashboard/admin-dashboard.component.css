@@ -5,10 +5,7 @@
 .admin-dashboard {
   min-height: 100vh;
   display: block;
-  background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 28%),
-    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 24%),
-    linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+  background: transparent;
   color: #0f172a;
   transition: all 0.3s ease;
 }
@@ -129,7 +126,9 @@
 }
 
 .admin-main {
+  flex: 1;
   padding: 1.2rem 1.2rem 2rem;
+  overflow-y: auto;
 }
 
 .admin-topbar {
@@ -1213,3 +1212,80 @@
   }
 }
 
+/* Cinematic Section Enhancements */
+.cinematic-section {
+  grid-column: 1 / -1;
+  margin: 1rem 0 2rem;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cinematic-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(37, 99, 235, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.cinematic-section:has(.selected) {
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 
+    0 0 40px rgba(37, 99, 235, 0.1),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Detail Grid Layout */
+.detail-grid {
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.chart-panel {
+  transition: transform 0.3s ease;
+}
+
+/* Empty State Styling */
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.2);
+  margin-top: 1rem;
+}
+
+.empty-state::before {
+  content: '🔍';
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Recent Item Animations */
+.recent-item {
+  animation: slideIn 0.4s ease-out forwards;
+  transition: all 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.recent-item:hover {
+  transform: scale(1.01);
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(37, 99, 235, 0.2);
+}

@@ -11,8 +11,6 @@ import tn.enicarthage.plate_be.entities.Ticket;
 import tn.enicarthage.plate_be.repositories.TechnicienRepository;
 import tn.enicarthage.plate_be.repositories.TicketRepository;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,21 +30,25 @@ public class TechnicienDashboardServiceImpl implements TechnicienDashboardServic
 
         TechnicienDashboardDTO dto = new TechnicienDashboardDTO();
         
-        dto.setTotalTicketsAssigned((long) allMyTickets.size());
+        // Stats Performance
+        dto.setTotalPoints((long) tech.getTotalPoints());
+        dto.setNoteMoyenne(tech.getNoteMoyenne());
+        dto.setTicketsResolus((long) tech.getTicketsResolus());
+        dto.setTotalTicketsAssignes((long) allMyTickets.size());
         
-        dto.setActiveTickets(allMyTickets.stream()
+        // Tickets par status
+        dto.setTicketsEnCours(allMyTickets.stream()
                 .filter(t -> t.getStatus() == STATUS_TICKET.ASSIGNE || t.getStatus() == STATUS_TICKET.EN_COURS)
                 .count());
 
-        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
-        dto.setResolvedThisMonth(allMyTickets.stream()
-                .filter(t -> t.getStatus() == STATUS_TICKET.RESOLU && t.getDateCloture() != null)
-                .filter(t -> t.getDateCloture().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isAfter(oneMonthAgo))
+        // Simulation de tickets en retard (pour la démo)
+        dto.setTicketsEnRetard(allMyTickets.stream()
+                .filter(t -> t.getStatus() != STATUS_TICKET.RESOLU && t.getStatus() != STATUS_TICKET.FERME)
+                .filter(t -> t.getDateLimiteReparation() != null && t.getDateLimiteReparation().before(new java.util.Date()))
                 .count());
 
-        dto.setAverageResolutionTime("2.4 jours");
-
-        dto.setRecentTickets(allMyTickets.stream()
+        // Tickets Récents
+        dto.setTicketsRecents(allMyTickets.stream()
                 .sorted((a, b) -> {
                     if (a.getDateCreation() == null || b.getDateCreation() == null) return 0;
                     return b.getDateCreation().compareTo(a.getDateCreation());
@@ -62,16 +64,18 @@ public class TechnicienDashboardServiceImpl implements TechnicienDashboardServic
                 ))
                 .collect(Collectors.toList()));
 
-        dto.setUpcomingMaintenances(allMyTickets.stream()
-                .filter(t -> t.getStatus() != STATUS_TICKET.RESOLU)
+        // Maintenances Proches (On utilise les tickets assignés qui ne sont pas encore résolus)
+        dto.setMaintenancesProches(allMyTickets.stream()
+                .filter(t -> t.getStatus() != STATUS_TICKET.RESOLU && t.getStatus() != STATUS_TICKET.FERME)
                 .limit(3)
                 .map(t -> {
                     MaintenanceDTO m = new MaintenanceDTO();
-                    m.setIdMaintenance(t.getIdTicket().hashCode() % 100000L); // Temporary ID mapping
+                    m.setIdMaintenance(t.getIdTicket().hashCode() % 100000L);
                     m.setNomEquipement(t.getEquipement() != null ? t.getEquipement().getNomEquipement() : "Équipement inconnu");
-                    m.setSalleNom(t.getSalle() != null ? t.getSalle().getNomSalle() : "N/A");
+                    m.setDescription(t.getDescription());
+                    m.setFrequence(t.getPriorite() != null ? t.getPriorite().name() : "N/A");
                     m.setDateProgramme(t.getDateCreation());
-                    m.setType("Corrective");
+                    m.setEnRetard(t.getDateLimiteReparation() != null && t.getDateLimiteReparation().before(new java.util.Date()));
                     return m;
                 })
                 .collect(Collectors.toList()));

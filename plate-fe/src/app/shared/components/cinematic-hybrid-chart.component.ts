@@ -5,6 +5,8 @@ import {
   EventEmitter,
   OnInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
   ChangeDetectionStrategy,
   ViewChild,
   ElementRef,
@@ -44,6 +46,8 @@ interface SliceData {
   sliceAngle: number;
   startAngle: number;
   endAngle: number;
+  baseX: number;
+  baseY: number;
   x: number;
   y: number;
   rotationX: number;
@@ -106,7 +110,7 @@ interface SliceData {
     ])
   ]
 })
-export class CinematicHybridChartComponent implements OnInit, OnDestroy {
+export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChanges {
   @Input() segments: Segment[] = [];
   @Input() title: string = 'Chart Interactif';
   @Input() subtitle: string = 'Survolez ou cliquez pour explorer';
@@ -121,7 +125,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   @ViewChild('particleCanvas', { static: false }) particleCanvas?: ElementRef<HTMLCanvasElement>;
 
   state: ChartState = {
-    mode: 'pie',
+    mode: 'donut',
     selectedSegment: null,
     hoveredSegment: null,
     zoomedIn: false,
@@ -137,12 +141,12 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
 
   // Physics parameters
   physics = {
-    friction: 0.85,
-    gravity: 0.1,
-    bounce: 0.6,
-    rotationSpeed: 0.02,
-    floatAmplitude: 15,
-    floatFrequency: 0.03
+    friction: 0.9,
+    gravity: 0.05,
+    bounce: 0.7,
+    rotationSpeed: 0.01,
+    floatAmplitude: 10,
+    floatFrequency: 0.02
   };
 
   constructor(
@@ -157,6 +161,13 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
     this.initializeAudio();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['segments']) {
+      this.initializeChart();
+      this.calculateSlices();
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.animationFrame !== null) {
       cancelAnimationFrame(this.animationFrame);
@@ -166,7 +177,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   private initializeChart(): void {
     this.totalValue = this.segments.reduce((sum, s) => sum + s.value, 0);
 
-    // Appliquer les couleurs de glow par défaut si non spécifiés
+    // Appliquer les couleurs de glow
     this.segments = this.segments.map(segment => ({
       ...segment,
       glowColor: segment.glowColor || this.adjustBrightness(segment.color, 150)
@@ -174,14 +185,19 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   }
 
   private calculateSlices(): void {
+    if (this.segments.length === 0) return;
+    
+    // Si totalValue est 0, on donne une valeur fictive égale à chaque segment pour l'affichage initial
+    const effectiveTotal = this.totalValue || this.segments.length;
+    
     this.slices = [];
     let currentAngle = -Math.PI / 2;
     const centerX = 0;
     const centerY = 0;
-    const radius = 100;
 
     this.segments.forEach((segment, index) => {
-      const sliceAngle = (segment.value / this.totalValue) * 2 * Math.PI;
+      const val = this.totalValue === 0 ? 1 : segment.value;
+      const sliceAngle = (val / effectiveTotal) * 2 * Math.PI;
       const midAngle = currentAngle + sliceAngle / 2;
       const pushDistance = 10;
 
@@ -190,6 +206,8 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
         sliceAngle: sliceAngle,
         startAngle: currentAngle,
         endAngle: currentAngle + sliceAngle,
+        baseX: centerX + Math.cos(midAngle) * pushDistance,
+        baseY: centerY + Math.sin(midAngle) * pushDistance,
         x: centerX + Math.cos(midAngle) * pushDistance,
         y: centerY + Math.sin(midAngle) * pushDistance,
         rotationX: (Math.random() - 0.5) * 0.2,
@@ -206,7 +224,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   private startAnimation(): void {
     const animate = (time: number) => {
       if (this.lastTime === 0) this.lastTime = time;
-      const deltaTime = (time - this.lastTime) / 16.67; // Normalize to 60fps
+      const deltaTime = (time - this.lastTime) / 16.67;
       this.lastTime = time;
 
       this.updatePhysics(deltaTime);
@@ -220,22 +238,20 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   }
 
   private updatePhysics(deltaTime: number): void {
-    // Rotation continue douce
-    this.state.rotation += this.physics.rotationSpeed * deltaTime;
+    if (!this.state.hoveredSegment) {
+      this.state.rotation += this.physics.rotationSpeed * deltaTime;
+    }
 
-    // Mise à jour des slices avec mouvement flotant
     this.slices.forEach((slice, index) => {
-      const floatY = Math.sin(this.state.rotation * 0.5 + index) * this.physics.floatAmplitude * deltaTime;
-      const floatX = Math.cos(this.state.rotation * 0.3 + index) * this.physics.floatAmplitude * deltaTime;
+      const floatY = Math.sin(this.state.rotation * 0.5 + index) * this.physics.floatAmplitude;
+      const floatX = Math.cos(this.state.rotation * 0.3 + index) * this.physics.floatAmplitude;
 
-      slice.x += floatX * 0.5;
-      slice.y += floatY * 0.5;
+      // Correction: Ne pas accumuler, mais assigner à partir de la base
+      slice.x = slice.baseX + floatX * 0.5;
+      slice.y = slice.baseY + floatY * 0.5;
 
-      // Rotation 3D légère
       slice.rotationX += (Math.random() - 0.5) * 0.01;
       slice.rotationY += (Math.random() - 0.5) * 0.01;
-
-      // Damping
       slice.rotationX *= 0.98;
       slice.rotationY *= 0.98;
     });
@@ -243,14 +259,11 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
 
   private updateParticles(deltaTime: number): void {
     if (!this.enableParticles) return;
-
-    // Mettre à jour les particules existantes
     this.state.particles = this.state.particles.filter(p => {
       p.x += p.vx * deltaTime;
       p.y += p.vy * deltaTime;
       p.vy += this.physics.gravity;
       p.life -= deltaTime;
-
       return p.life > 0;
     });
   }
@@ -258,90 +271,28 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   private drawChart(): void {
     const canvas = this.chartCanvas?.nativeElement;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear canvas
     ctx.fillStyle = this.darkMode ? '#0f0f1e' : '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Setup transform
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
-
-    // Draw slices
-    if (this.state.mode === 'pie') {
-      this.drawPieChart(ctx, canvas);
-    } else {
-      this.drawDonutChart(ctx, canvas);
-    }
-
+    this.drawDonutChart(ctx, canvas);
     ctx.restore();
 
-    // Draw particles
     if (this.enableParticles) {
       this.drawParticles(ctx, canvas);
     }
-
     this.cdr.markForCheck();
   }
 
-  private drawPieChart(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
-    const radius = 100;
-
-    this.slices.forEach((slice, index) => {
-      const segment = this.segments[index];
-      const isHovered = this.state.hoveredSegment === segment;
-      const isSelected = this.state.selectedSegment === segment;
-
-      // Appliquer les transformations 3D
-      const offsetX = slice.x * (isHovered ? 1.5 : 1) * (isSelected ? 2 : 1);
-      const offsetY = slice.y * (isHovered ? 1.5 : 1) * (isSelected ? 2 : 1);
-
-      ctx.save();
-      ctx.translate(offsetX, offsetY);
-      ctx.rotate(this.state.rotation * 0.1);
-
-      // Glow effect
-      if (isHovered || isSelected) {
-        ctx.shadowColor = segment.glowColor || segment.color;
-        ctx.shadowBlur = isSelected ? 40 : 20;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-      }
-
-      // Draw slice
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radius, slice.startAngle, slice.endAngle);
-      ctx.closePath();
-
-      // Gradient fill
-      const gradient = ctx.createLinearGradient(
-        Math.cos(slice.angle) * radius,
-        Math.sin(slice.angle) * radius,
-        Math.cos(slice.angle) * radius * 0.5,
-        Math.sin(slice.angle) * radius * 0.5
-      );
-      gradient.addColorStop(0, segment.glowColor || segment.color);
-      gradient.addColorStop(1, segment.color);
-
-      ctx.fillStyle = gradient;
-      ctx.fill();
-
-      // Border
-      ctx.strokeStyle = this.darkMode ? '#ffffff' : '#000000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.restore();
-    });
-  }
-
   private drawDonutChart(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
-    const outerRadius = 100;
-    const innerRadius = 50;
+    if (this.slices.length === 0) return;
+    
+    const outerRadius = 130;
+    const innerRadius = 65;
 
     this.slices.forEach((slice, index) => {
       const segment = this.segments[index];
@@ -356,13 +307,11 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
       ctx.translate(offsetX, offsetY);
       ctx.rotate(this.state.rotation * 0.1);
 
-      // Glow effect
       if (isHovered || isSelected) {
         ctx.shadowColor = segment.glowColor || segment.color;
-        ctx.shadowBlur = isSelected ? 40 : 20;
+        ctx.shadowBlur = isSelected ? 50 : 25;
       }
 
-      // Draw donut segment
       ctx.beginPath();
       ctx.arc(0, 0, outerRadius, slice.startAngle, slice.endAngle);
       ctx.lineTo(
@@ -372,27 +321,23 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
       ctx.arc(0, 0, dynamicInnerRadius, slice.endAngle, slice.startAngle, true);
       ctx.closePath();
 
-      // Gradient fill with neon effect
       const gradient = ctx.createRadialGradient(0, 0, dynamicInnerRadius, 0, 0, outerRadius);
-      gradient.addColorStop(0, this.adjustBrightness(segment.color, 200));
+      gradient.addColorStop(0, this.adjustBrightness(segment.color, 220));
       gradient.addColorStop(0.5, segment.color);
-      gradient.addColorStop(1, this.adjustBrightness(segment.color, 50));
+      gradient.addColorStop(1, this.adjustBrightness(segment.color, 40));
 
       ctx.fillStyle = gradient;
       ctx.fill();
 
-      // Neon border
       ctx.strokeStyle = segment.glowColor || segment.color;
-      ctx.lineWidth = isSelected ? 3 : 2;
-      ctx.globalAlpha = isSelected ? 1 : 0.7;
+      ctx.lineWidth = isSelected ? 4 : 2;
+      ctx.globalAlpha = isSelected ? 1 : 0.8;
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Inner progress bar
       if (isSelected) {
         this.drawProgressBar(ctx, slice, dynamicInnerRadius);
       }
-
       ctx.restore();
     });
   }
@@ -400,10 +345,9 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   private drawProgressBar(ctx: CanvasRenderingContext2D, slice: SliceData, radius: number): void {
     const progress = (this.state.rotation % (2 * Math.PI)) / (2 * Math.PI);
     const progressAngle = slice.startAngle + (slice.sliceAngle * progress);
-
     ctx.beginPath();
     ctx.arc(0, 0, radius * 0.8, slice.startAngle, progressAngle);
-    ctx.strokeStyle = this.adjustBrightness(this.segments[this.slices.indexOf(slice)].color, 255);
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.stroke();
@@ -411,15 +355,13 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
 
   private drawParticles(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     this.state.particles.forEach(particle => {
-      const alpha = particle.life / 100;
+      const alpha = particle.life / 60;
       ctx.save();
-
       ctx.globalAlpha = alpha;
       ctx.fillStyle = particle.color;
       ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.arc(particle.x + canvas.width/2, particle.y + canvas.height/2, particle.size, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.restore();
     });
   }
@@ -427,27 +369,26 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   onCanvasClick(event: MouseEvent): void {
     const canvas = this.chartCanvas?.nativeElement;
     if (!canvas) return;
-
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left - canvas.width / 2;
     const y = event.clientY - rect.top - canvas.height / 2;
-
     const clickedSegment = this.getSegmentAtPoint(x, y);
     if (clickedSegment) {
       this.selectSegment(clickedSegment);
       this.playClickSound();
       this.emitParticles(clickedSegment);
+    } else if (this.state.selectedSegment) {
+      this.selectSegment(null as any);
+      this.playClickSound();
     }
   }
 
   onCanvasMouseMove(event: MouseEvent): void {
     const canvas = this.chartCanvas?.nativeElement;
     if (!canvas) return;
-
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left - canvas.width / 2;
     const y = event.clientY - rect.top - canvas.height / 2;
-
     const hoveredSegment = this.getSegmentAtPoint(x, y);
     if (hoveredSegment !== this.state.hoveredSegment) {
       this.state.hoveredSegment = hoveredSegment;
@@ -461,51 +402,46 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
   }
 
   private getSegmentAtPoint(x: number, y: number): Segment | null {
+    if (this.slices.length === 0) return null;
     const distance = Math.sqrt(x * x + y * y);
-    if (distance < 40 || distance > 120) return null;
+    if (distance < 50 || distance > 180) return null;
 
-    const angle = Math.atan2(y, x);
+    let angle = Math.atan2(y, x);
+    if (angle < -Math.PI / 2) angle += 2 * Math.PI;
+    
     let currentAngle = -Math.PI / 2;
-
     for (const segment of this.segments) {
-      const sliceAngle = (segment.value / this.totalValue) * 2 * Math.PI;
-      if (angle >= currentAngle && angle < currentAngle + sliceAngle) {
-        return segment;
-      }
+      const val = this.totalValue === 0 ? 1 : segment.value;
+      const total = this.totalValue === 0 ? this.segments.length : this.totalValue;
+      const sliceAngle = (val / total) * 2 * Math.PI;
+      const start = currentAngle;
+      const end = currentAngle + sliceAngle;
+      if (angle >= start && angle < end) return segment;
       currentAngle += sliceAngle;
     }
-
     return null;
   }
 
-  selectSegment(segment: Segment): void {
-    if (this.state.selectedSegment === segment) {
+  selectSegment(segment: Segment | null): void {
+    if (!segment || this.state.selectedSegment === segment) {
       this.state.selectedSegment = null;
-      this.state.mode = 'pie';
       this.state.zoomedIn = false;
     } else {
       this.state.selectedSegment = segment;
-      this.state.mode = 'donut';
       this.state.zoomedIn = true;
     }
-
-    this.segmentSelected.emit(segment);
+    this.segmentSelected.emit(segment as any);
     this.cdr.markForCheck();
   }
 
-  toggleMode(): void {
-    this.state.mode = this.state.mode === 'pie' ? 'donut' : 'pie';
-    this.cdr.markForCheck();
-  }
+  toggleMode(): void {}
 
   private emitParticles(segment: Segment): void {
     if (!this.enableParticles) return;
-
     const particleCount = 12;
     for (let i = 0; i < particleCount; i++) {
       const angle = (Math.PI * 2 * i) / particleCount;
       const velocity = 2 + Math.random() * 2;
-
       this.state.particles.push({
         x: 0,
         y: 0,
@@ -520,37 +456,27 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
 
   private initializeAudio(): void {
     if (!this.enableSound) return;
-
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       this.audioContext = new AudioContext();
-    } catch (e) {
-      console.warn('AudioContext not supported');
-    }
+    } catch (e) {}
   }
 
   private playClickSound(): void {
     if (!this.enableSound || !this.audioContext) return;
-
     try {
       const now = this.audioContext.currentTime;
       const oscillator = this.audioContext.createOscillator();
       const gainNode = this.audioContext.createGain();
-
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
-
       oscillator.frequency.setValueAtTime(800, now);
       oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.1);
-
       gainNode.gain.setValueAtTime(0.3, now);
       gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-
       oscillator.start(now);
       oscillator.stop(now + 0.1);
-    } catch (e) {
-      console.warn('Could not play sound:', e);
-    }
+    } catch (e) {}
   }
 
   private adjustBrightness(hexColor: string, percent: number): string {
@@ -559,12 +485,6 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy {
     const R = (num >> 16) + amt;
     const G = (num >> 8 & 0x00FF) + amt;
     const B = (num & 0x0000FF) + amt;
-
-    return '#' + (
-      0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-      (B < 255 ? B < 1 ? 0 : B : 255)
-    ).toString(16).slice(1);
+    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
   }
 }
-

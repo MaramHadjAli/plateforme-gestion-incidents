@@ -21,6 +21,7 @@ import { MaintenanceComponent } from './plate/technicien/maintenance/maintenance
 import { TechniciansListComponent } from './plate/admin/technicians-list/technicians-list.component';
 import { ResetPasswordComponent } from './shared/reset-password/reset-password.component';
 import { TicketResponseComponent } from './plate/technicien/ticket-response/ticket-response.component';
+import { AdminLayoutComponent } from './plate/admin/admin-layout.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -31,18 +32,19 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'ticket-list', component: TicketListComponent, canActivate: [AuthGuard] },
   { path: 'create-ticket', component: CreateTicketComponent, canActivate: [DemandeurGuard] },
-  { path: 'dashboard', component: AdminDashboardComponent, canActivate: [AdminGuard] },
-  { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [AdminGuard] },
-  { path: 'technicien/dashboard', component: TechnicienDashboardComponent, canActivate: [AuthGuard] },
-  { path: 'admin/salles', component: SallesComponent, canActivate: [AdminGuard] },
-  { path: 'admin/equipements', component: EquipementsComponent, canActivate: [AdminGuard] },
-  { path: 'equipements', component: EquipementsComponent, canActivate: [AuthGuard] },
-  { path: 'maintenance', component: MaintenanceListComponent, canActivate: [AuthGuard] },
-  { path: 'create-ticket', component: CreateTicketComponent, canActivate: [AuthGuard, DemandeurGuard] },
-  { path: 'dashboard', component: AdminDashboardComponent, canActivate: [AdminGuard] },
-  { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [AdminGuard] },
-  { path: 'admin/salles', component: SallesComponent, canActivate: [AdminGuard] },
-  { path: 'admin/equipements', component: EquipementsComponent, canActivate: [AdminGuard] },
+  { 
+    path: 'admin', 
+    component: AdminLayoutComponent, 
+    canActivate: [AdminGuard],
+    children: [
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'salles', component: SallesComponent },
+      { path: 'equipements', component: EquipementsComponent },
+      { path: 'technicians', component: TechniciansListComponent },
+      { path: 'maintenance', component: MaintenanceListComponent },
+    ]
+  },
+  { path: 'dashboard', redirectTo: 'admin/dashboard', pathMatch: 'full' },
   { path: 'technicien/dashboard', component: TechnicienDashboardComponent, canActivate: [AuthGuard] },
   { path: 'equipements', redirectTo: '/admin/equipements' },
   { path: 'maintenance', component: MaintenanceComponent, canActivate: [AuthGuard] },

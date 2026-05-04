@@ -12,11 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TechnicienDashboardDTO {
-    private Long totalTicketsAssigned;
-    private Long activeTickets;
-    private Long resolvedThisMonth;
-    private String averageResolutionTime;
+    private Long totalPoints;
+    private Double noteMoyenne;
+    private Long ticketsResolus;
+    private Long totalTicketsAssignes;
+    private Long ticketsEnCours;
+    private Long ticketsEnRetard;
 
-    private List<RecentTicketSummary> recentTickets;
-    private List<MaintenanceDTO> upcomingMaintenances;
+    private List<RecentTicketSummary> ticketsRecents;
+    private List<MaintenanceDTO> maintenancesProches;
 }

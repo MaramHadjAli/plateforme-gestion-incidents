@@ -16,6 +16,7 @@ export interface AuthenticationResponse {
 }
 
 export interface UserInfo {
+  id: number;
   email: string;
   name: string;
   role: string;
@@ -41,6 +42,7 @@ export class AuthService {
       try {
         const decoded: any = jwtDecode(token);
         const user: UserInfo = {
+          id: decoded.id || 0,
           email: decoded.email || '',
           name: decoded.username || '',
           role: decoded.role || ''
@@ -64,7 +66,13 @@ export class AuthService {
               this.currentUserSubject.next(response.user);
             } else {
               const role = this.getUserRoleFromToken(token);
-              const userData: UserInfo = { email: credentials.email, name: credentials.email, role };
+              const decoded: any = jwtDecode(token);
+              const userData: UserInfo = { 
+                id: decoded.id || 0,
+                email: credentials.email, 
+                name: credentials.email, 
+                role 
+              };
               localStorage.setItem('user', JSON.stringify(userData));
               this.currentUserSubject.next(userData);
             }
@@ -87,6 +95,7 @@ export class AuthService {
         localStorage.setItem('token', token);
         const decodedToken: any = jwtDecode(token);
         const user: UserInfo = {
+          id: decodedToken.id || 0,
           email: decodedToken.email || '',
           name: decodedToken.username || '',
           role: decodedToken.role || '',

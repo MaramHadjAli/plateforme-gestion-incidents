@@ -113,7 +113,7 @@ public class AuthenticationService {
 
         AuthenticationResponse.UserInfo userInfo = new AuthenticationResponse.UserInfo(
                 savedUser.getId(),
-                savedUser.getNom(),
+                savedUser.getNom() + " " + savedUser.getPrenom(),
                 savedUser.getEmail(),
                 savedUser.getRole().name()
         );
@@ -144,7 +144,7 @@ public class AuthenticationService {
 
         AuthenticationResponse.UserInfo userInfo = new AuthenticationResponse.UserInfo(
                 user.getId(),
-                user.getNom(),
+                user.getNom() + " " + user.getPrenom(),
                 user.getEmail(),
                 user.getRole().name()
         );

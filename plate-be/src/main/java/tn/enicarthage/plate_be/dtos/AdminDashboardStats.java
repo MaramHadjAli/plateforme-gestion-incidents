@@ -23,4 +23,6 @@ public class AdminDashboardStats {
     private Map<String, Long> ticketsByStatus;
     private Map<String, Long> ticketsByPriority;
     private List<RecentTicketSummary> recentTickets;
+    private String meanTimeToResolve;
+    private long activeTechnicians;
 }

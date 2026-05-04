@@ -28,8 +28,9 @@ public class JwtUtil {
 
     public String generateToken(Utilisateur user) {
         return Jwts.builder()
-                .setSubject(user.getEmail())  // CRITICAL: Add this!
-                .claim("username", user.getNom())
+                .setSubject(user.getEmail())
+                .claim("id", user.getId())
+                .claim("username", user.getNom() + " " + user.getPrenom())
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
                 .setIssuedAt(new Date())

@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TechnicienDashboardService } from '../services/technicien-dashboard.service';
 import { TechnicienDashboardDTO } from '../models/technicien-dashboard.model';
+import { WebSocketService } from '../../../core/services/websocket.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-technicien-dashboard',
@@ -11,10 +14,11 @@ import { TechnicienDashboardDTO } from '../models/technicien-dashboard.model';
   templateUrl: './technicien-dashboard.component.html',
   styleUrls: ['./technicien-dashboard.component.css', '../../admin/dashboard/admin-dashboard.component.css', '../ticket-list/ticket-list.component.css']
 })
-export class TechnicienDashboardComponent implements OnInit {
+export class TechnicienDashboardComponent implements OnInit, OnDestroy {
   dashboardData: TechnicienDashboardDTO | null = null;
   loading = true;
   errorMessage = '';
+  private notificationSub?: Subscription;
 
   readonly sidebarItems = [
     { label: 'Mon Dashboard', route: '/technicien/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
@@ -22,16 +26,46 @@ export class TechnicienDashboardComponent implements OnInit {
     { label: 'Classement', route: '/classement', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
   ];
 
-  constructor(private dashboardService: TechnicienDashboardService) {}
+  constructor(
+    private dashboardService: TechnicienDashboardService,
+    private wsService: WebSocketService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.setupNotifications();
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificationSub) {
+      this.notificationSub.unsubscribe();
+    }
+  }
+
+  private setupNotifications(): void {
+    try {
+      this.wsService.connect();
+      this.notificationSub = this.wsService.notifications$.subscribe(notif => {
+        if (notif) {
+          // Fix arguments: message, type, duration
+          const toastType = (notif.severity?.toLowerCase() as any) || 'info';
+          this.toastService.show(`${notif.title}: ${notif.message}`, toastType, 5000);
+          
+          if (notif.type === 'TICKET_ASSIGNED') {
+            this.loadDashboard();
+          }
+        }
+      });
+    } catch (error) {
+      console.error('WebSocket connection failed:', error);
+    }
   }
 
   loadDashboard(): void {
     this.loading = true;
     this.dashboardService.getDashboard().subscribe({
-      next: (data) => {
+      next: (data: TechnicienDashboardDTO) => {
         this.dashboardData = data;
         this.loading = false;
       },

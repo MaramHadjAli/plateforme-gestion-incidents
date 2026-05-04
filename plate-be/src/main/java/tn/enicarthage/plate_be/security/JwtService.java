@@ -32,7 +32,8 @@ public class JwtService {
     public String generateToken(Utilisateur user) {
         Map<String, Object> claims = new HashMap<>();
 
-        claims.put("username", user.getNom());
+        claims.put("id", user.getId());
+        claims.put("username", user.getNom() + " " + user.getPrenom());
         claims.put("email", user.getEmail());
         claims.put("role", user.getRole().name());
 
@@ -46,9 +47,12 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>(extraClaims);
-        claims.put("username", userDetails.getUsername());
-        if (!claims.containsKey("email")) {
-            claims.put("email", userDetails.getUsername());
+        if (userDetails instanceof Utilisateur) {
+            Utilisateur user = (Utilisateur) userDetails;
+            claims.put("id", user.getId());
+            claims.put("username", user.getNom() + " " + user.getPrenom());
+        } else {
+            claims.put("username", userDetails.getUsername());
         }
         return Jwts
                 .builder()

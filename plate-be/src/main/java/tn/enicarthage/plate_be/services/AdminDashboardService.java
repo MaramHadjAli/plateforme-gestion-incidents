@@ -1,5 +1,6 @@
 package tn.enicarthage.plate_be.services;
 
+import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,6 +40,25 @@ public class AdminDashboardService {
         );
         long totalUsers = userRepository.count();
         long totalTechnicians = userRepository.countByRole(ROLE.TECHNICIEN);
+        long activeTechnicians = userRepository.findAll().stream()
+                .filter(u -> u.getRole() == ROLE.TECHNICIEN && u.isActive())
+                .count();
+
+        // Calcul du MTTR (Mean Time To Resolve)
+        List<Ticket> resolvedList = ticketRepository.findAll().stream()
+                .filter(t -> t.getStatus() == STATUS_TICKET.RESOLU && t.getDateCreation() != null && t.getDateCloture() != null)
+                .collect(Collectors.toList());
+
+        String mttr = "0h 0m";
+        if (!resolvedList.isEmpty()) {
+            long totalMinutes = resolvedList.stream()
+                    .mapToLong(t -> Duration.between(t.getDateCreation().toInstant(), t.getDateCloture().toInstant()).toMinutes())
+                    .sum();
+            long avgMinutes = totalMinutes / resolvedList.size();
+            long hours = avgMinutes / 60;
+            long mins = avgMinutes % 60;
+            mttr = hours + "h " + mins + "m";
+        }
 
         Map<String, Long> ticketsByStatus = new HashMap<>();
         for (STATUS_TICKET status : STATUS_TICKET.values()) {
@@ -63,17 +83,20 @@ public class AdminDashboardService {
                 ))
                 .collect(Collectors.toList());
 
-        return new AdminDashboardStats(
-                totalTickets,
-                openTickets,
-                inProgressTickets,
-                resolvedTickets,
-                overdueTickets,
-                totalUsers,
-                totalTechnicians,
-                ticketsByStatus,
-                ticketsByPriority,
-                recentTickets
-        );
+        AdminDashboardStats stats = new AdminDashboardStats();
+        stats.setTotalTickets(totalTickets);
+        stats.setOpenTickets(openTickets);
+        stats.setInProgressTickets(inProgressTickets);
+        stats.setResolvedTickets(resolvedTickets);
+        stats.setOverdueTickets(overdueTickets);
+        stats.setTotalUsers(totalUsers);
+        stats.setTotalTechnicians(totalTechnicians);
+        stats.setTicketsByStatus(ticketsByStatus);
+        stats.setTicketsByPriority(ticketsByPriority);
+        stats.setRecentTickets(recentTickets);
+        stats.setMeanTimeToResolve(mttr);
+        stats.setActiveTechnicians(activeTechnicians);
+
+        return stats;
     }
 }

@@ -401,9 +401,17 @@
       </button>
     </div>
     <div class="modal-body" style="padding: 20px;">
-      <label class="field-label" style="display: block; margin-bottom: 8px;">ID du Technicien</label>
-      <input type="number" [(ngModel)]="assignTechnicienId" placeholder="Entrez l'ID du technicien"
-        style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text); font-size: 14px; outline: none;">
+      <label class="field-label" style="display: block; margin-bottom: 8px;">Sélectionner un Technicien</label>
+      <div *ngIf="loadingTechs" style="text-align: center; padding: 1rem;">
+        Chargement des techniciens...
+      </div>
+      <select *ngIf="!loadingTechs" [(ngModel)]="assignTechnicienId"
+        style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #dbe5f4; background: #f8fafc; color: #0f172a; font-size: 14px; outline: none;">
+        <option [ngValue]="null" disabled>Choisir un technicien</option>
+        <option *ngFor="let tech of allTechnicians" [ngValue]="tech.idUser">
+          {{ tech.prenom }} {{ tech.nom }} ({{ tech.specialite || 'Généraliste' }})
+        </option>
+      </select>
     </div>
     <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
       <button class="btn-close-modal" (click)="closeAssignModal()">Annuler</button>

@@ -76,11 +76,11 @@
             <ng-container *ngIf="stats && stats.recentTickets && stats.recentTickets.length > 0; else staticRecent">
               <div *ngFor="let ticket of stats.recentTickets">
                 <span class="home-panel__dot" [ngClass]="{
-                  'home-panel__dot--pink': ticket.priority === 'CRITIQUE',
-                  'home-panel__dot--blue': ticket.priority === 'HAUTE',
-                  'home-panel__dot--green': ticket.priority === 'BASSE' || ticket.priority === 'MOYENNE'
+                  'home-panel__dot--pink': ticket.priorite === 'CRITIQUE' || ticket.priorite === 'HAUTE',
+                  'home-panel__dot--blue': ticket.status === 'EN_COURS' || ticket.status === 'ASSIGNE',
+                  'home-panel__dot--green': ticket.status === 'RESOLU' || ticket.priorite === 'FAIBLE' || ticket.priorite === 'NORMALE'
                 }"></span>
-                {{ ticket.title }} - {{ ticket.status }}
+                {{ ticket.titre }} - {{ ticket.status }}
               </div>
             </ng-container>
             <ng-template #staticRecent>

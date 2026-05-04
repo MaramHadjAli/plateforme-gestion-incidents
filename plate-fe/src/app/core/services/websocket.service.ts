@@ -19,26 +19,37 @@ export class WebSocketService {
   public connect() {
     this.client = new Client({
       // We use SockJS since direct WS might fail over proxies
-      webSocketFactory: () => new (SockJS as any)(this.backendUrl),
+      webSocketFactory: () => {
+        // Fallback for different import styles
+        const SockJsConstructor = (SockJS as any).default || SockJS;
+        if (typeof SockJsConstructor !== 'function') {
+          console.error('SockJS is not a constructor. Falling back to native WebSocket.');
+          return new WebSocket(this.backendUrl.replace('http', 'ws'));
+        }
+        return new SockJsConstructor(this.backendUrl);
+      },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
+      connectHeaders: {
+        Authorization: `Bearer ${this.authService.getToken()}`
+      }
     });
 
     this.client.onConnect = (frame) => {
       console.log('Connected to WS Broker: ' + frame);
 
       // Subscribe to global alerts (e.g. for Admins)
-      if (this.authService.getUserRole() === 'ADMIN') {
-        this.client.subscribe('/topic/admin-alerts', (msg: Message) => {
+      if (this.authService.isAdmin()) {
+        this.client.subscribe('/topic/admin/notifications', (msg: Message) => {
           this.notifications$.next(JSON.parse(msg.body));
         });
       }
 
       // Subscribe to targeted user alerts
-      const username = this.authService.getToken() ? this.authService.getUserRole() : null; // Typically username from JWT
-      if (username) {
-         this.client.subscribe(`/user/${username}/queue/notifications`, (msg: Message) => {
+      const user = this.authService.getCurrentUser();
+      if (user && user.id) {
+         this.client.subscribe(`/user/${user.id}/queue/notifications`, (msg: Message) => {
             this.notifications$.next(JSON.parse(msg.body));
          });
       }

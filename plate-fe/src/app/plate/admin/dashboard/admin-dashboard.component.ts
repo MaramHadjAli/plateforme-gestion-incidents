@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CinematicHybridChartComponent } from '../../../shared/components/cinematic-hybrid-chart.component';
 import { AdminDashboardService, AdminDashboardStats } from '../../../core/services/admin-dashboard.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 
 type SeriesItem = {
@@ -24,10 +25,9 @@ export class AdminDashboardComponent implements OnInit {
   loading = true;
   errorMessage = '';
   cinematicChartSegments: any[] = [];
+  selectedPriority: string | null = null;
+  filteredTickets: any[] = [];
   darkMode = true;
-
-
-
 
 
   readonly sidebarItems = [
@@ -82,11 +82,15 @@ export class AdminDashboardComponent implements OnInit {
     { key: 'RESOLU', label: 'Résolu', color: '#22c55e', cssClass: 'is-resolved' }
   ];
 
-  constructor(private dashboardService: AdminDashboardService) {}
+  constructor(
+    private dashboardService: AdminDashboardService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadStats();
   }
+
 
   loadStats(): void {
     this.loading = true;
@@ -96,6 +100,7 @@ export class AdminDashboardComponent implements OnInit {
       next: (stats) => {
         this.stats = stats;
         this.updateCinematicChartData();
+        this.filteredTickets = this.stats.recentTickets ?? [];
         this.loading = false;
       },
       error: () => {
@@ -142,7 +147,7 @@ export class AdminDashboardComponent implements OnInit {
 
 
   get recentTickets() {
-    return this.stats?.recentTickets ?? [];
+    return this.filteredTickets;
   }
 
   getKpis() {
@@ -231,7 +236,17 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   onCinematicSegmentSelected(segment: any): void {
-    console.log('Segment cinématique sélectionné:', segment);
+    if (!this.stats) return;
+
+    if (!segment || this.selectedPriority === segment.label) {
+      this.selectedPriority = null;
+      this.filteredTickets = this.stats.recentTickets ?? [];
+    } else {
+      this.selectedPriority = segment.label;
+      this.filteredTickets = (this.stats.recentTickets ?? []).filter(t => 
+        this.formatPriorityLabel(t.priorite) === segment.label
+      );
+    }
   }
 
   onCinematicSegmentHovered(segment: any): void {

@@ -38,6 +38,8 @@ export class TicketListComponent implements OnInit {
   showAssignModal = false;
   assignTicketId = '';
   assignTechnicienId: number | null = null;
+  allTechnicians: any[] = [];
+  loadingTechs = false;
 
   showFeedbackModal = false;
   feedbackTicketId = '';
@@ -153,6 +155,22 @@ export class TicketListComponent implements OnInit {
     this.assignTicketId = ticketId;
     this.assignTechnicienId = null;
     this.showAssignModal = true;
+    this.loadAllTechnicians();
+  }
+
+  loadAllTechnicians(): void {
+    this.loadingTechs = true;
+    const headers = this.getAuthHeaders();
+    this.http.get<any[]>(`http://localhost:8080/api/admin/techniciens`, { headers }).subscribe({
+      next: (data) => {
+        this.allTechnicians = data;
+        this.loadingTechs = false;
+      },
+      error: (err) => {
+        console.error('Error fetching technicians:', err);
+        this.loadingTechs = false;
+      }
+    });
   }
 
   closeAssignModal(): void {

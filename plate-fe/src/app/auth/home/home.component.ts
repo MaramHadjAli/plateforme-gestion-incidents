@@ -23,8 +23,7 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.isAdmin = this.authService.isAdmin();
-    if (this.isAdmin) {
+    if (this.authService.isAuthenticated()) {
       this.dashboardService.getStats().subscribe({
         next: (data) => this.stats = data,
         error: (err) => console.error('Error fetching home stats', err)
