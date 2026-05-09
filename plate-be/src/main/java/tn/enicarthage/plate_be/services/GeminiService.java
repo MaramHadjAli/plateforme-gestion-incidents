@@ -114,7 +114,6 @@ public class GeminiService {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> candidates = (List<Map<String, Object>>) body.get("candidates");
             if (candidates != null && !candidates.isEmpty()) {
-                @SuppressWarnings("unchecked")
                 Map<String, Object> firstCandidate = candidates.get(0);
                 @SuppressWarnings("unchecked")
                 Map<String, Object> resContent = (Map<String, Object>) firstCandidate.get("content");

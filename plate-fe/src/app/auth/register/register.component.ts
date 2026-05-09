@@ -1,4 +1,4 @@
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,7 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, NgOptimizedImage]
+  imports: [CommonModule, ReactiveFormsModule, RouterLink]
 })
 export class RegisterComponent {
   isPasswordVisible = false;

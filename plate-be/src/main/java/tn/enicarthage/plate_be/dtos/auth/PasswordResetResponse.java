@@ -1,6 +1,5 @@
 package tn.enicarthage.plate_be.dtos.auth;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,4 +14,3 @@ public class PasswordResetResponse {
         this.message = message;
     }
 }
-
