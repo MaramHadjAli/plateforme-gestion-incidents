@@ -2,12 +2,7 @@ package tn.enicarthage.plate_be.controllers;
 
 import tn.enicarthage.plate_be.annotations.Loggable;
 import tn.enicarthage.plate_be.dtos.*;
-import tn.enicarthage.plate_be.entities.PointTransaction;
-import tn.enicarthage.plate_be.entities.ROLE;
 import tn.enicarthage.plate_be.entities.Technicien;
-import tn.enicarthage.plate_be.entities.Utilisateur;
-import tn.enicarthage.plate_be.repositories.PointTransactionRepository;
-import tn.enicarthage.plate_be.repositories.TechnicienRepository;
 import tn.enicarthage.plate_be.services.BadgeService;
 import tn.enicarthage.plate_be.services.TechnicienService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +25,6 @@ public class AdminTechnicienController {
 
     @Autowired
     private TechnicienService technicienService;
-
-    @Autowired
-    private TechnicienRepository technicienRepository;
-
-    @Autowired
-    private PointTransactionRepository pointTransactionRepository;
 
     @Autowired
     private BadgeService badgeService;

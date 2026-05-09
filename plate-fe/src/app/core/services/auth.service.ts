@@ -21,6 +21,7 @@ export interface UserInfo {
   name: string;
   role: string;
   avatarUrl?: string;
+  telephone?: string;
 }
 
 @Injectable({
@@ -31,6 +32,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserInfo | null>(null);
 
   public user$ = this.currentUserSubject.asObservable();
+
 
   constructor(private http: HttpClient, private router: Router) {
     this.initializeUserFromToken();
@@ -67,11 +69,11 @@ export class AuthService {
             } else {
               const role = this.getUserRoleFromToken(token);
               const decoded: any = jwtDecode(token);
-              const userData: UserInfo = { 
+              const userData: UserInfo = {
                 id: decoded.id || 0,
-                email: credentials.email, 
-                name: credentials.email, 
-                role 
+                email: credentials.email,
+                name: credentials.email,
+                role
               };
               localStorage.setItem('user', JSON.stringify(userData));
               this.currentUserSubject.next(userData);
@@ -199,7 +201,8 @@ export class AuthService {
     if (currentUser) {
       this.currentUserSubject.next({
         ...currentUser,
-        name: name
+        name: name,
+        telephone: telephone
       });
     }
   }

@@ -8,6 +8,7 @@ import tn.enicarthage.plate_be.repositories.TechnicienRepository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -78,8 +79,8 @@ public class ScoreCalculatorService {
     }
 
     private int getSatisfactionPoints(Ticket ticket) {
-        java.util.Optional<Feedback> feedbackOpt = feedbackRepository.findByTicketId(ticket.getIdTicket());
-        if (!feedbackOpt.isPresent()) {
+        Optional<Feedback> feedbackOpt = feedbackRepository.findByTicketId(ticket.getIdTicket());
+        if (feedbackOpt.isEmpty()) {
             return 0;
         }
 
@@ -155,15 +156,6 @@ public class ScoreCalculatorService {
 
         technicienRepository.save(technicien);
         System.out.println("Technicien saved");
-    }
-
-    private void updateAverageNote(Technicien technicien) {
-        List<PointTransaction> transactions = pointTransactionRepository.findByTechnicienId(technicien.getId());
-        double average = transactions.stream()
-                .mapToInt(PointTransaction::getQuantite)
-                .average()
-                .orElse(0.0);
-        technicien.setNoteMoyenne(average);
     }
 
     public void updateTechnicianScore(Long technicienId) {

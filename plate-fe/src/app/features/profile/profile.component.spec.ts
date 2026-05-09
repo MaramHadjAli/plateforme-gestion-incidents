@@ -46,9 +46,10 @@ describe('ProfileComponent', () => {
   });
 
   it('should load user profile on init', () => {
-    const mockProfile = {
+    const mockProfile: any = {
       id: 1,
-      nom: 'John Doe',
+      nom: 'John',
+      prenom: 'Doe',
       email: 'john@example.com',
       telephone: '+216 12 345 678',
       role: 'DEMANDEUR'
@@ -58,7 +59,7 @@ describe('ProfileComponent', () => {
     component.ngOnInit();
 
     expect(profileService.getCurrentUser).toHaveBeenCalled();
-    expect(component.userProfile).toEqual(mockProfile);
+    expect(component.userProfile as any).toEqual(mockProfile);
   });
 
   it('should handle error when loading profile', () => {

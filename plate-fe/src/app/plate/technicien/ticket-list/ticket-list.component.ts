@@ -6,6 +6,7 @@ import { RouterModule, RouterLink } from '@angular/router';
 import { TicketsService } from '../../../core/services/tickets.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AiAssistantService } from '../../../core/services/ai-assistant.service';
 
 interface InterestedTechnician {
   id: number;
@@ -57,12 +58,17 @@ export class TicketListComponent implements OnInit {
   interestedTechnicians: InterestedTechnician[] = [];
   selectedTicketForAssignment: any = null;
 
+  showAiAdviceModal = false;
+  aiAdviceContent = '';
+  loadingAiAdvice = false;
+
   private apiUrl = 'http://localhost:8080/api';
 
   constructor(
     private ticketsService: TicketsService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private aiService: AiAssistantService
   ) { }
 
   ngOnInit(): void {
@@ -477,5 +483,28 @@ export class TicketListComponent implements OnInit {
 
   openModal(ticket: Ticket): void {
     this.selectedTicket = ticket;
+  }
+
+  getAiPrevention(ticketId: string): void {
+    this.loadingAiAdvice = true;
+    this.aiAdviceContent = '';
+    this.showAiAdviceModal = true;
+    
+    this.aiService.getPreventionAdvice(ticketId).subscribe({
+      next: (advice) => {
+        this.aiAdviceContent = advice;
+        this.loadingAiAdvice = false;
+      },
+      error: (err) => {
+        console.error('Error fetching AI advice:', err);
+        this.aiAdviceContent = 'Désolé, une erreur est survenue lors de la récupération des conseils de l\'IA.';
+        this.loadingAiAdvice = false;
+      }
+    });
+  }
+
+  closeAiAdviceModal(): void {
+    this.showAiAdviceModal = false;
+    this.aiAdviceContent = '';
   }
 }

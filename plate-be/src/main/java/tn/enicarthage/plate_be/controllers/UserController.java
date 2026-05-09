@@ -8,7 +8,6 @@ import tn.enicarthage.plate_be.dtos.user.ChangePasswordDTO;
 import tn.enicarthage.plate_be.dtos.user.UpdateProfileDTO;
 import tn.enicarthage.plate_be.dtos.user.UserResponseDTO;
 import tn.enicarthage.plate_be.services.UserService;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")

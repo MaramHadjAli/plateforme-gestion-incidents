@@ -6,6 +6,7 @@ import { AppBarComponent } from './shared/app-bar/app-bar.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { ToastContainerComponent } from './shared/toast-container/toast-container.component';
 import { AuthService } from './core/services/auth.service';
+import { AiAssistantChatComponent } from './shared/components/ai-assistant-chat.component';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ import { AuthService } from './core/services/auth.service';
     RouterOutlet,
     AppBarComponent,
     FooterComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    AiAssistantChatComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

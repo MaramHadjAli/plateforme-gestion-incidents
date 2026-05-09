@@ -13,7 +13,7 @@ import java.util.HashSet;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = "badges")
-@EqualsAndHashCode(exclude = "badges")
+@EqualsAndHashCode(callSuper = false, exclude = "badges")
 public class Technicien extends Utilisateur {
 
     @Column(name = "specialite", length = 100)

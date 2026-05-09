@@ -58,6 +58,7 @@ public class Utilisateur implements UserDetails {
     @Builder.Default
     private boolean enabled = false;
 
+    @Builder.Default
     @Column(name = "two_factor_enabled")
     private boolean twoFactorEnabled = false;
 

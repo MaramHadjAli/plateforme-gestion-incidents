@@ -11,7 +11,6 @@ import tn.enicarthage.plate_be.repositories.NotificationPreferenceRepository;
 import tn.enicarthage.plate_be.services.EmailService;
 import tn.enicarthage.plate_be.services.SMSService;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 

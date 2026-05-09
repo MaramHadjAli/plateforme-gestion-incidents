@@ -8,7 +8,9 @@ import tn.enicarthage.plate_be.entities.ROLE;
 import tn.enicarthage.plate_be.entities.Utilisateur;
 import tn.enicarthage.plate_be.entities.*;
 import tn.enicarthage.plate_be.repositories.*;
+import tn.enicarthage.plate_be.repositories.NotificationRepository;
 import tn.enicarthage.plate_be.services.BadgeService;
+import tn.enicarthage.plate_be.websocket.NotificationService;
 
 import java.util.Date;
 
@@ -22,7 +24,7 @@ public class DataInitializer {
     private final BadgeService badgeService;
     private final TicketRepository ticketRepository;
     private final NotificationRepository notificationRepository;
-    private final tn.enicarthage.plate_be.websocket.NotificationService notificationService;
+    private final NotificationService notificationService;
 
     public DataInitializer(UserRepository userRepository,
                            SalleRepository salleRepository,
@@ -31,7 +33,7 @@ public class DataInitializer {
                            BadgeService badgeService,
                            TicketRepository ticketRepository,
                            NotificationRepository notificationRepository,
-                           tn.enicarthage.plate_be.websocket.NotificationService notificationService
+                           NotificationService notificationService
                           ) {
         this.userRepository = userRepository;
         this.salleRepository = salleRepository;
@@ -60,10 +62,23 @@ public class DataInitializer {
             badgeService.initializeBadges();
             System.out.println("[DataInitializer] Badges initialisés");
 
+            // Auto-activer tous les utilisateurs existants pour éviter les blocages après ajout de la confirmation mail
+            userRepository.findAll().forEach(u -> {
+                if (!u.isEnabled() || !u.isActive()) {
+                    u.setEnabled(true);
+                    u.setActive(true);
+                    userRepository.save(u);
+                }
+            });
+            System.out.println("[DataInitializer] Tous les utilisateurs existants ont été activés");
+
             userRepository.findByEmail("admin@enicarthage.tn").ifPresentOrElse(
                     admin -> {
                         admin.setNom("Administrateur");
                         admin.setPrenom("Enicarthage");
+                        admin.setMotPassee(passwordEncoder.encode("Admin123!"));
+                        admin.setEnabled(true);
+                        admin.setActive(true);
                         userRepository.save(admin);
                     },
                     () -> {
@@ -168,6 +183,10 @@ public class DataInitializer {
             demandeur = userRepository.save(demandeur);
         } else {
             demandeur = (Demandeur) existingUser;
+            demandeur.setMotPassee(passwordEncoder.encode("User123!"));
+            demandeur.setEnabled(true);
+            demandeur.setActive(true);
+            userRepository.save(demandeur);
         }
 
         // 2. S'assurer qu'un Technicien existe avec le bon type
@@ -196,6 +215,10 @@ public class DataInitializer {
             technicien = userRepository.save(technicien);
         } else {
             technicien = (Technicien) existingTech;
+            technicien.setMotPassee(passwordEncoder.encode("Tech123!"));
+            technicien.setEnabled(true);
+            technicien.setActive(true);
+            userRepository.save(technicien);
         }
 
         // 3. Créer des tickets (6 au total avec les statuts demandés)

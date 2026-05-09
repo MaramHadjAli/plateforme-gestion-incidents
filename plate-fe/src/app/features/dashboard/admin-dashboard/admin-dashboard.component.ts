@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 @Component({
@@ -11,7 +11,7 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent implements OnInit {
-  
+
   // KPI Data
   stats = {
     totalTickets: 124,
@@ -43,7 +43,6 @@ export class AdminDashboardComponent implements OnInit {
     data: [32, 14, 50, 28],
     backgroundColor: ['#FCD34D', '#3B82F6', '#10B981', '#9CA3AF']
   }];
-  public pieChartLegend = true;
 
   // Bar Chart: Tech Performance
   public barChartOptions: ChartOptions<'bar'> = { responsive: true };

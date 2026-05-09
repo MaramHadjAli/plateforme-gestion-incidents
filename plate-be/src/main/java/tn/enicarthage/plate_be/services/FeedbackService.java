@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import tn.enicarthage.plate_be.dtos.FeedbackDTO;
 import tn.enicarthage.plate_be.entities.Demandeur;
 import tn.enicarthage.plate_be.entities.Feedback;
-import tn.enicarthage.plate_be.entities.STATUS_TICKET;
 import tn.enicarthage.plate_be.entities.Ticket;
 import tn.enicarthage.plate_be.repositories.DemandeurRepository;
 import tn.enicarthage.plate_be.repositories.FeedbackRepository;
@@ -13,6 +12,7 @@ import tn.enicarthage.plate_be.repositories.TicketRepository;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +61,7 @@ public class FeedbackService {
         List<Feedback> feedbacks = feedbackRepository.findByTechnicienId(technicianId);
 
         return feedbacks.stream().map(feedback -> {
-            Map<String, Object> item = new java.util.HashMap<>();
+            Map<String, Object> item = new HashMap<>();
             item.put("id", feedback.getIdFeedback());
             item.put("note", feedback.getNote());
             item.put("commentaire", feedback.getCommentaire());

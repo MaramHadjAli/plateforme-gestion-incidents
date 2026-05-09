@@ -9,7 +9,6 @@ import tn.enicarthage.plate_be.entities.Utilisateur;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -39,4 +38,3 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     
     void deleteByDateEnvoiBefore(Date date);
 }
-

@@ -14,6 +14,7 @@ import tn.enicarthage.plate_be.services.LoggingService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,7 +51,6 @@ public class AdminController {
         
         return ResponseEntity.ok(response);
     }
-
 
     @GetMapping("/logs/user/{email}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -103,7 +103,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-
     @GetMapping("/logs/action/{action}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getLogsByAction(@PathVariable String action) {
@@ -115,7 +114,6 @@ public class AdminController {
         
         return ResponseEntity.ok(logsDTOs);
     }
-
 
     @GetMapping("/logs/range")
     @PreAuthorize("hasRole('ADMIN')")
@@ -147,7 +145,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-
     @GetMapping("/logs/user/{email}/failed-attempts")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getRecentFailedAttempts(
@@ -156,13 +153,12 @@ public class AdminController {
         
         int failedAttempts = loggingService.getRecentFailedAttempts(email, minutes);
         
-        return ResponseEntity.ok(new Object() {
-            public String userEmail = email;
-            public int failedAttemptsLastMinutes = failedAttempts;
-            public int minutesWindow = minutes;
-        });
+        return ResponseEntity.ok(Map.of(
+            "userEmail", email,
+            "failedAttemptsLastMinutes", failedAttempts,
+            "minutesWindow", minutes
+        ));
     }
-
 
     private TraceLoginDTO convertToDTO(TraceLogin log) {
         return new TraceLoginDTO(
@@ -177,4 +173,3 @@ public class AdminController {
         );
     }
 }
-

@@ -28,8 +28,9 @@ public class PasswordResetService {
     private static final long TOKEN_EXPIRY_MS = 15 * 60 * 1000;
 
     public void initiateForgotPassword(String email) {
-        Utilisateur user = utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new PasswordResetException("Email non trouvé"));
+        if (!utilisateurRepository.existsByEmail(email)) {
+            throw new PasswordResetException("Email non trouvé");
+        }
 
         String token = generateResetToken(email);
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
