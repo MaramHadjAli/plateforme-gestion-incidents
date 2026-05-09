@@ -13,6 +13,7 @@ public class TechnicienResponseDTO {
     private String prenom;
     private String email;
     private String telephone;
+    private String specialite;
     private Date dateInscription;
     private boolean isActive;
 }

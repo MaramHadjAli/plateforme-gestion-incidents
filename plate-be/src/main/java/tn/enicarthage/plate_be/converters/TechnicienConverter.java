@@ -24,6 +24,10 @@ public class TechnicienConverter {
         dto.setDateInscription(utilisateur.getDateInscription());
         dto.setActive(utilisateur.isActive());
 
+        if (utilisateur instanceof tn.enicarthage.plate_be.entities.Technicien) {
+            dto.setSpecialite(((tn.enicarthage.plate_be.entities.Technicien) utilisateur).getSpecialite());
+        }
+
         return dto;
     }
 

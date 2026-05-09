@@ -275,7 +275,7 @@ export class DashboardComponent {
       color: '#f97316',
       glowColor: '#fb923c'
     },
-    // ... more segments
+
   ];
 }`;
 }

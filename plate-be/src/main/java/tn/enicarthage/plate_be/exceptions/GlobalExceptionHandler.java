@@ -10,16 +10,11 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Global Exception Handler pour la gestion des erreurs de validation
- * et autres exceptions personnalisées
- */
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Gère les erreurs de validation Bean Validation (@Valid)
-     */
+    
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
@@ -39,9 +34,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    /**
-     * Gère les exceptions PasswordResetException
-     */
+    
     @ExceptionHandler(PasswordResetException.class)
     public ResponseEntity<?> handlePasswordResetException(
             PasswordResetException ex,
@@ -57,9 +50,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    /**
-     * Gère les exceptions génériques RuntimeException
-     */
+    
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(
             RuntimeException ex,
@@ -75,9 +66,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    /**
-     * Gère toutes les autres exceptions
-     */
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGlobalException(
             Exception ex,

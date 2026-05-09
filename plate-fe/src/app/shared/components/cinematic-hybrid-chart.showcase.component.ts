@@ -9,10 +9,7 @@ interface Segment {
   glowColor?: string;
 }
 
-/**
- * Example Component demonstrating CinematicHybridChartComponent usage
- * Provides multiple dataset examples and interaction handlers
- */
+
 @Component({
   selector: 'app-cinematic-chart-showcase',
   standalone: true,
@@ -245,14 +242,14 @@ interface Segment {
   `]
 })
 export class CinematicChartShowcaseComponent implements OnInit {
-  // Dataset Examples
+
   incidentsPriority: Segment[] = [];
   systemStatus: Segment[] = [];
   userActivity: Segment[] = [];
   performanceMetrics: Segment[] = [];
   bugSeverity: Segment[] = [];
 
-  // Interaction Tracking
+
   selectionCount = 0;
   lastSelectedIncident: Segment | null = null;
   lastHoveredIncident: Segment | null = null;
@@ -263,7 +260,7 @@ export class CinematicChartShowcaseComponent implements OnInit {
   }
 
   private initializeDatasets(): void {
-    // Example 1: Incidents by Priority
+
     this.incidentsPriority = [
       { label: '🔴 Critical', value: 45, color: '#ff0088', glowColor: '#ff4db3' },
       { label: '🟠 High', value: 32, color: '#00ff88', glowColor: '#00ffaa' },
@@ -271,7 +268,7 @@ export class CinematicChartShowcaseComponent implements OnInit {
       { label: '🟢 Low', value: 15, color: '#ffaa00', glowColor: '#ffcc00' }
     ];
 
-    // Example 2: System Status
+
     this.systemStatus = [
       { label: 'Healthy', value: 340, color: '#00ff88', glowColor: '#00ffaa' },
       { label: 'Warning', value: 85, color: '#ffaa00', glowColor: '#ffcc00' },
@@ -279,7 +276,7 @@ export class CinematicChartShowcaseComponent implements OnInit {
       { label: 'Offline', value: 2, color: '#666666', glowColor: '#888888' }
     ];
 
-    // Example 3: User Activity
+
     this.userActivity = [
       { label: 'Admin Users', value: 12, color: '#ff0088', glowColor: '#ff4db3' },
       { label: 'Regular Users', value: 156, color: '#00ff88', glowColor: '#00ffaa' },
@@ -287,7 +284,7 @@ export class CinematicChartShowcaseComponent implements OnInit {
       { label: 'API Clients', value: 45, color: '#ffaa00', glowColor: '#ffcc00' }
     ];
 
-    // Example 4: Performance Metrics
+
     this.performanceMetrics = [
       { label: '< 100ms', value: 523, color: '#00ff88', glowColor: '#00ffaa' },
       { label: '100-500ms', value: 234, color: '#0088ff', glowColor: '#00aaff' },
@@ -295,7 +292,7 @@ export class CinematicChartShowcaseComponent implements OnInit {
       { label: '> 1s', value: 34, color: '#ff0088', glowColor: '#ff4db3' }
     ];
 
-    // Example 5: Bug Severity
+
     this.bugSeverity = [
       { label: 'Critical', value: 8, color: '#ff0088', glowColor: '#ff4db3' },
       { label: 'Major', value: 23, color: '#ff6600', glowColor: '#ff8833' },

@@ -49,4 +49,3 @@ public class TraceLogin {
     private String status = "SUCCESS";
 
 }
-

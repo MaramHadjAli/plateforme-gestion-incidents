@@ -10,6 +10,7 @@ public class AuthenticationResponse {
     private String accessToken;
     private String refreshToken;
     private UserInfo user;
+    private String message;
 
     public AuthenticationResponse(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
@@ -20,6 +21,13 @@ public class AuthenticationResponse {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.user = user;
+    }
+
+    public AuthenticationResponse(String accessToken, String refreshToken, UserInfo user, String message) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.user = user;
+        this.message = message;
     }
 
     @Getter

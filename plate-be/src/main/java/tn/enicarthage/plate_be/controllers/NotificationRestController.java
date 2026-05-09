@@ -27,7 +27,7 @@ public class NotificationRestController {
     @Autowired
     private UserRepository userRepository;
 
-    // ==================== WEBSOCKET METHODS ====================
+
 
     @PostMapping("/send-to-admin")
     public ResponseEntity<String> sendToAdmin(@RequestBody NotificationMessage notification) {
@@ -47,7 +47,7 @@ public class NotificationRestController {
         return ResponseEntity.ok("Notification envoyée à tous");
     }
 
-    // ==================== GET NOTIFICATIONS ====================
+
 
     @GetMapping
     public ResponseEntity<List<Notification>> getUserNotifications(
@@ -98,7 +98,7 @@ public class NotificationRestController {
         return ResponseEntity.ok(notifications);
     }
 
-    // ==================== UPDATE NOTIFICATIONS ====================
+
 
     @PutMapping("/{id}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
@@ -117,7 +117,7 @@ public class NotificationRestController {
         return ResponseEntity.ok().build();
     }
 
-    // ==================== DELETE NOTIFICATIONS ====================
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
@@ -131,7 +131,7 @@ public class NotificationRestController {
         return ResponseEntity.ok().build();
     }
 
-    // ==================== PREFERENCES ====================
+
 
     @GetMapping("/preferences")
     public ResponseEntity<NotificationPreference> getPreferences() {
@@ -156,7 +156,7 @@ public class NotificationRestController {
         return ResponseEntity.ok(preference);
     }
 
-    // ==================== HELPER ====================
+
 
     private Utilisateur getCurrentUser() {
         try {

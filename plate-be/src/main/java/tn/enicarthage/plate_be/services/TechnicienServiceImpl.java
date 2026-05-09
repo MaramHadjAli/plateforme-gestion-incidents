@@ -190,7 +190,7 @@ public class TechnicienServiceImpl implements TechnicienService {
                         .build())
                 .collect(Collectors.toList());
 
-        int totalPoints = technicien.getTotalPoints() != null ? technicien.getTotalPoints() : 0;
+        int totalPoints = technicien.getTotalPoints();
         String currentBadge = badgeService.getBadgeByPoints(totalPoints);
         String nextBadge = badgeService.getNextBadgeName(totalPoints);
         int pointsToNextBadge = badgeService.getPointsForNextBadge(totalPoints);
@@ -222,10 +222,10 @@ public class TechnicienServiceImpl implements TechnicienService {
                         tech.getNom(),
                         tech.getPrenom(),
                         tech.getEmail(),
-                        tech.getTotalPoints() != null ? tech.getTotalPoints() : 0,
+                        tech.getTotalPoints(),
                         tech.getNoteMoyenne() != null ? tech.getNoteMoyenne() : 0.0,
                         0,
-                        badgeService.getBadgeByPoints(tech.getTotalPoints() != null ? tech.getTotalPoints() : 0)
+                        badgeService.getBadgeByPoints(tech.getTotalPoints())
                 ))
                 .sorted((a, b) -> b.getTotalPoints().compareTo(a.getTotalPoints()))
                 .collect(Collectors.toList());

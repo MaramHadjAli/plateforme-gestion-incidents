@@ -75,9 +75,7 @@
   border-color: rgba(148, 163, 184, 0.28);
 }
 
-/* ============================================
-   ANIMATED BACKGROUND
-   ============================================ */
+
 
 .chart-background {
   position: absolute;
@@ -138,9 +136,7 @@
   }
 }
 
-/* ============================================
-   HEADER
-   ============================================ */
+
 
 .chart-header {
   display: flex;
@@ -240,9 +236,7 @@
   }
 }
 
-/* ============================================
-   MAIN CHART CANVAS
-   ============================================ */
+
 
 .chart-canvas-wrapper {
   position: relative;
@@ -292,9 +286,7 @@
   pointer-events: none;
 }
 
-/* ============================================
-   CENTER INFO
-   ============================================ */
+
 
 .center-info {
   position: absolute;
@@ -340,6 +332,30 @@
   font-weight: 600;
 }
 
+.center-reset-btn {
+  margin: 0.75rem auto 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: inherit;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.center-reset-btn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+  transform: scale(1.15) rotate(90deg);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
 .info-placeholder {
   display: flex;
   flex-direction: column;
@@ -379,9 +395,7 @@
   }
 }
 
-/* ============================================
-   LEGEND
-   ============================================ */
+
 
 .chart-legend {
   display: grid;
@@ -484,9 +498,7 @@
   margin-top: 0.2rem;
 }
 
-/* ============================================
-   INTERACTION HINTS
-   ============================================ */
+
 
 .interaction-hints {
   display: flex;
@@ -531,9 +543,7 @@
   }
 }
 
-/* ============================================
-   STATS PANEL
-   ============================================ */
+
 
 .stats-panel {
   position: relative;
@@ -581,9 +591,7 @@
   text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
 }
 
-/* ============================================
-   SOUND TOGGLE
-   ============================================ */
+
 
 .sound-toggle {
   position: fixed;
@@ -623,9 +631,7 @@
   }
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+
 
 @media (max-width: 768px) {
   .cinematic-chart-container {
@@ -655,9 +661,7 @@
   }
 }
 
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
+
 
 @media (prefers-reduced-motion: reduce) {
   * {

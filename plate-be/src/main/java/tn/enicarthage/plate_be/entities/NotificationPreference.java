@@ -20,27 +20,27 @@ public class NotificationPreference {
     @JoinColumn(name = "utilisateur_id", unique = true)
     private Utilisateur utilisateur;
 
-    // Types of notifications
+
     private boolean ticketAssignedEnabled;
     private boolean statusChangedEnabled;
     private boolean maintenanceReminderEnabled;
     private boolean badgeAwardedEnabled;
     private boolean slaExceededEnabled;
 
-    // Channels
+
     private boolean pushNotificationEnabled;
     private boolean emailEnabled;
     private boolean smsEnabled;
 
-    // Email digest preferences
-    private String emailDigestFrequency; // DAILY, WEEKLY, NEVER
 
-    // SMS preferences (critical tickets only)
+    private String emailDigestFrequency;
+
+
     private boolean smsCriticalOnly;
 
-    // Quiet hours
-    private String quietHoursStart; // HH:mm format
-    private String quietHoursEnd;   // HH:mm format
+
+    private String quietHoursStart;
+    private String quietHoursEnd;
 
     @Builder.Default
     private boolean allNotificationsEnabled = true;

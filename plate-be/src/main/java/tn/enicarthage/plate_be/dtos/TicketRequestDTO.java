@@ -8,7 +8,7 @@ import java.util.Date;
 public class TicketRequestDTO {
     private String titre;
     private String description;
-    private String priorite;   // String to avoid 400 on unknown values
+    private String priorite;
     private Date dateLimite;
     private String idSalle;
     private String idEquipement;

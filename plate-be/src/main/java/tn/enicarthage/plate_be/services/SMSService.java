@@ -15,7 +15,7 @@ public class SMSService {
     @Value("${app.sms.provider:twilio}")
     private String smsProvider;
 
-    // In production, you would integrate with a real SMS provider (Twilio, AWS SNS, etc.)
+
     
     public void sendCriticalNotificationSMS(Notification notification) {
         if (!smsEnabled) {
@@ -32,7 +32,7 @@ public class SMSService {
             String phoneNumber = notification.getUtilisateur().getTelephone();
             String smsMessage = buildSMSMessage(notification);
 
-            // TODO: Integrate with real SMS provider
+
             sendSMS(phoneNumber, smsMessage);
 
             notification.setSmsSent(true);
@@ -80,17 +80,17 @@ public class SMSService {
     }
 
     private void sendSMS(String phoneNumber, String message) {
-        // TODO: Implement actual SMS sending logic
-        // For now, just log it
+
+
         log.info("SMS to {}: {}", phoneNumber, message);
 
-        // Example with Twilio (uncomment and configure when ready):
-        // Twilio.init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-        // Message msg = Message.creator(
-        //     new PhoneNumber(phoneNumber),
-        //     new PhoneNumber(TWILIO_PHONE_NUMBER),
-        //     message
-        // ).create();
+
+
+
+
+
+
+
     }
 }
 

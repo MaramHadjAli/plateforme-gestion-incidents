@@ -20,8 +20,8 @@ public class Demandeur extends Utilisateur {
 	private String numEtudiant;
 	private String anneeEtude;
 	private String bureau;
-	private Double noteMoyenne;
-	private Integer totalPoint;
+	private Double noteMoyenne = 0.0;
+	private Integer totalPoint = 0;
 
 	@OneToMany(mappedBy = "demandeur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Feedback> feedbacks;

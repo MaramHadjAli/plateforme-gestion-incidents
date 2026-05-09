@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Classe pour les réponses d'erreur standardisées
- */
+
 @Getter
 @Setter
 @AllArgsConstructor

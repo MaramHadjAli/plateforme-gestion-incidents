@@ -60,6 +60,7 @@ public class Ticket {
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PointTransaction> pointTransactions;
 
+    @Builder.Default
     @Column(name = "demande_prix_sent")
     private Boolean demandePrixSent = false;
 

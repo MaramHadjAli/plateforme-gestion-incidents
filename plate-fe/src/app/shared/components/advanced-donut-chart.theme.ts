@@ -1,7 +1,4 @@
-/**
- * Advanced Donut Chart - Theme Configuration
- * Définit les palettes de couleurs et configurations prédéfinies
- */
+
 
 export interface DonutChartTheme {
   name: string;
@@ -22,7 +19,7 @@ export interface DonutChartTheme {
 }
 
 export const DONUT_THEMES = {
-  // Thème Neon Purple (Défaut)
+
   neonPurple: {
     name: 'Neon Purple',
     colors: {
@@ -42,7 +39,7 @@ export const DONUT_THEMES = {
     ]
   },
 
-  // Thème Cyberpunk
+
   cyberpunk: {
     name: 'Cyberpunk',
     colors: {
@@ -62,7 +59,7 @@ export const DONUT_THEMES = {
     ]
   },
 
-  // Thème Plasma
+
   plasma: {
     name: 'Plasma',
     colors: {
@@ -82,7 +79,7 @@ export const DONUT_THEMES = {
     ]
   },
 
-  // Thème Ocean
+
   ocean: {
     name: 'Ocean',
     colors: {
@@ -102,7 +99,7 @@ export const DONUT_THEMES = {
     ]
   },
 
-  // Thème Forest
+
   forest: {
     name: 'Forest',
     colors: {
@@ -122,7 +119,7 @@ export const DONUT_THEMES = {
     ]
   },
 
-  // Thème Sunset
+
   sunset: {
     name: 'Sunset',
     colors: {
@@ -142,7 +139,7 @@ export const DONUT_THEMES = {
     ]
   },
 
-  // Thème Monochrome
+
   monochrome: {
     name: 'Monochrome',
     colors: {
@@ -177,17 +174,13 @@ export const STATUS_COLOR_MAP = {
   RESOLU: { color: '#22c55e', glow: '#86efac' }
 };
 
-/**
- * Génère une palette de couleurs aléatoire pour des données dynamiques
- */
+
 export function generateRandomTheme(): DonutChartTheme {
   const themes = Object.values(DONUT_THEMES);
   return themes[Math.floor(Math.random() * themes.length)];
 }
 
-/**
- * Fusionne deux thèmes
- */
+
 export function mergeThemes(...themes: Partial<DonutChartTheme>[]): DonutChartTheme {
   return <DonutChartTheme>themes.reduce((acc, theme) => ({
     ...acc,
@@ -195,9 +188,7 @@ export function mergeThemes(...themes: Partial<DonutChartTheme>[]): DonutChartTh
   }), DONUT_THEMES.neonPurple);
 }
 
-/**
- * Obtient une couleur basée sur une priorité
- */
+
 export function getPriorityColor(priority: string): { color: string; glow: string } {
   return (PRIORITY_COLOR_MAP as any)[priority] || {
     color: '#6b7280',
@@ -205,9 +196,7 @@ export function getPriorityColor(priority: string): { color: string; glow: strin
   };
 }
 
-/**
- * Obtient une couleur basée sur un statut
- */
+
 export function getStatusColor(status: string): { color: string; glow: string } {
   return (STATUS_COLOR_MAP as any)[status] || {
     color: '#6b7280',
@@ -215,16 +204,12 @@ export function getStatusColor(status: string): { color: string; glow: string } 
   };
 }
 
-/**
- * Valide une couleur hex
- */
+
 export function isValidHexColor(color: string): boolean {
   return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color);
 }
 
-/**
- * Lightens/Darkens a color
- */
+
 export function adjustColor(color: string, percent: number): string {
   const num = parseInt(color.replace('#', ''), 16);
   const amt = Math.round(2.55 * percent);

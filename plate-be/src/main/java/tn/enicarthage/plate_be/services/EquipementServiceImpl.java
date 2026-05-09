@@ -97,7 +97,7 @@ public class EquipementServiceImpl implements EquipementService {
                 .collect(Collectors.toList());
     }
 
-    // 🔥 helpers
+
 
     private Equipement findOrThrow(String id) {
         return equipementRepository.findById(id)

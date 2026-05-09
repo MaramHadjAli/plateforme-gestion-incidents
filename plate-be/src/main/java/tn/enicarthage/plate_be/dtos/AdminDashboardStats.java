@@ -1,6 +1,8 @@
 package tn.enicarthage.plate_be.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -8,6 +10,8 @@ import java.util.Map;
 
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminDashboardStats {
     private long totalTickets;
     private long openTickets;
@@ -19,33 +23,6 @@ public class AdminDashboardStats {
     private Map<String, Long> ticketsByStatus;
     private Map<String, Long> ticketsByPriority;
     private List<RecentTicketSummary> recentTickets;
-
-    public AdminDashboardStats() {}
-
-    public AdminDashboardStats(
-            long totalTickets,
-            long openTickets,
-            long inProgressTickets,
-            long resolvedTickets,
-            long overdueTickets,
-            long totalUsers,
-            long totalTechnicians,
-            Map<String, Long> ticketsByStatus,
-            Map<String, Long> ticketsByPriority,
-            List<RecentTicketSummary> recentTickets
-    ) {
-        this.totalTickets = totalTickets;
-        this.openTickets = openTickets;
-        this.inProgressTickets = inProgressTickets;
-        this.resolvedTickets = resolvedTickets;
-        this.overdueTickets = overdueTickets;
-        this.totalUsers = totalUsers;
-        this.totalTechnicians = totalTechnicians;
-        this.ticketsByStatus = ticketsByStatus;
-        this.ticketsByPriority = ticketsByPriority;
-        this.recentTickets = recentTickets;
-    }
-
+    private String meanTimeToResolve;
+    private long activeTechnicians;
 }
-
-

@@ -10,7 +10,6 @@ import tn.enicarthage.plate_be.services.AdminDashboardService;
 
 @RestController
 @RequestMapping("/api/admin/dashboard")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
 
     private final AdminDashboardService dashboardService;
@@ -20,6 +19,7 @@ public class AdminDashboardController {
     }
 
     @GetMapping("/stats")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIEN', 'DEMANDEUR')")
     public ResponseEntity<AdminDashboardStats> getDashboardStats() {
         return ResponseEntity.ok(dashboardService.getStats());
     }

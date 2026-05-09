@@ -2,7 +2,6 @@ package tn.enicarthage.plate_be.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -45,7 +44,7 @@ public class TicketServiceImpl implements TicketService {
         Demandeur demandeur = demandeurRepository.findByEmail(getCurrentUserEmail());
 
         Ticket ticket = ticketConverter.dtoToEntity(dto);
-        
+
         ticket.setIdTicket(java.util.UUID.randomUUID().toString());
         ticket.setDateCreation(new Date());
         ticket.setStatus(STATUS_TICKET.OUVERT);
@@ -62,7 +61,7 @@ public class TicketServiceImpl implements TicketService {
             equipementRepository.findById(dto.getIdEquipement()).ifPresent(ticket::setEquipement);
         }
 
-        // Initialize default values
+
         ticket.setDemandePrixSent(false);
         ticket.setInterestedTechnicians(new ArrayList<>());
         ticket.setDeclinedTechnicians(new ArrayList<>());

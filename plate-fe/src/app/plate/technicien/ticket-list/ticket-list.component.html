@@ -9,18 +9,14 @@
         <span *ngIf="userRole === 'DEMANDEUR'">Espace Utilisateur</span>
       </div>
       <h1 class="page-title">
-        <ng-container *ngIf="userRole === 'ADMIN'">Gestion globale des <span
-            class="title-accent">Tickets</span></ng-container>
-        <ng-container *ngIf="userRole === 'TECHNICIEN'">Gestion des <span
-            class="title-accent">Tickets</span></ng-container>
+        <ng-container *ngIf="userRole === 'ADMIN'">Gestion globale des <span class="title-accent">Tickets</span></ng-container>
+        <ng-container *ngIf="userRole === 'TECHNICIEN'">Gestion des <span class="title-accent">Tickets</span></ng-container>
         <ng-container *ngIf="userRole === 'DEMANDEUR'">Mes <span class="title-accent">Tickets</span></ng-container>
       </h1>
       <p class="page-subtitle">
         <ng-container *ngIf="userRole === 'ADMIN'">Supervisez et gérez l'ensemble des tickets du système</ng-container>
-        <ng-container *ngIf="userRole === 'TECHNICIEN'">Suivez et gérez les demandes d'assistance qui vous sont
-          assignées</ng-container>
-        <ng-container *ngIf="userRole === 'DEMANDEUR'">Suivez l'état et la progression de vos demandes
-          d'assistance</ng-container>
+        <ng-container *ngIf="userRole === 'TECHNICIEN'">Suivez et gérez les demandes d'assistance qui vous sont assignées</ng-container>
+        <ng-container *ngIf="userRole === 'DEMANDEUR'">Suivez l'état et la progression de vos demandes d'assistance</ng-container>
       </p>
     </div>
     <div class="header-right">
@@ -374,10 +370,19 @@
     </div>
 
     <div class="modal-footer">
+      <button *ngIf="selectedTicket" (click)="getAiPrevention(selectedTicket.id)" class="btn-ai-advice">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <path d="M12 8v4"></path>
+          <path d="M12 16h.01"></path>
+        </svg>
+        Conseil Prévention IA
+      </button>
       <button class="btn-close-modal" (click)="selectedTicket = null">Fermer</button>
     </div>
   </div>
 </div>
+
 
 <div class="modal-backdrop" [class.modal-open]="showAssignModal" (click)="closeAssignModal()" *ngIf="showAssignModal">
   <div class="modal-box" (click)="$event.stopPropagation()" style="max-width: 420px;">
@@ -404,9 +409,17 @@
       </button>
     </div>
     <div class="modal-body" style="padding: 20px;">
-      <label class="field-label" style="display: block; margin-bottom: 8px;">ID du Technicien</label>
-      <input type="number" [(ngModel)]="assignTechnicienId" placeholder="Entrez l'ID du technicien"
-        style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--c-text); font-size: 14px; outline: none;">
+      <label class="field-label" style="display: block; margin-bottom: 8px;">Sélectionner un Technicien</label>
+      <div *ngIf="loadingTechs" style="text-align: center; padding: 1rem;">
+        Chargement des techniciens...
+      </div>
+      <select *ngIf="!loadingTechs" [(ngModel)]="assignTechnicienId"
+        style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #dbe5f4; background: #f8fafc; color: #0f172a; font-size: 14px; outline: none;">
+        <option [ngValue]="null" disabled>Choisir un technicien</option>
+        <option *ngFor="let tech of allTechnicians" [ngValue]="tech.idUser">
+          {{ tech.prenom }} {{ tech.nom }} ({{ tech.specialite || 'Généraliste' }})
+        </option>
+      </select>
     </div>
     <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end;">
       <button class="btn-close-modal" (click)="closeAssignModal()">Annuler</button>
@@ -548,6 +561,46 @@
     </div>
     <div class="modal-footer">
       <button class="btn-close-modal" (click)="closeInterestedModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" [class.modal-open]="showAiAdviceModal" (click)="closeAiAdviceModal()" *ngIf="showAiAdviceModal">
+  <div class="modal-box ai-modal" (click)="$event.stopPropagation()" style="max-width: 600px;">
+    <div class="modal-header ai-header">
+      <div class="modal-title-group">
+        <div class="modal-icon ai-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M12 8v4"></path>
+            <path d="M12 16h.01"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Conseils de Prévention IA</h3>
+          <p class="modal-subtitle">Analyse prédictive Gemini</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="closeAiAdviceModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body ai-body">
+      <div *ngIf="loadingAiAdvice" class="ai-loading">
+        <div class="spinner"></div>
+        <p>Gemini analyse l'incident et génère des recommandations...</p>
+      </div>
+      <div *ngIf="!loadingAiAdvice" class="ai-content">
+        <div class="ai-text-wrapper">
+          <p style="white-space: pre-wrap;">{{ aiAdviceContent }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer ai-footer">
+      <button class="btn-close-modal" (click)="closeAiAdviceModal()">Compris</button>
     </div>
   </div>
 </div>

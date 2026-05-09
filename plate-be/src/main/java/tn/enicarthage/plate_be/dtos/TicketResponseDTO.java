@@ -21,7 +21,7 @@ public class TicketResponseDTO {
     private String demandeurEmail;
     private String technicienNom;
     private Long technicienId;
-    
+
     private String idSalle;
     private String nomSalle;
     private String idEquipement;

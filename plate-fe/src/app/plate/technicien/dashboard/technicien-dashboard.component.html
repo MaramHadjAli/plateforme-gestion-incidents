@@ -26,8 +26,8 @@
     </section>
 
     <ng-container *ngIf="!loading && !errorMessage && dashboardData">
-      
-      <!-- Performance Section -->
+
+
       <section class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
         <article class="kpi-card card-panel">
           <div class="kpi-card__content">
@@ -61,7 +61,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           </div>
         </article>
-        
+
         <article class="kpi-card card-panel">
           <div class="kpi-card__content">
             <span class="kpi-card__label">En cours</span>
@@ -109,6 +109,7 @@
               <p class="section-heading__eyebrow">Planification</p>
               <h2>Prochaines Maintenances</h2>
             </div>
+            <a routerLink="/maintenance" class="section-link">Voir tout</a>
           </div>
 
           <div class="recent-list">
