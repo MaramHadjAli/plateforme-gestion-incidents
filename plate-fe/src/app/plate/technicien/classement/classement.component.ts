@@ -72,7 +72,7 @@ export class ClassementComponent implements OnInit {
   }
 
   getStarRating(averageNote: number): string {
-    // Assuming averageNote is 0-100
+
     const stars = Math.round(averageNote / 20);
     const clampedStars = Math.min(Math.max(stars, 0), 5);
     return '★'.repeat(clampedStars) + '☆'.repeat(5 - clampedStars);

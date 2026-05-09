@@ -12,7 +12,7 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
 })
 export class AdminDashboardComponent implements OnInit {
 
-  // KPI Data
+
   stats = {
     totalTickets: 124,
     openTickets: 32,
@@ -20,7 +20,7 @@ export class AdminDashboardComponent implements OnInit {
     avgResolution: '4.2 Hrs'
   };
 
-  // Line Chart: Tickets Over Time
+
   public lineChartData: ChartConfiguration<'line'>['data'] = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
     datasets: [
@@ -36,7 +36,7 @@ export class AdminDashboardComponent implements OnInit {
   };
   public lineChartOptions: ChartOptions<'line'> = { responsive: true };
 
-  // Pie Chart: Tickets by Status
+
   public pieChartOptions: ChartOptions<'pie'> = { responsive: true };
   public pieChartLabels = ['Open', 'In Progress', 'Resolved', 'Closed'];
   public pieChartDatasets = [{
@@ -44,7 +44,7 @@ export class AdminDashboardComponent implements OnInit {
     backgroundColor: ['#FCD34D', '#3B82F6', '#10B981', '#9CA3AF']
   }];
 
-  // Bar Chart: Tech Performance
+
   public barChartOptions: ChartOptions<'bar'> = { responsive: true };
   public barChartLabels = ['Tech A', 'Tech B', 'Tech C', 'Tech D'];
   public barChartDatasets = [
@@ -52,6 +52,6 @@ export class AdminDashboardComponent implements OnInit {
   ];
 
   ngOnInit() {
-    // Initiate WebSocket config or Real-time listeners here
+
   }
 }

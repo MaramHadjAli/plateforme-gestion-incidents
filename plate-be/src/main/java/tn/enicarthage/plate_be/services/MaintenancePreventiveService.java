@@ -107,8 +107,8 @@ public class MaintenancePreventiveService {
         h.setType("PREVENTIVE");
         h.setDescription(m.getDescription());
         h.setEquipement(m.getEquipement());
-        
-        // Try to associate current technician
+
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             technicienRepository.findByEmail(auth.getName()).ifPresent(tech -> {
@@ -116,7 +116,7 @@ public class MaintenancePreventiveService {
                 h.setNomTechnicienResponsable(tech.getNom() + " " + tech.getPrenom());
             });
         }
-        
+
         historiqueService.save(h);
     }
 

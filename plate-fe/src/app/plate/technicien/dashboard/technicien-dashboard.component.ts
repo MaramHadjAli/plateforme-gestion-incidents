@@ -48,10 +48,10 @@ export class TechnicienDashboardComponent implements OnInit, OnDestroy {
       this.wsService.connect();
       this.notificationSub = this.wsService.notifications$.subscribe(notif => {
         if (notif) {
-          // Fix arguments: message, type, duration
+
           const toastType = (notif.severity?.toLowerCase() as any) || 'info';
           this.toastService.show(`${notif.title}: ${notif.message}`, toastType, 5000);
-          
+
           if (notif.type === 'TICKET_ASSIGNED') {
             this.loadDashboard();
           }
@@ -97,8 +97,8 @@ export class TechnicienDashboardComponent implements OnInit, OnDestroy {
   }
 
   getPerformanceColor(note: number): string {
-    if (note >= 4.5) return '#22c55e'; // Green
-    if (note >= 3.5) return '#f59e0b'; // Yellow
-    return '#ef4444'; // Red
+    if (note >= 4.5) return '#22c55e';
+    if (note >= 3.5) return '#f59e0b';
+    return '#ef4444';
   }
 }

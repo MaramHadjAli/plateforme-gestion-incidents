@@ -123,26 +123,26 @@ export class ProfileComponent implements OnInit, OnDestroy {
   onAvatarSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
-      // Vérifier la taille du fichier (max 5MB)
+
       if (file.size > 5 * 1024 * 1024) {
         this.toastService.showError('La taille du fichier ne doit pas dépasser 5MB');
         return;
       }
 
-      // Vérifier le type de fichier
+
       if (!file.type.startsWith('image/')) {
         this.toastService.showError('Veuillez sélectionner une image valide');
         return;
       }
 
-      // Afficher l'aperçu
+
       const reader = new FileReader();
       reader.onload = () => {
         this.avatarPreview = reader.result as string;
       };
       reader.readAsDataURL(file);
 
-      // Upload l'avatar
+
       this.isLoading = true;
       this.avatarService.uploadAvatar(file)
         .pipe(takeUntil(this.destroy$))

@@ -20,7 +20,7 @@ public class FileUploadController {
     @PostMapping
     public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
         String storedFileName = fileStorageService.store(file);
-        // Returns the relative URL path or just the filename representing the uploaded file
+
         return ResponseEntity.ok(Map.of(
             "message", "File uploaded successfully",
             "url", "/uploads/" + storedFileName

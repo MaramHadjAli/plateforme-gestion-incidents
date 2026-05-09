@@ -622,7 +622,7 @@
   overflow: hidden;
 }
 
-/* Premium Section Background Gradient */
+
 .premium-section {
   background:
     linear-gradient(135deg,
@@ -638,7 +638,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* Premium Section Decorative Elements */
+
 .premium-section::before {
   content: '';
   position: absolute;
@@ -668,7 +668,7 @@
   animation: premiumShift 12s ease-in-out infinite reverse;
 }
 
-/* Premium Section Content Wrapper */
+
 .premium-section app-advanced-donut-chart {
   position: relative;
   z-index: 1;
@@ -676,7 +676,7 @@
   max-width: 100%;
 }
 
-/* Premium Section Responsive */
+
 @media (max-width: 1024px) {
   .premium-section {
     padding: 1.25rem;
@@ -694,7 +694,7 @@
   }
 }
 
-/* Premium Section Animation */
+
 @keyframes premiumShift {
   0%, 100% {
     transform: translate(0, 0) scale(1);
@@ -808,7 +808,7 @@
   font-weight: 700;
 }
 
-/* Cinematic Chart Section */
+
 .cinematic-section {
   display: grid;
   grid-column: 1 / -1;
@@ -818,7 +818,7 @@
   z-index: 5;
 }
 
-/* Background accent */
+
 .cinematic-section::before {
   content: '';
   position: absolute;
@@ -1020,9 +1020,7 @@
   }
 }
 
-/* ============================================
-   CINEMATIC SECTION STYLES
-   ============================================ */
+
 
 .cinematic-section {
   display: grid;
@@ -1082,9 +1080,7 @@
 }
 
 
-/* ========================================
-   PREMIUM CHART WRAPPER STYLES
-   ======================================== */
+
 
 .premium-chart-wrapper {
   padding: 0 !important;
@@ -1112,7 +1108,7 @@
   display: block;
 }
 
-/* Premium Chart Responsive */
+
 @media (max-width: 1024px) {
   .premium-chart-container {
     padding: 1.5rem 1rem;
@@ -1131,7 +1127,7 @@
   }
 }
 
-/* Premium Chart Focus State */
+
 .premium-chart-container:focus-within {
   outline: none;
 }
@@ -1142,9 +1138,7 @@
   border-radius: 1rem;
 }
 
-/* ========================================
-   PREMIUM SECTION INTERACTIVE EFFECTS
-   ======================================== */
+
 
 .charts-grid.premium-section:hover {
   box-shadow:
@@ -1158,7 +1152,7 @@
 
 
 
-/* Premium Section Dark Mode */
+
 .dark .charts-grid.premium-section {
   background:
     linear-gradient(135deg,
@@ -1175,7 +1169,7 @@
   background: transparent !important;
 }
 
-/* Premium Chart Loading State */
+
 .premium-chart-container.loading {
   opacity: 0.7;
   pointer-events: none;
@@ -1196,7 +1190,7 @@
   50% { opacity: 0.8; }
 }
 
-/* Premium Chart Accessibility */
+
 @media (prefers-reduced-motion: reduce) {
   .charts-grid.premium-section,
   .charts-grid.premium-section::before,
@@ -1212,7 +1206,7 @@
   }
 }
 
-/* Cinematic Section Enhancements */
+
 .cinematic-section {
   grid-column: 1 / -1;
   margin: 1rem 0 2rem;
@@ -1244,7 +1238,7 @@
     0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-/* Detail Grid Layout */
+
 .detail-grid {
   grid-template-columns: 1fr;
   gap: 2rem;
@@ -1254,7 +1248,7 @@
   transition: transform 0.3s ease;
 }
 
-/* Empty State Styling */
+
 .empty-state {
   padding: 3rem 1rem;
   text-align: center;
@@ -1273,7 +1267,7 @@
   opacity: 0.5;
 }
 
-/* Recent Item Animations */
+
 .recent-item {
   animation: slideIn 0.4s ease-out forwards;
   transition: all 0.3s ease;

@@ -84,8 +84,8 @@ export class ErrorHandlerService {
 
     console.error('[Error Log]', errorInfo);
 
-    // En production, vous pourriez envoyer cela à un service de monitoring
-    // this.sendToMonitoringService(errorInfo);
+
+
   }
 }
 

@@ -2,7 +2,7 @@
   display: block;
 }
 
-/* ── Page ──────────────────────────────────────────────── */
+
 .login-page {
   position: relative;
   min-height: 100vh;
@@ -10,7 +10,7 @@
   display: grid;
   place-items: center;
   padding: 2rem 1rem;
-  /* Exact same background as /home */
+  
   background:
     radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 28%),
     radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 24%),
@@ -19,12 +19,12 @@
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
 }
 
-/* Hidden: no dark orbs needed, we use the subtle home radials */
+
 .login-page__orb { display: none; }
 .login-page__orb--left { display: none; }
 .login-page__orb--right { display: none; }
 
-/* ── Card ──────────────────────────────────────────────── */
+
 .login-card {
   position: relative;
   z-index: 1;
@@ -37,7 +37,7 @@
   backdrop-filter: blur(16px);
 }
 
-/* ── Badge / Logo ──────────────────────────────────────── */
+
 .login-card__badge {
   width: 4.5rem;
   height: 4.5rem;
@@ -56,7 +56,7 @@
   object-fit: contain;
 }
 
-/* ── Heading ───────────────────────────────────────────── */
+
 .login-card__heading {
   text-align: center;
   margin-bottom: 1.25rem;
@@ -78,7 +78,7 @@
   color: #64748b;
 }
 
-/* ── Brand Row ─────────────────────────────────────────── */
+
 .login-card__brand-row {
   display: flex;
   align-items: center;
@@ -101,7 +101,7 @@
   flex: 0 0 auto;
 }
 
-/* ── Alert ─────────────────────────────────────────────── */
+
 .login-card__alert {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
@@ -113,7 +113,7 @@
   font-size: 0.92rem;
 }
 
-/* ── Form ──────────────────────────────────────────────── */
+
 .login-form {
   margin-top: 0.25rem;
 }
@@ -131,7 +131,7 @@
   color: #0f172a;
 }
 
-/* ── Input Control ─────────────────────────────────────── */
+
 .login-field__control {
   display: flex;
   align-items: center;
@@ -178,7 +178,7 @@
   color: #94a3b8;
 }
 
-/* ── Toggle (show/hide password) ───────────────────────── */
+
 .login-field__toggle {
   display: grid;
   place-items: center;
@@ -203,7 +203,7 @@
   height: 1.1rem;
 }
 
-/* ── Validation Error ──────────────────────────────────── */
+
 .login-field__error {
   display: block;
   margin-top: 0.35rem;
@@ -211,7 +211,7 @@
   font-size: 0.82rem;
 }
 
-/* ── Meta Row (forgot password) ────────────────────────── */
+
 .login-form__meta {
   display: flex;
   justify-content: flex-end;
@@ -231,7 +231,7 @@
   text-decoration: underline;
 }
 
-/* ── Submit Button — matches home-button--solid ─────────── */
+
 .login-form__submit {
   width: 100%;
   margin-top: 1.35rem;
@@ -260,14 +260,14 @@
   box-shadow: none;
 }
 
-/* ── Divider ───────────────────────────────────────────── */
+
 .login-card__divider {
   height: 1px;
   margin: 1.75rem 0 1.25rem;
   background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
 }
 
-/* ── Footer ────────────────────────────────────────────── */
+
 .login-card__footer {
   margin: 0;
   text-align: center;
@@ -293,7 +293,7 @@
   text-decoration: underline;
 }
 
-/* ── Responsive ────────────────────────────────────────── */
+
 @media (max-width: 640px) {
   .login-page {
     padding: 1rem;

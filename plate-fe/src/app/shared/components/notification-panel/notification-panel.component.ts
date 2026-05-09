@@ -52,7 +52,7 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
         this.notifications.unshift(newNotif);
         this.unreadCount++;
         
-        // Trigger Toast globally on arrival
+
         this.toast.showWarning(newNotif.message, newNotif.title);
       }
     });

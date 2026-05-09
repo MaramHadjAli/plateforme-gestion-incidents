@@ -41,7 +41,7 @@ public class JwtUtil {
 
     public String generateTokenFromEmail(String email) {
         return Jwts.builder()
-                .setSubject(email)  // CRITICAL: Add this!
+                .setSubject(email)
                 .claim("email", email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
@@ -57,10 +57,10 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
 
-            // Try to get from subject first (SPRING SECURITY EXPECTS THIS)
+
             String email = claims.getSubject();
             if (email == null || email.isEmpty()) {
-                // Fallback to email claim
+
                 email = claims.get("email", String.class);
             }
             return email;

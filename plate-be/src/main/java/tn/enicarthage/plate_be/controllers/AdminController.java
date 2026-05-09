@@ -32,14 +32,14 @@ public class AdminController {
     public ResponseEntity<?> getAllLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<TraceLogin> logsPage = loggingService.getAllLogs(pageable);
-        
+
         List<TraceLoginDTO> logsDTOs = logsPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        
+
         LogsPageResponse response = new LogsPageResponse(
                 logsDTOs,
                 logsPage.getNumber(),
@@ -48,7 +48,7 @@ public class AdminController {
                 logsPage.hasNext(),
                 logsPage.hasPrevious()
         );
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -58,14 +58,14 @@ public class AdminController {
             @PathVariable String email,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<TraceLogin> logsPage = loggingService.getUserLogs(email, pageable);
-        
+
         List<TraceLoginDTO> logsDTOs = logsPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        
+
         LogsPageResponse response = new LogsPageResponse(
                 logsDTOs,
                 logsPage.getNumber(),
@@ -74,7 +74,7 @@ public class AdminController {
                 logsPage.hasNext(),
                 logsPage.hasPrevious()
         );
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -83,14 +83,14 @@ public class AdminController {
     public ResponseEntity<?> getFailedAttempts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<TraceLogin> logsPage = loggingService.getFailedAttempts(pageable);
-        
+
         List<TraceLoginDTO> logsDTOs = logsPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        
+
         LogsPageResponse response = new LogsPageResponse(
                 logsDTOs,
                 logsPage.getNumber(),
@@ -99,7 +99,7 @@ public class AdminController {
                 logsPage.hasNext(),
                 logsPage.hasPrevious()
         );
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -107,11 +107,11 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getLogsByAction(@PathVariable String action) {
         List<TraceLogin> logs = loggingService.getLogsByAction(action);
-        
+
         List<TraceLoginDTO> logsDTOs = logs.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(logsDTOs);
     }
 
@@ -122,17 +122,17 @@ public class AdminController {
             @RequestParam String endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         LocalDateTime start = LocalDateTime.parse(startDate + "T00:00:00");
         LocalDateTime end = LocalDateTime.parse(endDate + "T23:59:59");
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<TraceLogin> logsPage = loggingService.getLogsByDateRange(start, end, pageable);
-        
+
         List<TraceLoginDTO> logsDTOs = logsPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        
+
         LogsPageResponse response = new LogsPageResponse(
                 logsDTOs,
                 logsPage.getNumber(),
@@ -141,7 +141,7 @@ public class AdminController {
                 logsPage.hasNext(),
                 logsPage.hasPrevious()
         );
-        
+
         return ResponseEntity.ok(response);
     }
 
@@ -150,9 +150,9 @@ public class AdminController {
     public ResponseEntity<?> getRecentFailedAttempts(
             @PathVariable String email,
             @RequestParam(defaultValue = "15") int minutes) {
-        
+
         int failedAttempts = loggingService.getRecentFailedAttempts(email, minutes);
-        
+
         return ResponseEntity.ok(Map.of(
             "userEmail", email,
             "failedAttemptsLastMinutes", failedAttempts,

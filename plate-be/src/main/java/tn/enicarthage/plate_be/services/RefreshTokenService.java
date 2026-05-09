@@ -64,12 +64,12 @@ public class RefreshTokenService {
         RefreshToken token;
 
         if (existingToken.isPresent()) {
-            // UPDATE existing token
+
             token = existingToken.get();
             token.setToken(newToken);
             token.setExpiryDate(expiryDate);
         } else {
-            // CREATE new token
+
             token = new RefreshToken();
             token.setUser(user);
             token.setToken(newToken);

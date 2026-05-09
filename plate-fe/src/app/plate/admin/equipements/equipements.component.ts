@@ -22,8 +22,8 @@ export class EquipementsComponent implements OnInit {
 
   showModal = false;
   editingEquipement: Equipement | null = null;
-  equipementForm: Partial<Equipement> = { 
-    idEquipement: '', nomEquipement: '', type: '', modele: '', numSerie: '', etat: 'FONCTIONNELLE', idSalle: '' 
+  equipementForm: Partial<Equipement> = {
+    idEquipement: '', nomEquipement: '', type: '', modele: '', numSerie: '', etat: 'FONCTIONNELLE', idSalle: ''
   };
 
   readonly sidebarItems = [
@@ -69,8 +69,8 @@ export class EquipementsComponent implements OnInit {
       this.equipementForm = { ...equipement };
     } else {
       this.editingEquipement = null;
-      this.equipementForm = { 
-        idEquipement: '', nomEquipement: '', type: '', modele: '', numSerie: '', etat: 'FONCTIONNELLE', idSalle: '' 
+      this.equipementForm = {
+        idEquipement: '', nomEquipement: '', type: '', modele: '', numSerie: '', etat: 'FONCTIONNELLE', idSalle: ''
       };
     }
     this.showModal = true;

@@ -20,9 +20,9 @@ import { Subscription, Observable } from 'rxjs';
       </div>
 
       <nav class="admin-nav">
-        <a *ngFor="let item of sidebarItems" 
-           [routerLink]="item.route" 
-           routerLinkActive="is-active" 
+        <a *ngFor="let item of sidebarItems"
+           [routerLink]="item.route"
+           routerLinkActive="is-active"
            class="admin-nav__item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path [attr.d]="item.icon"></path>
@@ -40,7 +40,7 @@ import { Subscription, Observable } from 'rxjs';
             </svg>
             <span *ngIf="((unreadCount$ | async) || 0) > 0" class="notif-badge">{{ unreadCount$ | async }}</span>
           </button>
-          
+
           <div *ngIf="notifOpen" class="notif-popover">
             <div class="notif-header">
               <span>Notifications</span>
@@ -370,11 +370,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   userName = 'Utilisateur';
   userInitials = 'UT';
   userRole = 'Administrateur';
-  
+
   notifOpen = false;
   notifications: AppNotification[] = [];
   unreadCount$: Observable<number>;
-  
+
   readonly sidebarItems = [
     { label: 'Dashboard', route: '/admin/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
     { label: 'Gestion Incidents', route: '/ticket-list', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
@@ -386,7 +386,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
     private appNotifService: AppNotificationService
   ) {
@@ -400,11 +400,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.userName = user.name || (user.nom ? `${user.prenom || ''} ${user.nom}`.trim() : fallbackName);
       this.userInitials = this.getInitials(this.userName);
       this.userRole = this.mapRole(user.role);
-      
+
       this.appNotifService.refreshUnreadCount();
       this.appNotifService.startPolling();
-      
-      // Close popover on outside click
+
+
       document.addEventListener('click', () => {
         this.notifOpen = false;
       });

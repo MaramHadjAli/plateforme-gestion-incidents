@@ -158,7 +158,7 @@ public class AuthenticationService {
 
         user.setEnabled(true);
         user.setActive(true);
-        user.setConfirmationToken(null); // Clean up the token
+        user.setConfirmationToken(null);
         userRepository.save(user);
         
         logAction(user.getEmail(), "ACCOUNT_CONFIRMED", "SUCCESS", "Compte activé via email");

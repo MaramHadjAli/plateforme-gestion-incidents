@@ -102,7 +102,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const passwordData = this.passwordForm.value;
 
-    // Appel API pour changer le mot de passe
+
     this.authService.changePassword(passwordData.oldPassword, passwordData.newPassword)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

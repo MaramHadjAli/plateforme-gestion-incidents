@@ -23,10 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 
-/**
- * Service pour interagir avec l'API Gemini de Google.
- * Gère les tentatives de reconnexion et le passage automatique à un modèle de secours.
- */
+
 @Service
 @RequiredArgsConstructor
 public class GeminiService {
@@ -39,34 +36,25 @@ public class GeminiService {
     @Value("${gemini.api.url}")
     private String apiUrl;
 
-    /**
-     * Nom du modèle principal à utiliser (ex: models/gemini-2.5-flash).
-     */
+
     @Value("${gemini.model:models/gemini-2.5-flash}")
     private String modelName;
 
-    /**
-     * Modèle de secours si le modèle principal n'existe pas (404) ou n'est pas supporté.
-     */
+
     @Value("${gemini.model.fallback:models/gemini-2.5-pro}")
     private String fallbackModelName;
 
     private final RestTemplate restTemplate;
 
-    /**
-     * Génère du contenu à partir d'un prompt en utilisant l'API Gemini.
-     * 
-     * @param prompt Le texte à envoyer à l'IA.
-     * @return La réponse générée par l'IA.
-     */
+
     @Retryable(
-        retryFor = { HttpStatusCodeException.class }, 
-        maxAttempts = 5, 
+        retryFor = { HttpStatusCodeException.class },
+        maxAttempts = 5,
         backoff = @Backoff(delay = 5000, multiplier = 2.0, maxDelay = 60000)
     )
     public String generateContent(String prompt) {
         try {
-            // Construction de l'URL dynamiquement
+
             String url = buildGenerateContentUrl(modelName);
 
             HttpHeaders headers = new HttpHeaders();
@@ -88,13 +76,13 @@ public class GeminiService {
             return extractTextFromResponse(response.getBody());
 
         } catch (HttpStatusCodeException e) {
-            // Gestion du fallback si le modèle principal est introuvable (404)
+
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 logger.warn("Modèle principal introuvable (404). Tentative avec le modèle de secours: {}", fallbackModelName);
                 return generateContentWithExplicitUrl(buildGenerateContentUrl(fallbackModelName), prompt);
             }
 
-            // Relancer pour déclencher le @Retryable pour les erreurs temporaires
+
             if (e.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE || e.getStatusCode().value() == 429) {
                 logger.warn("Service indisponible ou quota dépassé ({}). Tentative de réessai...", e.getStatusCode());
                 throw e;
@@ -145,7 +133,7 @@ public class GeminiService {
 
     private String buildGenerateContentUrl(String model) {
         if (model != null && !model.isBlank()) {
-            // Utilisation de v1 pour les modèles stables de 2026
+
             return "https://generativelanguage.googleapis.com/v1/" + model + ":generateContent?key=" + apiKey;
         }
         return apiUrl + (apiUrl.contains("?") ? "&" : "?") + "key=" + apiKey;
@@ -174,9 +162,7 @@ public class GeminiService {
         }
     }
 
-    /**
-     * Méthode de secours appelée après épuisement des tentatives de @Retryable.
-     */
+
     @Recover
     public String recover(HttpStatusCodeException e, String prompt) {
         logger.error("Épuisement des tentatives Gemini pour le prompt: {}. Erreur: {}", prompt, e.getMessage());

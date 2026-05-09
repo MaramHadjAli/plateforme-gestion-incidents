@@ -1,7 +1,7 @@
-/* Dark Mode Theme - Standardized to .dark */
+
 
 :root {
-  /* Light Mode (default) */
+  
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
   --text-primary: #1a1a1a;
@@ -14,7 +14,7 @@
 }
 
 html.dark {
-  /* Dark Mode - Premium Slate Theme */
+  
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --text-primary: #f8fafc;
@@ -28,7 +28,7 @@ html.dark {
   color-scheme: dark;
 }
 
-/* Force variable overrides on all elements in dark mode to penetrate component scopes */
+
 html.dark, html.dark * {
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
@@ -38,7 +38,7 @@ html.dark, html.dark * {
   --input-bg: #1e293b;
   --input-border: #334155;
   
-  /* Component-specific variable overrides */
+  
   --c-bg: #0f172a;
   --c-surface: #1e293b;
   --c-border: #334155;
@@ -50,7 +50,7 @@ html.dark, html.dark * {
   --c-green-soft: rgba(5, 150, 105, 0.1);
 }
 
-/* Apply dark mode styles to base elements */
+
 html.dark body {
   background: var(--bg-primary) !important;
   color: var(--text-primary) !important;
@@ -67,7 +67,7 @@ html.dark main {
   color: var(--text-primary) !important;
 }
 
-/* Target cards and white panels - Using background shorthand for higher override power */
+
 html.dark .glass-card,
 html.dark .card-panel,
 html.dark .table-card,
@@ -84,7 +84,7 @@ html.dark .premium-chart-wrapper {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Form elements */
+
 html.dark input,
 html.dark select,
 html.dark textarea {
@@ -97,7 +97,7 @@ html.dark input::placeholder {
   color: #64748b !important;
 }
 
-/* Text visibility adjustments - Very aggressive to ensure visibility */
+
 html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h1 *, html.dark h2 *, html.dark h3 *, html.dark h4 * {
   color: var(--text-primary) !important;
 }
@@ -110,7 +110,7 @@ html.dark p, html.dark label, html.dark small, html.dark .page-subtitle {
   color: var(--text-secondary) !important;
 }
 
-/* Specific component fixes */
+
 html.dark .admin-topbar, html.dark .admin-sidebar, html.dark .admin-nav__item {
   background: transparent !important;
   color: #cbd5e1 !important;
@@ -139,7 +139,7 @@ html.dark .ticket-row:hover {
   background: rgba(255, 255, 255, 0.03) !important;
 }
 
-/* Dropdowns and menus */
+
 html.dark .app-dropdown,
 html.dark .app-search__suggestions {
   background: var(--bg-secondary) !important;
@@ -150,7 +150,7 @@ html.dark .app-dropdown__item:hover {
   background: var(--button-hover) !important;
 }
 
-/* Home Page Dark Mode */
+
 html.dark .home-page {
   background: 
     radial-gradient(circle at top left, rgba(30, 64, 175, 0.15), transparent 30%),
@@ -194,7 +194,7 @@ html.dark .home-panel__list div * {
   color: #cbd5e1 !important;
 }
 
-/* App Dropdown Dark Mode - Global Override */
+
 html.dark .app-dropdown {
   background: #1e293b !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
@@ -223,7 +223,7 @@ html.dark .app-dropdown__divider {
   background: rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Smooth transition for theme change */
+
 * {
   transition: background 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }

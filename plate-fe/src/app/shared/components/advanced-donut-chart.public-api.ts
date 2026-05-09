@@ -1,13 +1,10 @@
-/**
- * Advanced Donut Chart Module - Public API
- * Export principal pour utiliser les composants et utilitaires
- */
+
 
 export * from './advanced-donut-chart.component';
 export * from './advanced-donut-chart.theme';
 export * from './donut-showcase.component';
 
-// Types
+
 export interface DonutSegment {
   label: string;
   value: number;
@@ -33,12 +30,12 @@ export interface DonutChartTheme {
   }[];
 }
 
-// Constants
+
 export const CHART_ANIMATIONS = {
-  ROTATE_DURATION: 8000,      // ms
-  PULSE_DURATION: 4000,       // ms
-  COUNTER_DURATION: 500,      // ms
-  REFLECTION_DURATION: 6000   // ms
+  ROTATE_DURATION: 8000,
+  PULSE_DURATION: 4000,
+  COUNTER_DURATION: 500,
+  REFLECTION_DURATION: 6000
 };
 
 export const CHART_DEFAULTS = {

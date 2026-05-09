@@ -29,25 +29,25 @@ public class TechnicienDashboardServiceImpl implements TechnicienDashboardServic
         List<Ticket> allMyTickets = ticketRepository.findByAssignedTo_Id(tech.getId());
 
         TechnicienDashboardDTO dto = new TechnicienDashboardDTO();
-        
-        // Stats Performance
+
+
         dto.setTotalPoints((long) tech.getTotalPoints());
         dto.setNoteMoyenne(tech.getNoteMoyenne());
         dto.setTicketsResolus((long) tech.getTicketsResolus());
         dto.setTotalTicketsAssignes((long) allMyTickets.size());
-        
-        // Tickets par status
+
+
         dto.setTicketsEnCours(allMyTickets.stream()
                 .filter(t -> t.getStatus() == STATUS_TICKET.ASSIGNE || t.getStatus() == STATUS_TICKET.EN_COURS)
                 .count());
 
-        // Simulation de tickets en retard (pour la démo)
+
         dto.setTicketsEnRetard(allMyTickets.stream()
                 .filter(t -> t.getStatus() != STATUS_TICKET.RESOLU && t.getStatus() != STATUS_TICKET.FERME)
                 .filter(t -> t.getDateLimiteReparation() != null && t.getDateLimiteReparation().before(new java.util.Date()))
                 .count());
 
-        // Tickets Récents
+
         dto.setTicketsRecents(allMyTickets.stream()
                 .sorted((a, b) -> {
                     if (a.getDateCreation() == null || b.getDateCreation() == null) return 0;
@@ -64,7 +64,7 @@ public class TechnicienDashboardServiceImpl implements TechnicienDashboardServic
                 ))
                 .collect(Collectors.toList()));
 
-        // Maintenances Proches (On utilise les tickets assignés qui ne sont pas encore résolus)
+
         dto.setMaintenancesProches(allMyTickets.stream()
                 .filter(t -> t.getStatus() != STATUS_TICKET.RESOLU && t.getStatus() != STATUS_TICKET.FERME)
                 .limit(3)

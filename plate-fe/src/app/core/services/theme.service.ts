@@ -17,7 +17,7 @@ export class ThemeService {
     if (stored !== null) {
       return stored === 'true';
     }
-    // Vérifier la préférence système
+
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 

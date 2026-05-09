@@ -11,16 +11,16 @@ export class WebSocketService {
   private client!: Client;
   private backendUrl = 'http://localhost:8080/ws-notifications';
   
-  // Expose notification stream to components
+
   public notifications$ = new BehaviorSubject<any>(null);
 
   constructor(private authService: AuthService) {}
 
   public connect() {
     this.client = new Client({
-      // We use SockJS since direct WS might fail over proxies
+
       webSocketFactory: () => {
-        // Fallback for different import styles
+
         const SockJsConstructor = (SockJS as any).default || SockJS;
         if (typeof SockJsConstructor !== 'function') {
           console.error('SockJS is not a constructor. Falling back to native WebSocket.');
@@ -39,14 +39,14 @@ export class WebSocketService {
     this.client.onConnect = (frame) => {
       console.log('Connected to WS Broker: ' + frame);
 
-      // Subscribe to global alerts (e.g. for Admins)
+
       if (this.authService.isAdmin()) {
         this.client.subscribe('/topic/admin/notifications', (msg: Message) => {
           this.notifications$.next(JSON.parse(msg.body));
         });
       }
 
-      // Subscribe to targeted user alerts
+
       const user = this.authService.getCurrentUser();
       if (user && user.id) {
          this.client.subscribe(`/user/${user.id}/queue/notifications`, (msg: Message) => {

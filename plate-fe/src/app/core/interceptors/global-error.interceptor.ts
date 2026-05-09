@@ -16,11 +16,11 @@ export class GlobalErrorInterceptor implements HttpInterceptor {
         let errorMsg = '';
         
         if (error.error instanceof ErrorEvent) {
-           // Client side error
+
            errorMsg = `Error: ${error.error.message}`;
            this.toastService.showError(errorMsg, 'Client Error');
         } else {
-           // Server side error
+
            switch (error.status) {
              case 401:
                errorMsg = 'Session expired or unauthorized. Please login again.';

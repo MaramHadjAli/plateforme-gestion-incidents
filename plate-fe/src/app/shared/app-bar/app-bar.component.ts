@@ -75,7 +75,7 @@ export class AppBarComponent implements OnInit, OnDestroy {
     private appNotifService: AppNotificationService,
     private themeService: ThemeService
   ) {
-    // getCurrentUser() returns UserInfo | null, wrap in Observable
+
     this.user$ = of(this.authService.getCurrentUser());
     this.unreadCount$ = this.appNotifService.unreadCount$;
   }

@@ -25,8 +25,8 @@ public class ClassementServiceImpl implements ClassementService {
     @Override
     public List<TechnicienRankingDTO> getGlobalRanking() {
         List<Technicien> techniciens = technicienRepository.findAll();
-        
-        // Trier par points décroissants
+
+
         techniciens.sort(Comparator.comparingInt(Technicien::getTotalPoints).reversed());
 
         List<TechnicienRankingDTO> ranking = new ArrayList<>();
@@ -49,14 +49,14 @@ public class ClassementServiceImpl implements ClassementService {
     @Override
     public TechnicianScoreDTO getTechnicianScoreDetails(String email) {
         List<TechnicienRankingDTO> globalRanking = getGlobalRanking();
-        
+
         TechnicienRankingDTO myRank = globalRanking.stream()
                 .filter(r -> r.getEmail().equals(email))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Technicien non trouvé"));
 
         Technicien tech = technicienRepository.findByEmail(email).get();
-        
+
         List<PointTransactionDTO> transactions = pointTransactionRepository.findByTechnicienOrderByDateAttributionDesc(tech)
                 .stream()
                 .map(tr -> PointTransactionDTO.builder()

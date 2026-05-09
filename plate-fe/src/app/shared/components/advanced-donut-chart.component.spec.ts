@@ -86,7 +86,7 @@ describe('AdvancedDonutChartComponent', () => {
     it('should animate percentage counter on init', (done) => {
       expect(component.displayedPercentage).toBe(0);
 
-      // Wait for animation to complete
+
       setTimeout(() => {
         expect(component.displayedPercentage).toBeGreaterThan(0);
         done();
@@ -288,7 +288,7 @@ describe('AdvancedDonutChartComponent', () => {
       component.calculateSegments();
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(10); // Should calculate in less than 10ms
+      expect(end - start).toBeLessThan(10);
     });
   });
 

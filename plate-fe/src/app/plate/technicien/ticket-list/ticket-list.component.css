@@ -884,7 +884,7 @@
   .modal-field-full { grid-column: 1; }
   .search-input { width: 180px; }
 }
-/* AI Advice UI */
+
 .btn-ai-advice {
   display: flex;
   align-items: center;
@@ -963,13 +963,13 @@
     justify-content: center;
     margin-bottom: 10px;
   }
-  
+
   .modal-footer {
     flex-direction: column;
   }
 }
 
-/* AI Advice UI */
+
 .btn-ai-advice {
   display: flex;
   align-items: center;

@@ -29,7 +29,7 @@ export class ToastService {
       progressBar: true,
       timeOut: 4000,
       positionClass: 'toast-bottom-right',
-      toastClass: 'ngx-toastr bg-blue-600 text-white' // Custom tailwind classes
+      toastClass: 'ngx-toastr bg-blue-600 text-white'
     });
   }
 

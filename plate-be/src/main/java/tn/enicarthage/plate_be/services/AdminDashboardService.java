@@ -44,7 +44,7 @@ public class AdminDashboardService {
                 .filter(u -> u.getRole() == ROLE.TECHNICIEN && u.isActive())
                 .count();
 
-        // Calcul du MTTR (Mean Time To Resolve)
+
         List<Ticket> resolvedList = ticketRepository.findAll().stream()
                 .filter(t -> t.getStatus() == STATUS_TICKET.RESOLU && t.getDateCreation() != null && t.getDateCloture() != null)
                 .collect(Collectors.toList());

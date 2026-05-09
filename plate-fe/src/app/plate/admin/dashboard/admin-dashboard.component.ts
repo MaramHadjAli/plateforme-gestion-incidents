@@ -250,7 +250,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   onCinematicSegmentHovered(segment: any): void {
-    // Optionnel: Logique au survol
+
   }
 
   private updateCinematicChartData(): void {

@@ -39,7 +39,7 @@ export class TicketCreationComponent implements OnInit {
     });
   }
 
-  // Drag and Drop listeners
+
   @HostListener('dragover', ['$event']) onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -73,7 +73,7 @@ export class TicketCreationComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Call Backend Upload API
+
     this.http.post<any>('http://localhost:8080/api/upload', formData).subscribe({
       next: (res) => {
         this.uploadedImageUrl = res.url;
@@ -81,7 +81,7 @@ export class TicketCreationComponent implements OnInit {
       },
       error: (err) => {
         console.error('File upload failed', err);
-        // Fallback for demo if backend is offline
+
         this.uploadedImageUrl = URL.createObjectURL(file); 
       }
     });
@@ -91,7 +91,7 @@ export class TicketCreationComponent implements OnInit {
     if (this.ticketForm.invalid) return;
     this.isSubmitting = true;
     
-    // Simulate final ticket submission API call
+
     setTimeout(() => {
       this.isSubmitting = false;
       this.successMode = true;

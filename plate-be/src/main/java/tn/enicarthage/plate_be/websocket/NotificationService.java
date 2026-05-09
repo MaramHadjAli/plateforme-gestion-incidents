@@ -34,7 +34,7 @@ public class NotificationService {
     @Autowired
     private SMSService smsService;
 
-    // ==================== WEBSOCKET NOTIFICATIONS ====================
+
 
     public void notifyAdmin(NotificationMessage notification) {
         messagingTemplate.convertAndSend("/topic/admin", notification);
@@ -52,23 +52,23 @@ public class NotificationService {
         messagingTemplate.convertAndSend("/topic/notifications", notification);
     }
 
-    // ==================== NOTIFICATION CREATION ====================
 
-    public Notification createAndSendNotification(Utilisateur utilisateur, String type, String title, 
+
+    public Notification createAndSendNotification(Utilisateur utilisateur, String type, String title,
                                                    String message, String severity, String ticketId) {
         if (utilisateur == null) {
             log.warn("Cannot create notification: Utilisateur is null");
             return null;
         }
 
-        // Check user preferences
+
         NotificationPreference preference = preferenceRepository.findByUtilisateur(utilisateur).orElse(null);
         if (preference != null && !shouldNotify(preference, type)) {
             log.debug("Notification skipped due to user preferences: {}", type);
             return null;
         }
 
-        // Create notification entity
+
         Notification notification = Notification.builder()
                 .type(type)
                 .title(title)
@@ -84,14 +84,14 @@ public class NotificationService {
 
         notification = notificationRepository.save(notification);
 
-        // Send WebSocket notification
+
         NotificationMessage wsMessage = new NotificationMessage(type, title, message, ticketId, "SYSTEM", severity);
         notifyUser(utilisateur.getId().toString(), wsMessage);
 
-        // Send based on preferences
+
         if (preference != null) {
             if (preference.isPushNotificationEnabled()) {
-                // WebSocket already sent above
+
                 log.info("Push notification sent for user {}", utilisateur.getId());
             }
             if (preference.isEmailEnabled()) {
@@ -101,7 +101,7 @@ public class NotificationService {
                 smsService.sendCriticalNotificationSMS(notification);
             }
         } else {
-            // Default: send email for all, SMS only for critical
+
             emailService.sendNotificationEmail(notification);
             if ("CRITICAL".equals(severity)) {
                 smsService.sendCriticalNotificationSMS(notification);
@@ -112,48 +112,48 @@ public class NotificationService {
         return notification;
     }
 
-    // ==================== TICKET NOTIFICATIONS ====================
+
 
     public void notifyTicketAssigned(Utilisateur assignee, String ticketId, String ticketTitle) {
         String message = String.format("Vous avez été assigné au ticket: %s", ticketTitle);
-        createAndSendNotification(assignee, "TICKET_ASSIGNED", "Nouveau Ticket Assigné", 
+        createAndSendNotification(assignee, "TICKET_ASSIGNED", "Nouveau Ticket Assigné",
                                  message, "INFO", ticketId);
     }
 
     public void notifyStatusChanged(Utilisateur user, String ticketId, String newStatus) {
         String message = String.format("Le statut du ticket %s a changé à: %s", ticketId, newStatus);
-        createAndSendNotification(user, "STATUS_CHANGED", "Changement de Statut", 
+        createAndSendNotification(user, "STATUS_CHANGED", "Changement de Statut",
                                  message, "WARNING", ticketId);
     }
 
     public void notifyMaintenanceReminder(Utilisateur user, String equipmentName, Date maintenanceDate) {
-        String message = String.format("Rappel: Maintenance préventive prévue pour %s le %s", 
+        String message = String.format("Rappel: Maintenance préventive prévue pour %s le %s",
                                        equipmentName, maintenanceDate);
-        createAndSendNotification(user, "MAINTENANCE_REMINDER", "Rappel de Maintenance", 
+        createAndSendNotification(user, "MAINTENANCE_REMINDER", "Rappel de Maintenance",
                                  message, "WARNING", null);
     }
 
     public void notifyBadgeAwarded(Utilisateur user, String badgeName, String badgeDescription) {
-        String message = String.format("Félicitations! Vous avez reçu le badge: %s - %s", 
+        String message = String.format("Félicitations! Vous avez reçu le badge: %s - %s",
                                        badgeName, badgeDescription);
-        createAndSendNotification(user, "BADGE_AWARDED", "🏆 Nouveau Badge", 
+        createAndSendNotification(user, "BADGE_AWARDED", "🏆 Nouveau Badge",
                                  message, "INFO", null);
     }
 
     public void notifySLAExceeded(Utilisateur user, String ticketId, String ticketTitle) {
-        String message = String.format("⚠️ Le SLA du ticket %s (%s) a été DÉPASSÉ! Action immédiate requise!", 
+        String message = String.format("⚠️ Le SLA du ticket %s (%s) a été DÉPASSÉ! Action immédiate requise!",
                                        ticketId, ticketTitle);
-        Notification notification = createAndSendNotification(user, "SLA_EXCEEDED", 
-                                                              "🚨 SLA DÉPASSÉ!", message, 
+        Notification notification = createAndSendNotification(user, "SLA_EXCEEDED",
+                                                              "🚨 SLA DÉPASSÉ!", message,
                                                               "CRITICAL", ticketId);
-        
-        // Send SMS alert for critical SLA breach
+
+
         if (notification != null && user.getTelephone() != null) {
             smsService.sendSLAExceededSMS(user.getTelephone(), ticketId);
         }
     }
 
-    // ==================== NOTIFICATION RETRIEVAL ====================
+
 
     public List<Notification> getUserNotifications(Utilisateur utilisateur, int limit) {
         return notificationRepository.findByUtilisateurOrderByDateEnvoiDesc(utilisateur)
@@ -178,7 +178,7 @@ public class NotificationService {
         return notificationRepository.findByTicketId(ticketId);
     }
 
-    // ==================== NOTIFICATION MANAGEMENT ====================
+
 
     public void markAsRead(Long notificationId) {
         notificationRepository.findById(notificationId).ifPresent(notification -> {
@@ -206,7 +206,7 @@ public class NotificationService {
         log.info("Old notifications deleted (older than {} days)", daysOld);
     }
 
-    // ==================== DAILY DIGEST ====================
+
 
     public void sendDailyDigest(Utilisateur utilisateur) {
         List<Notification> todayNotifications = notificationRepository
@@ -227,7 +227,7 @@ public class NotificationService {
                     .append("</div>");
         }
 
-        emailService.sendDailyDigest(utilisateur.getEmail(), digestContent.toString(), 
+        emailService.sendDailyDigest(utilisateur.getEmail(), digestContent.toString(),
                                     todayNotifications.size());
         log.info("Daily digest sent to user: {}", utilisateur.getId());
     }
@@ -240,7 +240,7 @@ public class NotificationService {
         return cal.getTime();
     }
 
-    // ==================== PREFERENCES ====================
+
 
     public NotificationPreference getOrCreatePreference(Utilisateur utilisateur) {
         return preferenceRepository.findByUtilisateur(utilisateur)
@@ -264,7 +264,7 @@ public class NotificationService {
 
     public NotificationPreference updatePreference(Utilisateur utilisateur, NotificationPreference updatedPrefs) {
         NotificationPreference pref = getOrCreatePreference(utilisateur);
-        // Update fields
+
         pref.setTicketAssignedEnabled(updatedPrefs.isTicketAssignedEnabled());
         pref.setStatusChangedEnabled(updatedPrefs.isStatusChangedEnabled());
         pref.setMaintenanceReminderEnabled(updatedPrefs.isMaintenanceReminderEnabled());

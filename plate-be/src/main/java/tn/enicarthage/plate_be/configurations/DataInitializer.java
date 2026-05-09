@@ -50,19 +50,19 @@ public class DataInitializer {
         return args -> {
             System.out.println("[DataInitializer] Nettoyage des anciennes données terminé");
 
-            // historiqueMaintenanceRepository.deleteAll();
-            // maintenancePreventiveRepository.deleteAll();
-            // notificationRepository.deleteAll();
-            // ticketRepository.deleteAll();
-            // equipementRepository.deleteAll();
-            // salleRepository.deleteAll();
+
+
+
+
+
+
 
             System.out.println("[DataInitializer] Nettoyage terminé");
 
             badgeService.initializeBadges();
             System.out.println("[DataInitializer] Badges initialisés");
 
-            // Auto-activer tous les utilisateurs existants pour éviter les blocages après ajout de la confirmation mail
+
             userRepository.findAll().forEach(u -> {
                 if (!u.isEnabled() || !u.isActive()) {
                     u.setEnabled(true);
@@ -103,7 +103,7 @@ public class DataInitializer {
                 createSalle(salleRepository, "S" + i, "Salle S" + i, "Annexe", "1");
             }
 
-            // LOCAUX : PRINCIPALE
+
             createSalle(salleRepository, "ADMIN", "Administration", "Principale", "0");
             createSalle(salleRepository, "DEPT", "Départements", "Principale", "1");
             createSalle(salleRepository, "SCOL", "Scolarité", "Principale", "0");
@@ -112,45 +112,45 @@ public class DataInitializer {
             createSalle(salleRepository, "STAGE", "Service de stage", "Principale", "0");
             createSalle(salleRepository, "INFO", "Service informatique", "Principale", "1");
 
-            // Salles Spécifiques Principale
+
             String[] specific = {"SI", "S2", "S3", "LI", "L2", "L3"};
             for (String s : specific) {
                 createSalle(salleRepository, s, "Salle " + s, "Principale", "0");
             }
 
-            // Blocs 100, 200, 300
+
             for (int i = 101; i <= 111; i++) createSalle(salleRepository, String.valueOf(i), "Salle " + i, "Principale", "1");
             for (int i = 201; i <= 211; i++) createSalle(salleRepository, String.valueOf(i), "Salle " + i, "Principale", "2");
             for (int i = 301; i <= 311; i++) createSalle(salleRepository, String.valueOf(i), "Salle " + i, "Principale", "3");
 
             System.out.println("[DataInitializer] Salles de l'université créées (Annexe & Principale)");
 
-            // --- EQUIPEMENTS ---
-            // Informatique de Base (Administration & Salles Info)
+
+
             addEquip(equipementRepository, salleRepository, "PC-ADM-01", "Ordinateur de bureau HP", "Ordinateur de bureau", "ADMIN");
             addEquip(equipementRepository, salleRepository, "PC-ADM-02", "Ordinateur Portable Dell (Admin)", "Ordinateur portable", "ADMIN");
             addEquip(equipementRepository, salleRepository, "PRT-ADM-01", "Imprimante Laser Multifonction", "Imprimante", "ADMIN");
             addEquip(equipementRepository, salleRepository, "PHO-ADM-01", "Photocopieur Ricoh", "Photocopieur", "ADMIN");
 
-            // Salle 101 (Pour vos tests rapides)
+
             addEquip(equipementRepository, salleRepository, "PC-101-01", "Unité centrale (Poste 01)", "Unité centrale", "101");
             addEquip(equipementRepository, salleRepository, "PC-101-02", "Unité centrale (Poste 02)", "Unité centrale", "101");
             addEquip(equipementRepository, salleRepository, "PROJ-101-01", "Vidéoprojecteur plafond", "Vidéoprojecteur", "101");
             addEquip(equipementRepository, salleRepository, "HP-101-01", "Haut-parleurs muraux", "Haut-parleurs", "101");
 
-            // Salle des conférences (Annexe)
+
             addEquip(equipementRepository, salleRepository, "PROJ-CONF-01", "Vidéoprojecteur Epson High-Res", "Vidéoprojecteur", "ANN-CONF");
             addEquip(equipementRepository, salleRepository, "MIC-CONF-01", "Microphone Shure", "Microphone", "ANN-CONF");
             addEquip(equipementRepository, salleRepository, "WEB-CONF-01", "Webcam Logitech 4K", "Webcam", "ANN-CONF");
 
-            // Robotique & Spécialisé
+
             addEquip(equipementRepository, salleRepository, "API-DEPT-01", "Automate Schneider Electric", "API", "DEPT");
             addEquip(equipementRepository, salleRepository, "ROB-DEPT-01", "Robot mobile TurtleBot", "Robotique", "DEPT");
             addEquip(equipementRepository, salleRepository, "BRS-DEPT-01", "Bras robotique UR5", "Robotique", "DEPT");
 
             System.out.println("[DataInitializer] Catalogue d'équipements enrichi déployé");
 
-            // --- TICKETS FICTIFS ---
+
             seedFictitiousTickets();
 
             System.out.println("[DataInitializer] Initialisation terminée");
@@ -159,7 +159,7 @@ public class DataInitializer {
 
     private void seedFictitiousTickets() {
 
-        // 1. S'assurer qu'un Demandeur existe avec le bon type
+
         Utilisateur existingUser = userRepository.findByEmail("user@enicarthage.tn").orElse(null);
         if (existingUser != null && !(existingUser instanceof Demandeur)) {
             userRepository.delete(existingUser);
@@ -189,7 +189,7 @@ public class DataInitializer {
             userRepository.save(demandeur);
         }
 
-        // 2. S'assurer qu'un Technicien existe avec le bon type
+
         Utilisateur existingTech = userRepository.findByEmail("tech@enicarthage.tn").orElse(null);
         if (existingTech != null && !(existingTech instanceof Technicien)) {
             userRepository.delete(existingTech);
@@ -221,7 +221,7 @@ public class DataInitializer {
             userRepository.save(technicien);
         }
 
-        // 3. Créer des tickets (6 au total avec les statuts demandés)
+
         createTicket("T-2026-001", "Panne Projecteur", "Le projecteur ne s'allume pas dans la salle ANN-CONF.", 
                      PRIORITE_TICKET.HAUTE, STATUS_TICKET.OUVERT, (Demandeur) demandeur, null, "ANN-CONF", "PROJ-CONF-01");
         
@@ -240,7 +240,7 @@ public class DataInitializer {
         createTicket("T-2026-006", "Souris Bloquée", "La souris ne répond plus sur le poste PC-101-02.", 
                      PRIORITE_TICKET.FAIBLE, STATUS_TICKET.OUVERT, (Demandeur) demandeur, null, "101", "PC-101-02");
 
-        // 4. Générer des notifications pour le technicien
+
         if (notificationRepository.count() == 0) {
             notificationService.notifyTicketAssigned(technicien, "T-2026-002", "Problème Réseau");
             notificationService.notifyTicketAssigned(technicien, "T-2026-003", "Clavier défectueux");

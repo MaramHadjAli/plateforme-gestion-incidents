@@ -23,8 +23,8 @@ public class MaintenanceAssistantController {
     @PostMapping("/chat")
     public ResponseEntity<String> chat(@RequestBody ChatRequest request) {
         String prompt = request.getPrompt();
-        
-        // Add context if equipmentId is provided
+
+
         if (request.getEquipmentId() != null) {
             List<MaintenanceDTO> history = maintenanceService.getByEquipement(request.getEquipmentId());
             String context = "Voici l'historique de maintenance pour l'équipement " + request.getEquipmentId() + ":\n";
@@ -45,7 +45,7 @@ public class MaintenanceAssistantController {
         prompt += history.stream()
                 .map(m -> "- Date: " + m.getDateProgramme() + ", Status: " + m.getStatus() + ", Description: " + m.getDescription())
                 .collect(Collectors.joining("\n"));
-        
+
         String response = geminiService.generateContent(prompt);
         return ResponseEntity.ok(response);
     }
@@ -53,14 +53,14 @@ public class MaintenanceAssistantController {
     @GetMapping("/prevent/{ticketId}")
     public ResponseEntity<String> getPreventionAdvice(@PathVariable String ticketId) {
         tn.enicarthage.plate_be.dtos.TicketResponseDTO ticket = ticketService.getTicketById(ticketId);
-        
+
         String prompt = "En te basant sur l'incident suivant :\n" +
                 "Titre: " + ticket.getTitre() + "\n" +
                 "Description: " + ticket.getDescription() + "\n" +
                 (ticket.getNomEquipement() != null ? "Équipement concerné: " + ticket.getNomEquipement() + "\n" : "") +
                 "Suggère des mesures concrètes de maintenance préventive pour éviter que ce type d'incident ne se reproduise à l'avenir. " +
                 "Réponds en français, avec un ton professionnel et structuré.";
-        
+
         String response = geminiService.generateContent(prompt);
         return ResponseEntity.ok(response);
     }

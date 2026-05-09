@@ -134,7 +134,7 @@ export class CreateTicketComponent implements OnInit {
   get f() { return this.ticketForm.controls; }
 
   get filteredEquipements(): Equipement[] {
-    // On retourne maintenant tous les équipements sans filtrage par salle
+
     return this.equipements;
   }
 
@@ -277,7 +277,7 @@ export class CreateTicketComponent implements OnInit {
       CRITIQUE: '⏱ Résolution sous 2h',
       HAUTE: '⏱ Résolution sous 8h',
       NORMALE: '⏱ Résolution sous 24h',
-      NORMAL: '⏱ Résolution sous 24h',   // keep both for safety
+      NORMAL: '⏱ Résolution sous 24h',
       FAIBLE: '⏱ Résolution sous 72h',
     };
     return map[priority] || '— Dépend de la priorité';

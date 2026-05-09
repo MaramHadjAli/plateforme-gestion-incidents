@@ -2,7 +2,7 @@
   display: block;
 }
 
-/* ── Page ──────────────────────────────────────────────── */
+
 .login-page {
   position: relative;
   min-height: 100vh;
@@ -20,11 +20,11 @@
 
 .login-page__orb { display: none; }
 
-/* ── Card ──────────────────────────────────────────────── */
+
 .login-card {
   position: relative;
   z-index: 1;
-  width: min(100%, 32rem); /* Slightly wider for registration fields */
+  width: min(100%, 32rem);
   border-radius: 1.8rem;
   padding: 2.5rem 2.25rem 2.25rem;
   background: rgba(255, 255, 255, 0.9);
@@ -33,7 +33,7 @@
   backdrop-filter: blur(16px);
 }
 
-/* ── Badge / Logo ──────────────────────────────────────── */
+
 .login-card__badge {
   width: 4.5rem;
   height: 4.5rem;
@@ -52,7 +52,7 @@
   object-fit: contain;
 }
 
-/* ── Heading ───────────────────────────────────────────── */
+
 .login-card__heading {
   text-align: center;
   margin-bottom: 1.25rem;
@@ -74,7 +74,7 @@
   color: #64748b;
 }
 
-/* ── Brand Row ─────────────────────────────────────────── */
+
 .login-card__brand-row {
   display: flex;
   align-items: center;
@@ -97,7 +97,7 @@
   flex: 0 0 auto;
 }
 
-/* ── Alert ─────────────────────────────────────────────── */
+
 .login-card__alert {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
@@ -109,7 +109,7 @@
   font-size: 0.92rem;
 }
 
-/* ── Form ──────────────────────────────────────────────── */
+
 .login-form {
   margin-top: 0.25rem;
 }
@@ -127,7 +127,7 @@
   color: #0f172a;
 }
 
-/* ── Input Control ─────────────────────────────────────── */
+
 .login-field__control {
   display: flex;
   align-items: center;
@@ -205,7 +205,7 @@
   font-size: 0.82rem;
 }
 
-/* ── Submit Button ─────────────────────────────────────── */
+
 .login-form__submit {
   width: 100%;
   margin-top: 1.35rem;
@@ -232,7 +232,7 @@
   cursor: not-allowed;
 }
 
-/* ── Footer Link ───────────────────────────────────────── */
+
 .login-card__link-row {
   margin: 1.5rem 0 0;
   text-align: center;
@@ -250,7 +250,7 @@
   text-decoration: underline;
 }
 
-/* ── Responsive ────────────────────────────────────────── */
+
 @media (max-width: 640px) {
   .login-card {
     padding: 2rem 1.35rem 1.75rem;

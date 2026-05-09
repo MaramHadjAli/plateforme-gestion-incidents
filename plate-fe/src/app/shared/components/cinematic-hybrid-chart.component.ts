@@ -139,7 +139,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChang
   lastTime: number = 0;
   audioContext: AudioContext | null = null;
 
-  // Physics parameters
+
   physics = {
     friction: 0.9,
     gravity: 0.05,
@@ -177,7 +177,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChang
   private initializeChart(): void {
     this.totalValue = this.segments.reduce((sum, s) => sum + s.value, 0);
 
-    // Appliquer les couleurs de glow
+
     this.segments = this.segments.map(segment => ({
       ...segment,
       glowColor: segment.glowColor || this.adjustBrightness(segment.color, 150)
@@ -186,10 +186,10 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChang
 
   private calculateSlices(): void {
     if (this.segments.length === 0) return;
-    
-    // Si totalValue est 0, on donne une valeur fictive égale à chaque segment pour l'affichage initial
+
+
     const effectiveTotal = this.totalValue || this.segments.length;
-    
+
     this.slices = [];
     let currentAngle = -Math.PI / 2;
     const centerX = 0;
@@ -246,7 +246,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChang
       const floatY = Math.sin(this.state.rotation * 0.5 + index) * this.physics.floatAmplitude;
       const floatX = Math.cos(this.state.rotation * 0.3 + index) * this.physics.floatAmplitude;
 
-      // Correction: Ne pas accumuler, mais assigner à partir de la base
+
       slice.x = slice.baseX + floatX * 0.5;
       slice.y = slice.baseY + floatY * 0.5;
 
@@ -290,7 +290,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChang
 
   private drawDonutChart(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     if (this.slices.length === 0) return;
-    
+
     const outerRadius = 130;
     const innerRadius = 65;
 
@@ -408,7 +408,7 @@ export class CinematicHybridChartComponent implements OnInit, OnDestroy, OnChang
 
     let angle = Math.atan2(y, x);
     if (angle < -Math.PI / 2) angle += 2 * Math.PI;
-    
+
     let currentAngle = -Math.PI / 2;
     for (const segment of this.segments) {
       const val = this.totalValue === 0 ? 1 : segment.value;

@@ -25,7 +25,7 @@
   border-color: rgba(255, 255, 255, 0.05);
 }
 
-/* --- Sidebar --- */
+
 .settings-sidebar {
   width: 280px;
   border-right: 1px solid rgba(0, 0, 0, 0.03);
@@ -81,7 +81,7 @@
   box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.4);
 }
 
-/* --- Content Area --- */
+
 .settings-content {
   flex: 1;
   padding: 3rem 4rem;
@@ -89,7 +89,7 @@
   max-height: 800px;
 }
 
-/* --- Quick View --- */
+
 .profile-quick-view {
   display: flex;
   align-items: center;
@@ -126,7 +126,7 @@
   color: white;
 }
 
-/* --- Sections --- */
+
 .settings-group {
   margin-bottom: 4rem;
 }
@@ -179,7 +179,7 @@
   max-width: 400px;
 }
 
-/* --- Session List --- */
+
 .session-item {
   display: flex;
   align-items: center;
@@ -222,7 +222,7 @@
   height: 20px;
 }
 
-/* --- Switches --- */
+
 .switch {
   position: relative;
   display: inline-block;
@@ -264,7 +264,7 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
-/* --- Forms --- */
+
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -282,7 +282,7 @@ input:checked + .slider:before {
   color: white;
 }
 
-/* --- Buttons --- */
+
 .btn-primary {
   background: #6366f1;
   color: white;

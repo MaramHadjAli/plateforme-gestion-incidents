@@ -16,27 +16,21 @@ public class UserController {
 
     private final UserService userService;
 
-    /**
-     * Récupérer les infos de l'utilisateur actuel
-     */
+
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDTO> getCurrentUser() {
         return ResponseEntity.ok(userService.getCurrentUserInfo());
     }
 
-    /**
-     * Mettre à jour le profil
-     */
+
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDTO> updateProfile(@RequestBody UpdateProfileDTO updateDTO) {
         return ResponseEntity.ok(userService.updateProfile(updateDTO));
     }
 
-    /**
-     * Changer le mot de passe
-     */
+
     @PostMapping("/change-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
@@ -44,18 +38,14 @@ public class UserController {
         return ResponseEntity.ok("Mot de passe changé avec succès");
     }
 
-    /**
-     * Récupérer les infos d'un utilisateur par email
-     */
+
     @GetMapping("/by-email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
-    /**
-     * Supprimer le compte utilisateur
-     */
+
     @DeleteMapping("/delete-account")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> deleteAccount() {

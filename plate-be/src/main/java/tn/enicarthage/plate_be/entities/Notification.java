@@ -18,7 +18,7 @@ public class Notification {
 	private Long idNotification;
 
 	@Column(length = 50)
-	private String type; // TICKET_ASSIGNED, STATUS_CHANGED, MAINTENANCE_REMINDER, BADGE_AWARDED, SLA_EXCEEDED
+	private String type;
 
 	@Lob
 	private String title;
@@ -27,7 +27,7 @@ public class Notification {
 	private String message;
 
 	@Column(length = 20)
-	private String severity; // INFO, WARNING, ERROR, CRITICAL
+	private String severity;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateEnvoi;

@@ -22,7 +22,7 @@ export class AppNotificationService {
   private apiUrl = `${environment.apiUrl}/notifications`;
   private unreadCountSubject = new BehaviorSubject<number>(0);
   public unreadCount$ = this.unreadCountSubject.asObservable();
-  
+
   private pollingSubscription?: Subscription;
 
   constructor(private http: HttpClient) {
@@ -56,7 +56,7 @@ export class AppNotificationService {
     );
   }
 
-  // Start polling for new notifications
+
   startPolling(intervalMs: number = 30000): void {
     this.stopPolling();
     this.pollingSubscription = interval(intervalMs).pipe(

@@ -11,12 +11,12 @@ import java.util.List;
 
 @Repository
 public interface MaintenancePreventiveRepository extends JpaRepository<MaintenancePreventive, Long> {
-    
+
     List<MaintenancePreventive> findByEquipement_IdEquipement(String idEquipement);
-    
+
     @Query("SELECT m FROM MaintenancePreventive m WHERE m.dateProgramme BETWEEN :start AND :end")
     List<MaintenancePreventive> findByDateRange(@Param("start") Date start, @Param("end") Date end);
-    
+
     @Query("SELECT m FROM MaintenancePreventive m WHERE m.dateProgramme < :now AND m.status = 'PLANIFIEE'")
     List<MaintenancePreventive> findOverdue(@Param("now") Date now);
 }
