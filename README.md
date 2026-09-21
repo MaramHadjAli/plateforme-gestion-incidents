@@ -336,3 +336,162 @@ La plateforme de gestion des incidents et maintenance a été conçue pour répo
 ```bash
 git clone https://github.com/MaramHadjAli/plateforme-gestion-incidents.git
 cd plateforme-gestion-incidents
+```
+
+2. Lancer le backend
+
+```bash
+cd plate-be
+./mvnw spring-boot:run
+```
+
+3. Lancer le frontend
+
+```bash
+cd plate-fe
+npm install
+npm start
+```
+
+---
+
+## Utilisation
+
+- Se connecter via le module d'authentification.
+- Créer et suivre des tickets d'incident selon le rôle utilisateur.
+- Gérer les salles/équipements et les maintenances depuis l'espace administrateur.
+- Consulter les tableaux de bord de suivi (admin et technicien).
+
+---
+
+## Structure du projet
+
+```text
+plateforme-gestion-incidents/
+├── plate-be/        # API Spring Boot (Java 17)
+├── plate-fe/        # Frontend Angular
+├── Postman/         # Captures et éléments de tests API manuels
+├── Diagrammes/      # Diagrammes d'analyse/conception
+└── OutilsCollaborative/ # Captures d'outils collaboratifs
+```
+
+---
+
+## Planning de développement
+
+- Analyse des besoins et modélisation métier.
+- Développement progressif backend puis frontend.
+- Intégration des modules de sécurité, tickets, maintenance et notifications.
+- Mise en place progressive des tests unitaires et d'intégration.
+
+---
+
+## Tests et assurance qualité
+
+### 1) Besoins fonctionnels (projet actuel)
+
+- Authentification/autorisation : inscription, connexion, reset password, rôles (admin/technicien/demandeur).
+- Gestion des tickets : création, consultation, assignation, changement de statut, clôture, intérêt technicien.
+- Gestion des ressources : CRUD salles, CRUD équipements, suivi de maintenance.
+- Feedback : évaluation post-résolution.
+- Notifications : lecture/non lu, préférences, diffusion.
+- Tableaux de bord : admin (stats globales) et technicien (score/classement).
+
+### 2) Besoins non fonctionnels
+
+- Sécurité : JWT, contrôle d'accès par rôle, validation/sanitization, gestion des erreurs.
+- Performance : API réactive pour consultations fréquentes (tickets, dashboard, notifications).
+- Fiabilité : traçabilité des actions (logs), gestion robuste des cas d'erreur.
+- Maintenabilité : architecture modulaire FE/BE, tests unitaires existants, DTO + services.
+- Compatibilité/UX : frontend Angular responsive, API REST documentable/testable.
+
+### 3) Outil de gestion des tests et des exigences : Jira + Xray
+
+#### Mise en place proposée
+
+1. Créer les exigences dans Jira (Epic/Story) pour chaque besoin fonctionnel et non fonctionnel.
+2. Créer les cas de test Xray et les lier aux exigences Jira.
+3. Organiser les campagnes avec :
+   - Test Plans (planification),
+   - Test Executions (exécution),
+   - Tests (cas unitaires, intégration, système, acceptation).
+4. Relier automatiquement les anomalies (bugs Jira) aux tests échoués.
+
+#### Traçabilité obtenue
+
+Exigence Jira → Cas de test Xray → Exécution (résultat) → Bug Jira.
+
+### 4) Plan de test (niveaux et types)
+
+#### Niveaux
+
+- Tests unitaires
+  - Backend : services/converters (JUnit + Mockito).
+  - Frontend : components/services/guards/interceptors (Jasmine/Karma).
+- Tests d'intégration
+  - API REST + couche service/répository (SpringBootTest, base de test).
+  - Flux FE↔BE sur auth/tickets/équipements.
+- Tests système
+  - Parcours complet : login → création ticket → assignation → résolution → feedback.
+- Tests d'acceptation
+  - Scénarios métier validés avec admin, technicien, demandeur (UAT).
+
+#### Types
+
+- Fonctionnels : règles métier et workflow des tickets.
+- Non fonctionnels : sécurité (RBAC/JWT), performance basique, robustesse des erreurs.
+- Structurels : couverture branches/conditions sur services critiques.
+- Liés aux changements (régression) : re-jeu de la suite après évolution.
+- Maintenance : campagnes de non-régression périodiques.
+
+### 5) Exécution du plan de test
+
+#### Techniques de test appliquées
+
+- Statiques (manuel) :
+  - Revue des exigences et mapping exigences↔tests.
+  - Revue ciblée des points sensibles (authentification, rôles, cycle de vie ticket).
+- Dynamiques :
+  - Automatisés : `mvn test` (backend), `npm test` (frontend).
+  - Manuels : campagnes API/Postman et scénarios exploratoires UI.
+
+#### Campagne manuelle existante (API)
+
+Le dossier `Postman/` contient des scénarios déjà vérifiés visuellement :
+- authentification (`TestLogin.png`, `login_admin.png`),
+- contrôle d'accès (`acess_denied_role_based.png`),
+- gestion équipements/salles (`GetEquipements.png`, `addEquipement.png`, `test_salle_non_trouvé.png`).
+
+#### Résultats de la campagne exécutée
+
+- Backend (dynamique automatisé)  
+  Commande : `cd plate-be && mvn test`  
+  Résultat : **succès** (`Tests run: 4, Failures: 0, Errors: 0, Skipped: 0`).
+
+- Frontend (dynamique automatisé)  
+  Commande : `cd plate-fe && npm test -- --watch=false --browsers=ChromeHeadless`  
+  Résultat : **échec partiel** (`TOTAL: 7 FAILED, 53 SUCCESS`).
+
+- Anomalies identifiées sur les tests frontend
+  - Providers manquants dans plusieurs tests unitaires : `HttpClient` et `ActivatedRoute` (NullInjectorError).
+  - Dépendances HTTP non mockées sur certains composants/services (requêtes vers `http://localhost:8080/...` pendant les tests).
+
+#### Livrables d'exécution produits
+
+- Taux de passage automatisé :
+  - Backend : 100% (4/4).
+  - Frontend : 88,33% (53/60).
+- Liste initiale des anomalies : 7 cas en échec à corriger côté configuration/mocking des tests frontend.
+- Base de matrice de couverture exigences ↔ tests : sections exigences + plan de tests + campagne Postman documentées dans ce README.
+
+---
+
+## Contributeurs
+
+- Équipe projet ENICarthage.
+
+---
+
+## Licence
+
+Ce projet est destiné à un cadre pédagogique/académique.
